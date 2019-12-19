@@ -87,14 +87,6 @@ layout: table_wrappers
             </ul>
           {% endif %}
 
-          {% if site.footer_content != nil %}
-            <hr>
-            <footer role="contentinfo">
-              <p class="text-small text-grey-dk-000 mb-0">{{ site.footer_content }}</p>
-            </footer>
-          {% endif %}
-
-          <hr>
           <h2>Comments</h2>
           <div id="disqus_thread"></div>
           <script>
@@ -106,6 +98,13 @@ layout: table_wrappers
               })();
           </script>
           <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>            
+
+          {% if site.footer_content != nil %}
+            <hr>
+            <footer role="contentinfo">
+              <p class="text-small text-grey-dk-000 mb-0">{{ site.footer_content }}</p>
+            </footer>
+          {% endif %}
 
         </div>
       </div>
