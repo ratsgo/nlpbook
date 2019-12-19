@@ -35,7 +35,7 @@ heading_anchors: true
 
 # Aux links for the upper right navigation
 aux_links:
-  "Just the Docs on GitHub":
+  "ratsgo's NLPBOOK on GitHub":
     - "//github.com/ratsgo/nlpbook"
 
 # Footer content appears at the bottom of every page's main content
