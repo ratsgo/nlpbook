@@ -19,7 +19,7 @@ baseurl: "/nlpbook" # the subpath of your site, e.g. /blog
 url: "https://ratsgo.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 
 permalink: pretty
-exclude: ["node_modules/", "*.gemspec", "*.gem", "Gemfile", "Gemfile.lock", "package.json", "package-lock.json",  "script/", "LICENSE.txt", "lib/", "bin/", "README.md", "Rakefile"]
+exclude: ["docs_ref/", "node_modules/", "*.gemspec", "*.gem", "Gemfile", "Gemfile.lock", "package.json", "package-lock.json",  "script/", "LICENSE.txt", "lib/", "bin/", "README.md", "Rakefile"]
 
 # Set a path/url to a logo that will be displayed instead of the title
 # logo: "/assets/images/ratsgo-nlpbook.png"
@@ -35,8 +35,6 @@ heading_anchors: true
 
 # Aux links for the upper right navigation
 aux_links:
-  "ratsgo's NLPBOOK on GitHub":
-    - "//github.com/ratsgo/nlpbook"
 
 # Footer content appears at the bottom of every page's main content
 footer_content: "Copyright &copy; 2019-2020 <a href=\"https://ratsgo.github.io/about\">Gichang LEE</a>. Distributed by an <a href=\"https://github.com/ratsgo/nlpbook/blob/master/LICENSE\">MIT license.</a>"
@@ -44,12 +42,9 @@ footer_content: "Copyright &copy; 2019-2020 <a href=\"https://ratsgo.github.io/a
 # Color scheme currently only supports "dark" or nil (default)
 color_scheme: nil
 
-# disqus
-disqus_short_name: 'ratsgos-nlpbook' # leave blank if you don't want disqus
-
 # Google Analytics Tracking (optional)
 # e.g, UA-1234567-89
-ga_tracking: UA-2709176-10
+ga_tracking: UA-93172815-5
 
 plugins:
   - jekyll-seo-tag

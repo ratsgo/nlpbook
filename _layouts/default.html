@@ -26,7 +26,7 @@ layout: table_wrappers
         {% include nav.html %}
       </div>
       <footer class="site-footer">
-        <p class="text-small text-grey-dk-000 mb-4" style="display: block;">이 사이트는 실무에서 사용할 수 있는 자연어 처리 팁들을 공유하기 위해 만들어졌습니다. 위의 목차는 저술을 목표로 하는 주제들입니다. 시간이 되는대로 채워가도록 하겠습니다. 자연어 처리 관련 이론을 공부하고 싶으시다면 <a href="https://ratsgo.github.io">ratsgo.github.io</a>를 방문해 보세요.</p>
+        <p class="text-small text-grey-dk-000 mb-4" style="display: block;">이 사이트는 실무에서 사용할 수 있는 자연어 처리 팁들을 공유하기 위해 만들어졌습니다. 위의 목차는 저술을 목표로 하는 주제들입니다. 시간이 되는대로 채워가도록 하겠습니다. 본 페이지 컨트리뷰션도 언제든 환영합니다. <a href="https://github.com/ratsgo/nlpbook/issues">이슈</a> 남겨 주세요.</p>
       </footer>
     </div>
     <div class="main-content-wrap js-main-content" tabindex="0">
@@ -87,7 +87,6 @@ layout: table_wrappers
             </ul>
           {% endif %}
 
-          {% if site.disqus_short_name %}
           <div id="disqus_thread"></div>
           <script>
               (function() { // DON'T EDIT BELOW THIS LINE
@@ -98,7 +97,6 @@ layout: table_wrappers
               })();
           </script>
           <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>            
-          {% endif %}
 
           {% if site.footer_content != nil %}
             <hr>
