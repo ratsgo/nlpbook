@@ -8,7 +8,6 @@
 
 - https://ratsgo.github.io/nlpbook
 
-<br>
 
 ## 기여
 
