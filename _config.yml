@@ -37,7 +37,7 @@ heading_anchors: true
 aux_links:
 
 # Footer content appears at the bottom of every page's main content
-footer_content: "Copyright &copy; 2020 <a href=\"https://ratsgo.github.io/about\">Gichang LEE</a>. Distributed by an <a href=\"https://github.com/ratsgo/nlpbook/blob/master/LICENSE\">MIT license.</a>"
+footer_content: "이 사이트는 실무에서 사용할 수 있는 자연어 처리 팁들을 공유하기 위해 만들어졌습니다. 목차는 저술을 목표로 하는 주제들입니다. 시간이 되는대로 채워가도록 하겠습니다. 본 페이지 컨트리뷰션도 언제든 환영합니다. <a href=\"https://github.com/ratsgo/nlpbook/issues\">이슈</a> 남겨 주세요. Copyright &copy; 2019-2020 Gichang LEE. Distributed by an <a href=\"https://github.com/ratsgo/nlpbook/tree/master/LICENSE.txt\">MIT license.</a>"
 
 # Color scheme currently only supports "dark" or nil (default)
 color_scheme: nil
