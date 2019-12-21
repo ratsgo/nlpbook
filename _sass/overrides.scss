@@ -2,8 +2,8 @@
 // Custom overrides from a user.
 //
 
-@media (min-width: 31.25rem) {
-	.site-title {
-	    font-size: 22px !important;
+@media (min-width: 31.25rem) and (min-width: 50rem) {
+	.navigation-list-item {
+    	font-size: 17px !important;
 	}
 }
