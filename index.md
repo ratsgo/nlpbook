@@ -23,7 +23,11 @@ permalink: /
 
 ## 라이센스
 
-[MIT license](https://github.com/ratsgo/nlpbook/blob/master/LICENSE)를 따릅니다. **무단전재 및 재배포를 적극 권장합니다.** 상업적 활용 역시 가능합니다. 
+[CC BY-NC-SA 3.0 license](https://github.com/ratsgo/nlpbook/blob/master/LICENSE)를 따릅니다. 다음 사항을 지키면 본 사이트에 있는 저작물들을 별도 허락 없이 자유롭게 사용할 수 있습니다.
+
+- **저작권정보 표시** : 저작물 이용시 본 블로그 주소와 저작자를 표시해야 합니다
+- **비영리** : 이 저작물은 영리 목적으로 이용할 수 없습니다.
+- **동일조건 변경 허락** : 이 저작물을 변경(2차 저작물 작성 포함) 가능하나 자신이 만든 저작물에 본 저작물과 같은 이용조건(`CC BY-NC-SA 3.0`)을 적용해야 합니다.
 
 
 
