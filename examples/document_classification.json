@@ -1,0 +1,9 @@
+{
+	"pretrained_model_name": "kobert",
+	"pretrained_model_cache_dir": "/Users/david/works/cache/kobert",
+	"corpus_name": "nsmc",
+	"corpus_dir": "/Users/david/works/cache/nsmc",
+	"task_name": "document-classification",
+	"output_dir": "/Users/david/works/cache/checkpoint",
+	"do_train": true
+}
