@@ -1,11 +1,13 @@
 ---
 layout: default
-title: document classification
-nav_order: 4
+title: Document Classification
+nav_order: 5
 has_children: true
+has_toc: true
 permalink: /docs/classification
 ---
 
-# 문서 분류
+# 문서에 꼬리표 달기
+{: .no_toc }
 
-각종 문서 분류 기법에 대해 알아봅니다.
+NSMC 데이터셋을 가지고 문서를 분류하는 방법을 살펴봅니다.
