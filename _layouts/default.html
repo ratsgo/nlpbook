@@ -87,17 +87,13 @@ layout: table_wrappers
             </ul>
           {% endif %}
 
-          <h2>토론하기</h2>
-          <div id="disqus_thread"></div>
-          <script>
-              (function() {
-              var d = document, s = d.createElement('script');
-              s.src = 'https://ratsgos-nlpbook.disqus.com/embed.js';
-              s.setAttribute('data-timestamp', +new Date());
-              (d.head || d.body).appendChild(s);
-              })();
-          </script>
-          <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>            
+          <script src="https://utteranc.es/client.js"
+                  repo="ratsgo/nlpbook"
+                  issue-term="title"
+                  theme="github-light"
+                  crossorigin="anonymous"
+                  async>
+          </script>              
 
           {% if site.footer_content != nil %}
             <hr>
