@@ -8,16 +8,10 @@ if __name__ == "__main__":
     args = load_arguments(Arguments, json_file_path="examples/document_classification.json")
     # args = load_arguments(Arguments)
     set_logger(args)
-    download_downstream_dataset(
-        args.downstream_corpus_name,
-        cache_dir=args.downstream_corpus_dir,
-        force_download=False
-    )
-    download_pretrained_model(
-        args.pretrained_model_name,
-        cache_dir=args.pretrained_model_cache_dir,
-        force_download=False
-    )
+    # 이미 데이터가 준비되어 있다면 생략 가능
+    download_downstream_dataset(args)
+    # 이미 모델이 준비되어 있다면 생략 가능
+    download_pretrained_model(args)
     check_exist_checkpoints(args)
     seed_setting(args)
     # huggingface PretrainedTokenizer이기만 하면 됨
