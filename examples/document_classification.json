@@ -1,6 +1,6 @@
 {
-	"pretrained_model_name": "kobert",
-	"pretrained_model_cache_dir": "/Users/david/works/cache/kobert",
+	"pretrained_model_name": "kcbert-base",
+	"pretrained_model_cache_dir": "/Users/david/works/cache/kcbert-base",
 	"downstream_corpus_name": "nsmc",
 	"downstream_corpus_dir": "/Users/david/works/cache/nsmc",
 	"downstream_task_name": "document-classification",
