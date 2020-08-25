@@ -1,6 +1,7 @@
 from ratsnlp import nlpbook
-from ratsnlp.nlpbook.classification import NsmcCorpus, Runner
+from ratsnlp.nlpbook.classification import NsmcCorpus, ClassificationDataset, Runner
 from transformers import AutoConfig, AutoTokenizer, AutoModelForSequenceClassification
+from torch.utils.data import DataLoader, SequentialSampler, RandomSampler
 
 
 if __name__ == "__main__":
@@ -12,11 +13,12 @@ if __name__ == "__main__":
     # colab에서 args 읽어들이기
     args = nlpbook.TrainArguments(
         pretrained_model_name="kcbert-base",
-        pretrained_model_cache_dir="/mnt/sdb1/david/ratsnlp/content/kcbert-base",
+        pretrained_model_cache_dir="/Users/david/works/cache/kcbert-base",
         downstream_corpus_name="nsmc",
-        downstream_corpus_dir="/mnt/sdb1/david/ratsnlp/content/nsmc",
+        downstream_corpus_dir="/Users/david/works/cache/nsmc",
+        data_cache_dir="/Users/david/works/cache/nsmc",
         downstream_task_name="document-classification",
-        downstream_model_dir="/mnt/sdb1/david/ratsnlp/content/checkpoint",
+        downstream_model_dir="/Users/david/works/cache/checkpoint",
         do_train=True,
         do_eval=True,
         do_predict=False,
@@ -24,7 +26,7 @@ if __name__ == "__main__":
     )
     # json 파일로부터 args 읽어들이기
     # args = load_arguments(Arguments, json_file_path="examples/document_classification.json")
-    # python train_doc_classifier.py --pretrained_model_name kcbert-base .. 이렇게 읽어들이기
+    # python train.py --pretrained_model_name kcbert-base .. 이렇게 읽어들이기
     # args = load_arguments(Arguments)
     nlpbook.set_logger(args)
     # 이미 데이터가 준비되어 있다면 생략 가능
@@ -40,14 +42,51 @@ if __name__ == "__main__":
         do_lower_case=False,
     )
     # 데이터, 트레이너 커스터마이즈는 고급 지식으로 적어두자
-    # from ratsnlp.nlpbook.dataset import Corpus
-    # 위의 클래스를 상속받아 커스텀하게 사용 가능
+    # 코퍼스 커스텀하게 변경 가능
     corpus = NsmcCorpus()
-    # text > input_ids, attention_mask, token_type_ids 형태 말고 추가, 삭제, 변경하려면...
-    # Dataset 정의 : 핵심은 init에 전체 데이터셋을 ids로 변환해 불러오고, getitem으로 인스턴스 하나씩만 넘겨주면 됨
-    # Dataset, collate_fn만 사용자 정의하면 됨
-    # 이제 나머지는 datasampler 등과 엮어서 DataLoader로 묶어주기
-    train_dataloader, val_dataloader, test_dataloader = nlpbook.get_dataloaders(args, tokenizer, corpus)
+    # text > input_ids, attention_mask, token_type_ids 형태 말고 추가, 삭제, 변경하려면 convert_fn을 별도로 짜서 넘기기
+    train_dataset = ClassificationDataset(
+        args=args,
+        corpus=corpus,
+        tokenizer=tokenizer,
+        mode="train",
+    )
+    train_dataloader = DataLoader(
+        train_dataset,
+        batch_size=args.batch_size,
+        sampler=RandomSampler(train_dataset, replacement=False),
+        collate_fn=nlpbook.data_collator,
+        drop_last=False,
+        num_workers=args.cpu_workers,
+    )
+    val_dataset = ClassificationDataset(
+        args=args,
+        corpus=corpus,
+        tokenizer=tokenizer,
+        mode="val",
+    )
+    val_dataloader = DataLoader(
+        val_dataset,
+        batch_size=args.batch_size,
+        sampler=SequentialSampler(val_dataset),
+        collate_fn=nlpbook.data_collator,
+        drop_last=False,
+        num_workers=args.cpu_workers,
+    )
+    test_dataset = ClassificationDataset(
+        args=args,
+        corpus=corpus,
+        tokenizer=tokenizer,
+        mode="test",
+    )
+    test_dataloader = DataLoader(
+        test_dataset,
+        batch_size=args.batch_size,
+        sampler=SequentialSampler(test_dataset),
+        collate_fn=nlpbook.data_collator,
+        drop_last=False,
+        num_workers=args.cpu_workers,
+    )
     # huggingface PretrainedModel이기만 하면 됨, 원하는 모델로 교체해 사용 가능
     # 트랜스포머 말고 CNN 같은 모델 사용하려면 torch.nn.module로 만들기, 단 체크포인트가 사전에 읽혀져야 한다(torch.load)
     pretrained_model_config = AutoConfig.from_pretrained(
