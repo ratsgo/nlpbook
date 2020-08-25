@@ -1,6 +1,6 @@
 from ratsnlp import nlpbook
-from ratsnlp.nlpbook.ner import NERCorpus, NERDataset, Runner
-from transformers import AutoConfig, AutoTokenizer, AutoModelForSequenceClassification
+from ratsnlp.nlpbook.ner import NERCorpus, NERDataset, NERTask
+from transformers import AutoConfig, AutoTokenizer, AutoModelForTokenClassification
 from torch.utils.data import DataLoader, SequentialSampler, RandomSampler
 
 
@@ -93,23 +93,23 @@ if __name__ == "__main__":
         args.pretrained_model_cache_dir,
         num_labels=corpus.num_labels,
     )
-    model = AutoModelForSequenceClassification.from_pretrained(
+    model = AutoModelForTokenClassification.from_pretrained(
             args.pretrained_model_cache_dir,
             config=pretrained_model_config,
     )
     # 파이토치 라이트닝 모듈 상속받아 커스텀하게 사용 가능
     # 책 본문에는 풀 텍스트로 설명하자
-    runner = Runner(model, args)
+    task = NERTask(model, args)
     checkpoint_callback, trainer = nlpbook.get_trainer(args)
     if args.do_train:
         trainer.fit(
-            runner,
+            task,
             train_dataloader=train_dataloader,
             val_dataloaders=val_dataloader,
         )
     if args.do_predict:
         trainer.test(
-            runner,
+            task,
             test_dataloaders=test_dataloader,
             ckpt_path=checkpoint_callback.best_model_path,
         )

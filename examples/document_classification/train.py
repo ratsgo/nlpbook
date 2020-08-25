@@ -1,5 +1,5 @@
 from ratsnlp import nlpbook
-from ratsnlp.nlpbook.classification import NsmcCorpus, ClassificationDataset, Runner
+from ratsnlp.nlpbook.classification import NsmcCorpus, ClassificationDataset, ClassificationTask
 from transformers import AutoConfig, AutoTokenizer, AutoModelForSequenceClassification
 from torch.utils.data import DataLoader, SequentialSampler, RandomSampler
 
@@ -21,7 +21,6 @@ if __name__ == "__main__":
         downstream_model_dir="/Users/david/works/cache/checkpoint",
         do_train=True,
         do_eval=True,
-        do_predict=False,
         batch_size=32,
     )
     # json 파일로부터 args 읽어들이기
@@ -59,34 +58,24 @@ if __name__ == "__main__":
         drop_last=False,
         num_workers=args.cpu_workers,
     )
-    val_dataset = ClassificationDataset(
-        args=args,
-        corpus=corpus,
-        tokenizer=tokenizer,
-        mode="val",
-    )
-    val_dataloader = DataLoader(
-        val_dataset,
-        batch_size=args.batch_size,
-        sampler=SequentialSampler(val_dataset),
-        collate_fn=nlpbook.data_collator,
-        drop_last=False,
-        num_workers=args.cpu_workers,
-    )
-    test_dataset = ClassificationDataset(
-        args=args,
-        corpus=corpus,
-        tokenizer=tokenizer,
-        mode="test",
-    )
-    test_dataloader = DataLoader(
-        test_dataset,
-        batch_size=args.batch_size,
-        sampler=SequentialSampler(test_dataset),
-        collate_fn=nlpbook.data_collator,
-        drop_last=False,
-        num_workers=args.cpu_workers,
-    )
+    # 여기는 초반 장이므로 val 개념만 설명하고 test 데이터셋은 나중에 설명
+    if args.do_eval:
+        val_dataset = ClassificationDataset(
+            args=args,
+            corpus=corpus,
+            tokenizer=tokenizer,
+            mode="val",
+        )
+        val_dataloader = DataLoader(
+            val_dataset,
+            batch_size=args.batch_size,
+            sampler=SequentialSampler(val_dataset),
+            collate_fn=nlpbook.data_collator,
+            drop_last=False,
+            num_workers=args.cpu_workers,
+        )
+    else:
+        val_dataloader = None
     # huggingface PretrainedModel이기만 하면 됨, 원하는 모델로 교체해 사용 가능
     # 트랜스포머 말고 CNN 같은 모델 사용하려면 torch.nn.module로 만들기, 단 체크포인트가 사전에 읽혀져야 한다(torch.load)
     pretrained_model_config = AutoConfig.from_pretrained(
@@ -99,17 +88,12 @@ if __name__ == "__main__":
     )
     # 파이토치 라이트닝 모듈 상속받아 커스텀하게 사용 가능
     # 책 본문에는 풀 텍스트로 설명하자
-    runner = Runner(model, args)
-    checkpoint_callback, trainer = nlpbook.get_trainer(args)
+    task = ClassificationTask(model, args)
+    # 여기는 초반 장이므로 checkpoint_callback은 존재만 간단히 언급하고 trainer만 설명
+    _, trainer = nlpbook.get_trainer(args)
     if args.do_train:
         trainer.fit(
-            runner,
+            task,
             train_dataloader=train_dataloader,
             val_dataloaders=val_dataloader,
-        )
-    if args.do_predict:
-        trainer.test(
-            runner,
-            test_dataloaders=test_dataloader,
-            ckpt_path=checkpoint_callback.best_model_path,
         )
