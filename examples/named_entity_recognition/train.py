@@ -1,6 +1,6 @@
 from ratsnlp import nlpbook
-from ratsnlp.nlpbook.ner import NERCorpus, NERDataset, NERTask
-from transformers import AutoConfig, AutoTokenizer, AutoModelForTokenClassification
+from transformers import BertConfig, BertTokenizer
+from ratsnlp.nlpbook.ner import NERCorpus, NERDataset, NERModel, NERTask
 from torch.utils.data import DataLoader, SequentialSampler, RandomSampler
 
 
@@ -23,6 +23,8 @@ if __name__ == "__main__":
         do_eval=True,
         do_predict=True,
         batch_size=32,
+        epochs=10,
+        learning_rate=1e-6,
     )
     # json 파일로부터 args 읽어들이기
     # args = load_arguments(Arguments, json_file_path="examples/document_classification.json")
@@ -37,7 +39,7 @@ if __name__ == "__main__":
     nlpbook.seed_setting(args)
     # huggingface PretrainedTokenizer이기만 하면 됨
     # 원하는 토크나이저로 교체해 사용 가능 (vocab 교체만 설명하자)
-    tokenizer = AutoTokenizer.from_pretrained(
+    tokenizer = BertTokenizer.from_pretrained(
         args.pretrained_model_cache_dir,
         do_lower_case=False,
     )
@@ -89,11 +91,11 @@ if __name__ == "__main__":
     )
     # huggingface PretrainedModel이기만 하면 됨, 원하는 모델로 교체해 사용 가능
     # 트랜스포머 말고 CNN 같은 모델 사용하려면 torch.nn.module로 만들기, 단 체크포인트가 사전에 읽혀져야 한다(torch.load)
-    pretrained_model_config = AutoConfig.from_pretrained(
+    pretrained_model_config = BertConfig.from_pretrained(
         args.pretrained_model_cache_dir,
         num_labels=corpus.num_labels,
     )
-    model = AutoModelForTokenClassification.from_pretrained(
+    model = NERModel.from_pretrained(
             args.pretrained_model_cache_dir,
             config=pretrained_model_config,
     )
