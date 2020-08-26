@@ -1,6 +1,6 @@
 from ratsnlp import nlpbook
 from ratsnlp.nlpbook.classification import NsmcCorpus, ClassificationDataset, ClassificationTask
-from transformers import AutoConfig, AutoTokenizer, AutoModelForSequenceClassification
+from transformers import BertConfig, BertTokenizer, BertForSequenceClassification
 from torch.utils.data import DataLoader, SequentialSampler, RandomSampler
 
 
@@ -18,7 +18,7 @@ if __name__ == "__main__":
         downstream_corpus_dir="/Users/david/works/cache/nsmc",
         data_cache_dir="/Users/david/works/cache/nsmc",
         downstream_task_name="document-classification",
-        downstream_model_dir="/Users/david/works/cache/checkpoint",
+        downstream_model_dir="/Users/david/works/cache/checkpoint-cls",
         do_train=True,
         do_eval=True,
         batch_size=32,
@@ -36,7 +36,7 @@ if __name__ == "__main__":
     nlpbook.seed_setting(args)
     # huggingface PretrainedTokenizer이기만 하면 됨
     # 원하는 토크나이저로 교체해 사용 가능 (vocab 교체만 설명하자)
-    tokenizer = AutoTokenizer.from_pretrained(
+    tokenizer = BertTokenizer.from_pretrained(
         args.pretrained_model_cache_dir,
         do_lower_case=False,
     )
@@ -78,11 +78,11 @@ if __name__ == "__main__":
         val_dataloader = None
     # huggingface PretrainedModel이기만 하면 됨, 원하는 모델로 교체해 사용 가능
     # 트랜스포머 말고 CNN 같은 모델 사용하려면 torch.nn.module로 만들기, 단 체크포인트가 사전에 읽혀져야 한다(torch.load)
-    pretrained_model_config = AutoConfig.from_pretrained(
+    pretrained_model_config = BertConfig.from_pretrained(
         args.pretrained_model_cache_dir,
         num_labels=corpus.num_labels,
     )
-    model = AutoModelForSequenceClassification.from_pretrained(
+    model = BertForSequenceClassification.from_pretrained(
             args.pretrained_model_cache_dir,
             config=pretrained_model_config,
     )

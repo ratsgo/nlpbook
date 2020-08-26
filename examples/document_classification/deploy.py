@@ -1,7 +1,7 @@
 import torch
 from ratsnlp import nlpbook
 from ratsnlp.nlpbook.classification import get_web_service_app
-from transformers import AutoConfig, AutoTokenizer, AutoModelForSequenceClassification
+from transformers import BertConfig, BertTokenizer, BertForSequenceClassification
 
 
 if __name__ == "__main__":
@@ -18,15 +18,15 @@ if __name__ == "__main__":
         map_location=torch.device("cpu")
     )
     # 계산 그래프를 학습 때처럼 그려놓고,
-    pretrained_model_config = AutoConfig.from_pretrained(
+    pretrained_model_config = BertConfig.from_pretrained(
         args.pretrained_model_cache_dir,
         num_labels=fine_tuned_model_ckpt['state_dict']['model.classifier.bias'].shape.numel(),
     )
-    model = AutoModelForSequenceClassification.from_config(pretrained_model_config)
+    model = BertForSequenceClassification(pretrained_model_config)
     # 학습된 모델의 체크포인트를 해당 그래프에 부어넣는다
     model.load_state_dict({k.replace("model.", ""): v for k, v in fine_tuned_model_ckpt['state_dict'].items()})
     model.eval()
-    tokenizer = AutoTokenizer.from_pretrained(
+    tokenizer = BertTokenizer.from_pretrained(
         args.pretrained_model_cache_dir,
         do_lower_case=False,
     )

@@ -1,6 +1,6 @@
 from ratsnlp import nlpbook
 from transformers import BertConfig, BertTokenizer
-from ratsnlp.nlpbook.ner import NERCorpus, NERDataset, NERModel, NERTask
+from ratsnlp.nlpbook.ner import NERCorpus, NERDataset, ModelForNER, NERTask
 from torch.utils.data import DataLoader, SequentialSampler, RandomSampler
 
 
@@ -18,13 +18,13 @@ if __name__ == "__main__":
         downstream_corpus_dir="/Users/david/works/cache/ner",
         data_cache_dir="/Users/david/works/cache/ner",
         downstream_task_name="named-entity-recognition",
-        downstream_model_dir="/Users/david/works/cache/checkpoint",
+        downstream_model_dir="/Users/david/works/cache/checkpoint-ner",
         do_train=True,
         do_eval=True,
         do_predict=True,
         batch_size=32,
         epochs=10,
-        learning_rate=1e-6,
+        learning_rate=5e-5,
     )
     # json 파일로부터 args 읽어들이기
     # args = load_arguments(Arguments, json_file_path="examples/document_classification.json")
@@ -95,7 +95,7 @@ if __name__ == "__main__":
         args.pretrained_model_cache_dir,
         num_labels=corpus.num_labels,
     )
-    model = NERModel.from_pretrained(
+    model = ModelForNER.from_pretrained(
             args.pretrained_model_cache_dir,
             config=pretrained_model_config,
     )
