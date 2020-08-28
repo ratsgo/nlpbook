@@ -1,14 +1,14 @@
 ---
 layout: default
-title: Deep Learning
+title: Environment
 parent: Introduction
-nav_order: 2
+nav_order: 5
 ---
 
-# 딥러닝 자연어 처리 모델 만들기
+# 개발환경 설정
 {: .no_toc }
 
-딥러닝(Deep Learning) 기반 자연어 처리 모델의 주요 특징을 살펴봅니다.
+구글 코랩(colab) 등 개발환경 설정 방법을 살펴보겠습니다.
 {: .fs-4 .ls-1 .code-example }
 
 ## Table of contents
@@ -16,6 +16,7 @@ nav_order: 2
 
 1. TOC
 {:toc}
+
 
 ---
 

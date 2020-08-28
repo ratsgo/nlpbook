@@ -1,14 +1,14 @@
 ---
 layout: default
-title: Environment Setting
-parent: Introduction
+title: GPT
+parent: Language Model
 nav_order: 3
 ---
 
-# 개발환경 설정
+# Generative Pre-trained Transformer
 {: .no_toc }
 
-구글 코랩(colab) 등 개발환경 설정 방법을 살펴보겠습니다.
+이 글에서는 트랜스포머 아키텍처를 기본 뼈대로 하는 GPT 모델을 살펴봅니다.
 {: .fs-4 .ls-1 .code-example }
 
 ## Table of contents
@@ -16,7 +16,6 @@ nav_order: 3
 
 1. TOC
 {:toc}
-
 
 ---
 

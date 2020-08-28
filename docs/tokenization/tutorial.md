@@ -1,14 +1,14 @@
 ---
 layout: default
 title: Huggingface Tutorial
-parent: Tokenization
-nav_order: 2
+parent: Vocab & Tokenization
+nav_order: 4
 ---
 
 # BPE 튜토리얼
 {: .no_toc }
 
-Huggingface 라이브러리를 활용해 BPE 토큰화 과정을 실습합니다.
+Huggingface 라이브러리를 활용해 이 장의 이론 파트 모든 과정을 실습합니다.
 {: .fs-4 .ls-1 .code-example }
 
 ## Table of contents

@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Vector Semantics
-parent: Embedding
+parent: Language Model
 nav_order: 1
 ---
 
