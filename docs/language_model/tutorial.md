@@ -2,7 +2,7 @@
 layout: default
 title: Extraction Tutorial
 parent: Language Model
-nav_order: 5
+nav_order: 4
 ---
 
 # 임베딩 추출 튜토리얼
