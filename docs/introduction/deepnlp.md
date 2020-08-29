@@ -22,3 +22,23 @@ nav_order: 1
 ## 집필 예정
 
 집필 예정입니다
+
+
+## **그림1** 트랜스포머 전체 구조
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/YUyysLA.jpg" width="500px" title="source: imgur.com" />
+
+## **그림1** 트랜스포머 전체 구조
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/nTBwj6u.jpg" width="500px" title="source: imgur.com" />
+
+## **그림1** 트랜스포머 전체 구조
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/e87KFzd.jpg" width="500px" title="source: imgur.com" />
+
+## **그림1** 트랜스포머 전체 구조
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/5Dzq7Qz.jpg" width="500px" title="source: imgur.com" />
+
+
+---
