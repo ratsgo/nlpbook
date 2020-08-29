@@ -2,7 +2,7 @@
 layout: default
 title: Pipeline
 parent: Introduction
-nav_order: 4
+nav_order: 3
 ---
 
 # 파이프라인 소개

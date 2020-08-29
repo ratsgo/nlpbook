@@ -2,7 +2,7 @@
 layout: default
 title: Environment
 parent: Introduction
-nav_order: 5
+nav_order: 4
 ---
 
 # 개발환경 설정

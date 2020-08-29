@@ -3,6 +3,7 @@ from ratsnlp.nlpbook.classification import NsmcCorpus, ClassificationDataset, Cl
 from transformers import BertConfig, BertTokenizer, BertForSequenceClassification
 from torch.utils.data import DataLoader, SequentialSampler, RandomSampler
 
+from transformers import GPT2Tokenizer
 
 if __name__ == "__main__":
     # 파이썬 3.7 이상 (정확히는 python 3.7.3)
