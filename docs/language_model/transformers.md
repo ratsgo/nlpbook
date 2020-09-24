@@ -4,6 +4,7 @@ title: Transformers
 parent: Language Model
 nav_order: 2
 has_children: true
+has_toc: false
 ---
 
 # 트랜스포머(Transformer)
@@ -54,10 +55,7 @@ i went to the cafe there were many people there > i, went, to, the, cafe, there,
 
 ## **그림4** 인코더, 디코더
 {: .no_toc .text-delta }
-```
-인코더               ----------------------->  디코더
-(소스 시퀀스 정보 압축)     (소스 시퀀스 정보)        (대상 시퀀스 생성)
-```
+<img src="https://i.imgur.com/l0RJkOv.png" width="300px" title="source: imgur.com" />
 
 여기에서 디코더 입력을 좀 더 자세히 살펴볼 필요가 있습니다. 그림5를 봅시다. 디코더는 디코딩을 수행할 때 우선 인코더가 보내준 소스 시퀀스 정보를 활용합니다. **여기에 직전 디코딩 결과도 씁니다.** 그림5 예시에서 디코더가 대상 언어의 세번째 자리를 예측해야 할 때 `어제, 카페, 갔었어, 거기, 사람, 많더라`라는 소스 언어의 인코딩 결과뿐 아니라 직전 `I, went`라는 직전 디코딩 결과까지도 활용한다는 것입니다.
 
@@ -79,6 +77,7 @@ i went to the cafe there were many people there > i, went, to, the, cafe, there,
 
 ## **그림7** Transformer
 {: .no_toc .text-delta }
+<img src="https://i.imgur.com/Rk5wkBQ.png" width="400px" title="source: imgur.com" />
 <img src="https://i.imgur.com/F0qY4ny.png" width="400px" title="source: imgur.com" />
 
 트랜스포머의 최종 출력, 즉 디코더 출력(그림7에서 `Output Probabilities`)은 소스 언어의 어휘 수만큼의 차원을 갖는 확률 벡터(random vector)가 됩니다. 확률 벡터란 요소(element) 값이 모두 확률인 벡터를 의미하는데요. 

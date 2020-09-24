@@ -27,27 +27,53 @@ BERT(Bidirectional Encoder Representations from Transformers)는 트랜스포머
 {: .no_toc .text-delta }
 <img src="https://i.imgur.com/F0qY4ny.png" width="500px" title="source: imgur.com" />
 
+## **그림1** GPT 구조
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/Q7IS78n.png" width="500px" title="source: imgur.com" />
+
 ## **그림2** GPT (1)
 {: .no_toc .text-delta }
 <img src="https://i.imgur.com/oPXpfWk.jpg" width="300px" title="source: imgur.com" />
+
+## **그림2** GPT (1)
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/mnzuvVg.jpg" width="500px" title="source: imgur.com" />
 
 ## **그림3** GPT (2)
 {: .no_toc .text-delta }
 <img src="https://i.imgur.com/1R0Cbbk.jpg" width="300px" title="source: imgur.com" />
 
+## **그림3** GPT (2)
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/3h5Y3TX.jpg" width="500px" title="source: imgur.com" />
+
 ## **그림4** GPT (3)
 {: .no_toc .text-delta }
 <img src="https://i.imgur.com/wXGfHBQ.jpg" width="300px" title="source: imgur.com" />
+
+## **그림4** GPT (3)
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/79lXt7h.jpg" width="500px" title="source: imgur.com" />
+
+## **그림1** BERT 구조
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/ekmm63h.png" width="500px" title="source: imgur.com" />
 
 ## **그림5** BERT
 {: .no_toc .text-delta }
 <img src="https://i.imgur.com/pdBIXTT.jpg" width="300px" title="source: imgur.com" />
 
----
+## **그림5** BERT
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/79lXt7h.jpg" width="500px" title="source: imgur.com" />
 
-## Masked Language Model
+
+## **그림5** GPT vs BERT
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/S0equuG.png" width="300px" title="source: imgur.com" />
 
 
+++ 단어의 출력 확률 업데이트 그림 보여주기
 
 ---
 

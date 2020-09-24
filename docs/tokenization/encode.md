@@ -2,7 +2,7 @@
 layout: default
 title: Batch Encoding
 parent: Vocab & Tokenization
-nav_order: 3
+nav_order: 5
 ---
 
 # Batch Encoding

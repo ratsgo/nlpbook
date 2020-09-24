@@ -1,8 +1,8 @@
 ---
 layout: default
-title: BPE Vocabulary
+title: Byte Pair Encoding
 parent: Vocab & Tokenization
-nav_order: 1
+nav_order: 2
 ---
 
 # Byte Pair Encoding

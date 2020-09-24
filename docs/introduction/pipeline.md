@@ -46,30 +46,33 @@ nav_order: 3
 
 ## dataloader
 
-집필 예정입니다
+## **그림1** dataloader
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/bD07LbT.jpg" width="400px" title="source: imgur.com" />
 
 ---
 
 ## task
 
-집필 예정입니다
+## **그림1** task
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/ViOHWFw.jpg" width="400px" title="source: imgur.com" />
 
 ---
 
 ## trainer
 
-집필 예정입니다
+## **그림1** task
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/tBfMqq4.jpg" width="400px" title="source: imgur.com" />
+
 
 ---
 
 ## inference
 
-집필 예정입니다
-
----
-
-## deploy
-
-집필 예정입니다
+## **그림1** inference
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/I4lGm3J.jpg" width="600px" title="source: imgur.com" />
 
 ---
