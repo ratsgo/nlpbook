@@ -59,15 +59,31 @@ i went to the cafe there were many people there > i, went, to, the, cafe, there,
 
 여기에서 디코더 입력을 좀 더 자세히 살펴볼 필요가 있습니다. 그림5를 봅시다. 디코더는 디코딩을 수행할 때 우선 인코더가 보내준 소스 시퀀스 정보를 활용합니다. **여기에 직전 디코딩 결과도 씁니다.** 그림5 예시에서 디코더가 대상 언어의 세번째 자리를 예측해야 할 때 `어제, 카페, 갔었어, 거기, 사람, 많더라`라는 소스 언어의 인코딩 결과뿐 아니라 직전 `I, went`라는 직전 디코딩 결과까지도 활용한다는 것입니다.
 
-## **그림5** 디코더 입력 (그림5는 트랜스포머와 글 전체 예시에 맞게 그림을 고쳐야 함)
+## **그림5** 디코더 입력
 {: .no_toc .text-delta }
-<img src="https://i.imgur.com/wgMefCX.png" width="300px" title="source: imgur.com" />
+<img src="https://i.imgur.com/Eboj504.jpg" width="400px" title="source: imgur.com" />
+
+## **그림5** 디코더 입력
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/C8d8jB7.jpg" width="400px" title="source: imgur.com" />
+
+## **그림5** 디코더 입력
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/kZ5JM2k.jpg" width="500px" title="source: imgur.com" />
+
+
+## **그림5** 디코더 입력
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/Oh4zPK1.jpg" width="400px" title="source: imgur.com" />
+
+
+## **그림5** 디코더 입력
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/h6SN72R.jpg" width="500px" title="source: imgur.com" />
+
 
 그럼 여기에서 하나 의문이 생길 수 있습니다. 직전 디코딩 결과가 완전히 틀렸다면 이후 디코딩 결과를 신뢰할 수 있는 걸까요? 그림5처럼 첫 단어의 정답은 `I`인데 이를 `You`로 예측했다면 이후 디코딩 결과는 정답과 거리가 멀 가능성이 꽤 높습니다. 디코더는 직전 디코딩 결과를 디코딩에 적극 활용하기 때문입니다. 이 때문에 **학습 과정에서는 직전 디코딩 결과가 무엇이 됐든 무시하고 현재 디코더 입력에 정답을 넣어줍니다.** 그림6과 같습니다.
 
-## **그림6** 학습 과정에서의 디코더 입력 (그림6은 트랜스포머와 글 전체 예시에 맞게 그림을 고쳐야 함)
-{: .no_toc .text-delta }
-<img src="https://i.imgur.com/wgMefCX.png" width="300px" title="source: imgur.com" />
 
 트랜스포머 역시 인코더와 디코더 구조를 따르고 있습니다. 그림7과 같습니다. 그림7 왼편이 인코더이고 오른편이 디코더입니다. 인코더의 입력(그림에서 `Inputs`)은 소스 시퀀스입니다. 디코더의 입력(그림7에서 `Outputs`)은 대상 시퀀스의 일부입니다. 
 
