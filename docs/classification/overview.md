@@ -21,4 +21,9 @@ nav_order: 1
 
 ## 집필 예정
 
-집필 예정입니다
+## **그림1** 문서 분류
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/5lpkDEB.png" width="350px" title="source: imgur.com" />
+
+
+---
