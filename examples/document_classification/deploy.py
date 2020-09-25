@@ -9,7 +9,7 @@ if __name__ == "__main__":
     drive.mount('/gdrive', force_remount=True)
     args = nlpbook.DeployArguments(
         pretrained_model_name="beomi/kcbert-base",
-        downstream_model_checkpoint_path="/gdrive/My Drive/nlpbook/checkpoint-cls/_ckpt_epoch_0.ckpt",
+        downstream_model_checkpoint_path="/gdrive/My Drive/nlpbook/checkpoint-cls/epoch=1.ckpt",
         downstream_task_name="document-classification",
         max_seq_length=128,
     )
@@ -52,4 +52,4 @@ if __name__ == "__main__":
         }
 
     app = get_web_service_app(inference_fn)
-    app.run(host='0.0.0.0', port=5000)
+    app.run()
