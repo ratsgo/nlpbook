@@ -1,15 +1,15 @@
 import torch
 from ratsnlp import nlpbook
+from google.colab import drive
 from ratsnlp.nlpbook.classification import get_web_service_app
 from transformers import BertConfig, BertTokenizer, BertForSequenceClassification
 
 
 if __name__ == "__main__":
-
-    # 학습이 완료된 모델 준비
+    drive.mount('/gdrive', force_remount=True)
     args = nlpbook.DeployArguments(
-        pretrained_model_cache_dir="/Users/david/works/cache/kcbert-base",
-        downstream_model_checkpoint_path="/Users/david/works/cache/checkpoint/_ckpt_epoch_0.ckpt",
+        pretrained_model_name="beomi/kcbert-base",
+        downstream_model_checkpoint_path="/gdrive/My Drive/nlpbook/checkpoint-cls/_ckpt_epoch_0.ckpt",
         downstream_task_name="document-classification",
         max_seq_length=128,
     )
@@ -17,17 +17,15 @@ if __name__ == "__main__":
         args.downstream_model_checkpoint_path,
         map_location=torch.device("cpu")
     )
-    # 계산 그래프를 학습 때처럼 그려놓고,
     pretrained_model_config = BertConfig.from_pretrained(
-        args.pretrained_model_cache_dir,
+        args.pretrained_model_name,
         num_labels=fine_tuned_model_ckpt['state_dict']['model.classifier.bias'].shape.numel(),
     )
     model = BertForSequenceClassification(pretrained_model_config)
-    # 학습된 모델의 체크포인트를 해당 그래프에 부어넣는다
     model.load_state_dict({k.replace("model.", ""): v for k, v in fine_tuned_model_ckpt['state_dict'].items()})
     model.eval()
     tokenizer = BertTokenizer.from_pretrained(
-        args.pretrained_model_cache_dir,
+        args.pretrained_model_name,
         do_lower_case=False,
     )
 
