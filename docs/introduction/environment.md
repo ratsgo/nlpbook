@@ -34,6 +34,7 @@ nav_order: 4
 {: .no_toc .text-delta }
 <img src="https://i.imgur.com/4hjxuu2.png" width="300px" title="source: imgur.com" />
 
+++ 구글드라이브에 사본저장 안내
 
 ---
 

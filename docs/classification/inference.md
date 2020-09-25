@@ -21,6 +21,9 @@ nav_order: 4
 
 ## 개요
 
+<a href="https://colab.research.google.com/github/ratsgo/nlpbook/blob/master/examples/document_classification/deploy.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+
+
 ## **그림1** web service의 역할
 {: .no_toc .text-delta }
 <img src="https://i.imgur.com/I4lGm3J.jpg" width="500px" title="source: imgur.com" />
