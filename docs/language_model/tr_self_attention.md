@@ -231,6 +231,8 @@ outputs = weighted_values.sum(dim=0)
 
 ## 멀티 헤드 어텐션
 
+그림9 트랜스포머 인코더 블록의 멀티-헤드 어텐션은 **셀프 어텐션(self attention)**이라는 기법을 여러 번 수행한 걸 가리킵니다. 하나의 헤드(head)가 셀프 어텐션을 1회 수행하고 이를 여러 개 헤드가 독자적으로 각각 계산한다는 이야기라는 말입니다.
+
 ## **그림14** 멀티-헤드 어텐션(Multi-Head Attention)
 {: .no_toc .text-delta }
 <img src="https://nlpinkorean.github.io/images/transformer/transformer_attention_heads_weight_matrix_o.png" width="800px" title="source: imgur.com" />
