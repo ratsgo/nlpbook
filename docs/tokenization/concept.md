@@ -1,11 +1,11 @@
 ---
 layout: default
-title: Concept
+title: Why tokenize?
 parent: Vocab & Tokenization
 nav_order: 1
 ---
 
-# Concept
+# Why tokenize?
 {: .no_toc }
 
 자연어를 모델에 입력하려면 컴퓨터가 이해할 수 있는 숫자로 바꿔줘야 합니다. 그 과정 전반을 소개합니다.
