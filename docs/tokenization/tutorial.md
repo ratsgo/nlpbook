@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Tokenization Tutorial
-parent: Vocab & Tokenization
+parent: Preprocess
 nav_order: 6
 ---
 
