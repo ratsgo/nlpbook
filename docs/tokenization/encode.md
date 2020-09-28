@@ -1,8 +1,8 @@
 ---
 layout: default
-title: Batch Encoding
+title: Tokenization Tutorial
 parent: Preprocess
-nav_order: 5
+nav_order: 4
 ---
 
 # Batch Encoding
