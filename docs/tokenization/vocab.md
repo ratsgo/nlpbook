@@ -67,6 +67,7 @@ bytebpe_tokenizer = ByteLevelBPETokenizer()
 bytebpe_tokenizer.train(
     files=[train_fpath, test_fpath],
     vocab_size=10000,
+    special_tokens=["[PAD]"]
 )
 bytebpe_tokenizer.save_model(save_path)
 ```
@@ -76,7 +77,7 @@ bytebpe_tokenizer.save_model(save_path)
 ## **그림1** 바이트 레벨 BPE 어휘 집합 구축 결과 (vocab.json)
 {: .no_toc .text-delta }
 ```
-{"!":0,"\"":1,"#":2,"$":3, ... , "ìĪĺê³ł":9998,"ê°ĦìĿ´":9999}
+{"[PAD]":0,"!":1,"\"":2,"#":3, ... , "Ġíķĺìłķìļ°":9997,"ìķ¼ê²łëĭ¤":9998,"ìĪĺê³ł":9999}
 ```
 
 ## **그림2** 바이트 레벨 BPE 어휘 집합 구축 결과 (merge.txt)
