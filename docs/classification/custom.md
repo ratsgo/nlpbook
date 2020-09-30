@@ -2,7 +2,7 @@
 layout: default
 title: Customization
 parent: Document Classification
-nav_order: 5
+nav_order: 4
 ---
 
 # Customization
