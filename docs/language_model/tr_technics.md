@@ -26,27 +26,42 @@ nav_order: 2
 
 중간에 activation 있음, wx+b 여러번 하면 의미 없음
 
-## **그림15** 피드포워드 뉴럴네트워크(Feedforward Neural Network)
+## **그림1** 피드포워드 뉴럴네트워크(Feedforward Neural Network)
 {: .no_toc .text-delta }
 <img src="https://i.imgur.com/8nElvRQ.jpg" width="800px" title="source: imgur.com" />
 
-## **그림16** ReLU
+## **그림2** ReLU
 {: .no_toc .text-delta }
 <img src="https://i.imgur.com/3acxUWy.png" width="400px" title="source: imgur.com" />
 
 
 ## 잔차 연결
 
-## **그림17** 잔차 연결(Residual Connections)
+## **그림3** 잔차 연결(Residual Connections)
 {: .no_toc .text-delta }
 <img src="https://i.imgur.com/UHVuX1X.jpg" width="800px" title="source: imgur.com" />
 
 
 ## 레이어 정규화
 
-## **그림18** 레이어 정규화(Layer Normalization)
+## **그림4** 레이어 정규화(Layer Normalization)
 {: .no_toc .text-delta }
 <img src="https://i.imgur.com/NY82BPy.png" width="200px" title="source: imgur.com" />
+
+
+## 드롭아웃
+
+과적합을 방지하기 위해서 노드의 일부를 0으로 대치하여 계산에서 제외하는 기법
+
+## **그림5** 드롭아웃(Dropout)
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/pKUE70B.png" width="300px" title="source: imgur.com" />
+
+
+## Adam Optimizer
+
+
+## Warm-up Scheduling
 
 
 ---
