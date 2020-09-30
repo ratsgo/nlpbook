@@ -8,7 +8,7 @@ nav_order: 2
 # Dataset
 {: .no_toc }
 
-데이터 로딩, 토큰화 등 전처리, 모델 피드 등 과정을 살펴봅니다.
+이 장에서는 문서 분류 모델을 학습하기 위한 전처리 과정을 살펴봅니다. 
 {: .fs-4 .ls-1 .code-example }
 
 ## Table of contents
@@ -19,17 +19,37 @@ nav_order: 2
 
 ---
 
-## 환경 및 하이퍼파라메터 설정
+## 코랩 노트북 사용하기
 
-## **코드1** 구글드라이브와 연결
+이 튜토리얼에서 사용하는 코드를 모두 정리해 구글 코랩(colab) 노트북으로 만들어 두었습니다. 아래 링크를 클릭해 코랩 환경에서도 수행할 수 있습니다. 코랩 노트북 사용과 관한 자세한 내용은 [1-4장 개발환경 설정](https://ratsgo.github.io/nlpbook/docs/introduction/environment) 챕터를 참고하세요.
+
+- <a href="https://colab.research.google.com/github/ratsgo/nlpbook/blob/master/examples/document_classification/train.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+
+
+---
+
+## 각종 설정
+
+코드1을 실행해 의존성 있는 패키지를 우선 설치합니다. 코랩 환경에서는 명령어 맨 앞에 느낌표(!)를 붙이면 파이썬이 아닌, 배쉬 명령을 수행할 수 있습니다.
+
+## **코드1** 의존성 패키지 설치
+{: .no_toc .text-delta }
+```python
+!pip install ratsnlp
+```
+
+코랩 노트북은 일정 시간 사용하지 않으면 당시까지의 모든 결과물들이 날아갈 수 있습니다. 모델 체크포인트 등을 저장해 두기 위해 자신의 구글 드라이브를 코랩 노트북과 연결합니다. 코드2를 실행하면 됩니다.
+
+## **코드2** 구글드라이브와 연결
 {: .no_toc .text-delta }
 ```python
 from google.colab import drive
 drive.mount('/gdrive', force_remount=True)
 ```
 
+이번 튜토리얼에서는 이준범 님이 공개하신 `kcbert-base` 모델을 NSMC 데이터로 파인튜닝해볼 예정입니다. 코드3을 실행하면 관련 설정을 할 수 있습니다.
 
-## **코드2** 환경 설정
+## **코드3** 모델 환경 설정
 {: .no_toc .text-delta }
 ```python
 from ratsnlp import nlpbook
@@ -42,10 +62,34 @@ args = nlpbook.TrainArguments(
     do_eval=True,
     batch_size=32,
 )
-nlpbook.seed_setting(args)
-nlpbook.set_logger(args)
 ```
 
+참고로 `TrainArguments`의 각 인자(argument)가 하는 역할과 의미는 다음과 같습니다.
+
+- **pretrained_model_name** : 프리트레인 마친 언어모델의 이름(단 해당 모델은 허깅페이스 라이브러리에 등록되어 있어야 합니다)
+- **downstream_corpus_root_dir** : 다운스트림 데이터를 저장해 둘 위치. `/root/Korpora`라고 함은 코랩 노트북이 실행되는 환경의 루트 하위에 위치한 `Korpora` 디렉토리라는 의미입니다.
+- **downstream_corpus_name** : 다운스트림 데이터의 이름.
+- **downstream_task_name** : 다운스트림 태스크의 이름.
+- **downstream_model_dir** : 파인튜닝된 모델의 체크포인트가 저장될 위치. `/gdrive/My Drive/nlpbook/checkpoint-cls`라고 함은 자신의 구글 드라이브의 `내 폴더` 하위의 `nlpbook/checkpoint-cls` 디렉토리에 모델 체크포인트가 저장됩니다.
+- **do_eval** : 학습 중 테스트 데이터로 모델이 얼마나 잘하고 있는지 평가할지 여부. True이면 밸리데이션(validation)을 실시합니다.
+- **batch_size** : 배치 크기.
+- **seed** : 랜덤 시드 값. 아무 것도 입력하지 않으면 7입니다. 
+
+코드4를 실행해 랜덤 시드를 설정합니다. `args`에 지정된 시드로 고정하는 역할을 합니다.
+
+## **코드4** 랜덤 시드 고정
+{: .no_toc .text-delta }
+```python
+nlpbook.seed_setting(args)
+```
+
+코드5를 실행해 각종 로그들을 출력하는 로거를 설정합니다.
+
+## **코드5** 로거 설정
+{: .no_toc .text-delta }
+```python
+nlpbook.set_logger(args)
+```
 
 
 
@@ -53,8 +97,9 @@ nlpbook.set_logger(args)
 
 ## 말뭉치 다운로드
 
+코드6을 실행하면 NSMC 데이터 다운로드를 수행합니다. 다운로드 툴킷으로 [코포라(Korpora)](https://github.com/ko-nlp/korpora)라는 오픈소스 파이썬 패키지를 사용해, corpus_name(`nsmc`)에 해당하는 말뭉치를 root_dir(`/root/Korpora`) 이하에 저장해 둡니다.
 
-## **코드3** 말뭉치 다운로드
+## **코드6** 말뭉치 다운로드
 {: .no_toc .text-delta }
 ```python
 from Korpora import Korpora
@@ -70,7 +115,9 @@ Korpora.fetch(
 
 ## 토크나이저 준비
 
-## **코드4** 토크나이저 준비
+코드7을 실행해 이준범 님이 공개하신 `kcbert-base` 모델이 사용하는 토크나이저를 선언합니다.
+
+## **코드7** 토크나이저 준비
 {: .no_toc .text-delta }
 ```python
 from transformers import BertTokenizer
@@ -83,18 +130,17 @@ tokenizer = BertTokenizer.from_pretrained(
 
 ---
 
-## 데이터 로딩 및 토큰화
+## 데이터 준비
 
-## **코드5** 의존성 패키지 로딩
+## **그림1** DataLoader
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/bD07LbT.jpg" width="500px" title="source: imgur.com" />
+
+## **코드8** 의존성 패키지 로딩
 {: .no_toc .text-delta }
 ```python
 from torch.utils.data import DataLoader, SequentialSampler, RandomSampler
 from ratsnlp.nlpbook.classification import NsmcCorpus, ClassificationDataset
-```
-
-## **코드5** 학습 데이터 구축
-{: .no_toc .text-delta }
-```python
 corpus = NsmcCorpus()
 train_dataset = ClassificationDataset(
     args=args,
@@ -190,14 +236,5 @@ else:
 09/25/2020 06:22:53 - INFO - ratsnlp.nlpbook.classification.corpus -   features: ClassificationFeatures(input_ids=[2, 22, 4452, 4049, 18851, 8194, 1558, 23887, 220, 2648, 9243, 17, 17, 2332, 22, 4452, 4091, 10045, 2545, 2015, 8313, 10588, 8007, 18566, 32, 32, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], attention_mask=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], token_type_ids=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], label=0)
 ```
 
-
----
-
-## 데이터로더의 역할
-
-
-## **그림1** DataLoader
-{: .no_toc .text-delta }
-<img src="https://i.imgur.com/bD07LbT.jpg" width="500px" title="source: imgur.com" />
 
 ---
