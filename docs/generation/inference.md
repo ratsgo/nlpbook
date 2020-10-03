@@ -2,7 +2,7 @@
 layout: default
 title: Inference
 parent: Sentence Generation
-nav_order: 4
+nav_order: 3
 ---
 
 # Inference
