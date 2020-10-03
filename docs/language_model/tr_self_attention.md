@@ -6,7 +6,7 @@ grand_parent: Language Model
 nav_order: 1
 ---
 
-# 셀프 어텐션(Self Attention)
+# ↗️ 셀프 어텐션(Self Attention)
 {: .no_toc }
 
 트랜스포머(transformer)의 핵심 구성요소는 셀프 어텐션(self attention)입니다. 이 글에서는 셀프 어텐션의 내부 동작 원리에 대해 살펴보겠습니다.

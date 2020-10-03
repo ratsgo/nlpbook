@@ -6,7 +6,7 @@ grand_parent: Language Model
 nav_order: 2
 ---
 
-# 트랜스포머(Transformer)에 적용된 기술들
+# ↗️ 트랜스포머(Transformer)에 적용된 기술들
 {: .no_toc }
 
 트랜스포머(transformer)가 좋은 성능을 내는 데는 [Self Attention]() 말고도 다양한 기법들이 적용됐기 때문입니다. 이 글에서는 Self Attention을 제외한 트랜스포머의 주요 요소들을 살펴보겠습니다.

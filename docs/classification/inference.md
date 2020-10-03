@@ -127,7 +127,6 @@ model = BertForSequenceClassification(pretrained_model_config)
 {: .no_toc .text-delta }
 ```python
 model.load_state_dict({k.replace("model.", ""): v for k, v in fine_tuned_model_ckpt['state_dict'].items()})
-
 ```
 
 ## **코드8** eval mode

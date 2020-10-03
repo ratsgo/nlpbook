@@ -1,11 +1,11 @@
 ---
 layout: default
-title: Byte Pair Encoding
+title: ↗️ Byte Pair Encoding
 parent: Preprocess
 nav_order: 2
 ---
 
-# Byte Pair Encoding
+# ↗️ Byte Pair Encoding
 {: .no_toc }
 
 바이트 페어 인코딩(Byte Pair Encoding, BPE)은 원래 정보 압축을 위해 제안된 알고리즘으로 최근 자연어 처리 모델에 널리 쓰이고 있는 토큰화 기법입니다. GPT 모델은 BPE 기법으로 토큰화를 수행하며, BERT 모델은 토크나이저로 BPE의 변형된 버전인 워드피스(wordpiece)를 사용하고 있습니다. 이 장에서는 BPE 기법 전반을 살펴봅니다.
