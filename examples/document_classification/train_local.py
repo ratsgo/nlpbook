@@ -1,27 +1,37 @@
-from google.colab import drive
+import sys
+from ratsnlp import nlpbook
 from Korpora import Korpora
+from ratsnlp.nlpbook.arguments import load_arguments
 from torch.utils.data import DataLoader, SequentialSampler, RandomSampler
 from transformers import BertConfig, BertTokenizer, BertForSequenceClassification
-from ratsnlp import nlpbook
 from ratsnlp.nlpbook.classification import NsmcCorpus, ClassificationDataset, ClassificationTask
 
 
 if __name__ == "__main__":
-    drive.mount('/gdrive', force_remount=True)
-    args = nlpbook.TrainArguments(
-        pretrained_model_name="beomi/kcbert-base",
-        downstream_corpus_root_dir="/root/Korpora",
-        downstream_corpus_name="nsmc",
-        downstream_task_name="document-classification",
-        downstream_model_dir="/gdrive/My Drive/nlpbook/checkpoint-cls",
-        do_eval=True,
-        batch_size=32,
-    )
+    # case1 : python train_local.py
+    if len(sys.argv) == 1:
+        args = nlpbook.TrainArguments(
+            pretrained_model_name="beomi/kcbert-base",
+            downstream_corpus_root_dir="data",
+            downstream_corpus_name="nsmc",
+            force_download=True,
+            downstream_task_name="document-classification",
+            downstream_model_dir="checkpoint/document-classification",
+            do_eval=True,
+            batch_size=32,
+            epochs=20
+        )
+    # case2 : python train_local.py train_config.json
+    elif len(sys.argv) == 2 and sys.argv[-1].endswith(".json"):
+        args = load_arguments(nlpbook.TrainArguments, json_file_path=sys.argv[-1])
+    # case3 : python train_local.py --pretrained_model_name beomi/kcbert-base --downstream_corpus_root_dir data --downstream_corpus_name nsmc --downstream_task_name document-classification --downstream_model_dir checkpoint/document-classification --do_eval --batch_size 32
+    else:
+        args = load_arguments(nlpbook.TrainArguments)
     nlpbook.set_logger(args)
     Korpora.fetch(
         corpus_name=args.downstream_corpus_name,
         root_dir=args.downstream_corpus_root_dir,
-        force_download=True,
+        force_download=args.force_download,
     )
     nlpbook.seed_setting(args)
     tokenizer = BertTokenizer.from_pretrained(
@@ -69,7 +79,7 @@ if __name__ == "__main__":
             config=pretrained_model_config,
     )
     task = ClassificationTask(model, args)
-    _, trainer = nlpbook.get_trainer(args)
+    trainer = nlpbook.get_trainer(args)
     trainer.fit(
         task,
         train_dataloader=train_dataloader,
