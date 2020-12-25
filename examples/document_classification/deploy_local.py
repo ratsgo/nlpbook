@@ -1,18 +1,27 @@
+import sys
 import torch
 from ratsnlp import nlpbook
-from google.colab import drive
+from ratsnlp.nlpbook.arguments import load_arguments
 from ratsnlp.nlpbook.classification import get_web_service_app
 from transformers import BertConfig, BertTokenizer, BertForSequenceClassification
 
 
 if __name__ == "__main__":
-    drive.mount('/gdrive', force_remount=True)
-    args = nlpbook.DeployArguments(
-        pretrained_model_name="beomi/kcbert-base",
-        downstream_model_checkpoint_path="/gdrive/My Drive/nlpbook/checkpoint-cls/epoch=1.ckpt",
-        downstream_task_name="document-classification",
-        max_seq_length=128,
-    )
+    # case1 : python deploy_local.py
+    if len(sys.argv) == 1:
+        args = nlpbook.DeployArguments(
+            pretrained_model_name="beomi/kcbert-base",
+            downstream_model_checkpoint_path="checkpoint/document-classification/epoch=10.ckpt",
+            downstream_task_name="document-classification",
+            max_seq_length=128,
+        )
+    # case2 : python deploy_local.py deploy_config.json
+    elif len(sys.argv) == 2 and sys.argv[-1].endswith(".json"):
+        args = load_arguments(nlpbook.DeployArguments, json_file_path=sys.argv[-1])
+    # case3 : python deploy_local.py --pretrained_model_name beomi/kcbert-base --downstream_model_checkpoint_path checkpoint/document-classification/epoch=10.ckpt --downstream_task_name document-classification --max_seq_length 128
+    else:
+        args = load_arguments(nlpbook.DeployArguments)
+
     fine_tuned_model_ckpt = torch.load(
         args.downstream_model_checkpoint_path,
         map_location=torch.device("cpu")
@@ -51,5 +60,5 @@ if __name__ == "__main__":
             'negative_width': f"{negative_prob * 100}%",
         }
 
-    app = get_web_service_app(inference_fn)
+    app = get_web_service_app(inference_fn, is_colab=False)
     app.run()
