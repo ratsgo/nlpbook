@@ -1,24 +1,24 @@
 import sys
 import torch
 from ratsnlp.nlpbook import load_arguments
-from ratsnlp.nlpbook.classification import DeployArguments, get_web_service_app
+from ratsnlp.nlpbook.classification import ClassificationDeployArguments, get_web_service_app
 from transformers import BertConfig, BertTokenizer, BertForSequenceClassification
 
 
 if __name__ == "__main__":
     # case1 : python deploy_local.py
     if len(sys.argv) == 1:
-        args = DeployArguments(
+        args = ClassificationDeployArguments(
             pretrained_model_name="beomi/kcbert-base",
             downstream_model_checkpoint_path="checkpoint/document-classification/epoch=10.ckpt",
             max_seq_length=128,
         )
     # case2 : python deploy_local.py deploy_config.json
     elif len(sys.argv) == 2 and sys.argv[-1].endswith(".json"):
-        args = load_arguments(DeployArguments, json_file_path=sys.argv[-1])
+        args = load_arguments(ClassificationDeployArguments, json_file_path=sys.argv[-1])
     # case3 : python deploy_local.py --pretrained_model_name beomi/kcbert-base --downstream_model_checkpoint_path checkpoint/document-classification/epoch=10.ckpt --downstream_task_name document-classification --max_seq_length 128
     else:
-        args = load_arguments(DeployArguments)
+        args = load_arguments(ClassificationDeployArguments)
 
     fine_tuned_model_ckpt = torch.load(
         args.downstream_model_checkpoint_path,

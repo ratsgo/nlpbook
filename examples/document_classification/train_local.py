@@ -4,13 +4,13 @@ from Korpora import Korpora
 from ratsnlp.nlpbook import load_arguments
 from torch.utils.data import DataLoader, SequentialSampler, RandomSampler
 from transformers import BertConfig, BertTokenizer, BertForSequenceClassification
-from ratsnlp.nlpbook.classification import TrainArguments, NsmcCorpus, ClassificationDataset, ClassificationTask
+from ratsnlp.nlpbook.classification import ClassificationTrainArguments, NsmcCorpus, ClassificationDataset, ClassificationTask
 
 
 if __name__ == "__main__":
     # case1 : python train_local.py
     if len(sys.argv) == 1:
-        args = TrainArguments(
+        args = ClassificationTrainArguments(
             pretrained_model_name="beomi/kcbert-base",
             downstream_corpus_root_dir="data",
             downstream_corpus_name="nsmc",
@@ -22,10 +22,10 @@ if __name__ == "__main__":
         )
     # case2 : python train_local.py train_config.json
     elif len(sys.argv) == 2 and sys.argv[-1].endswith(".json"):
-        args = load_arguments(TrainArguments, json_file_path=sys.argv[-1])
+        args = load_arguments(ClassificationTrainArguments, json_file_path=sys.argv[-1])
     # case3 : python train_local.py --pretrained_model_name beomi/kcbert-base --downstream_corpus_root_dir data --downstream_corpus_name nsmc --downstream_task_name document-classification --downstream_model_dir checkpoint/document-classification --do_eval --batch_size 32
     else:
-        args = load_arguments(TrainArguments)
+        args = load_arguments(ClassificationTrainArguments)
     nlpbook.set_logger(args)
     Korpora.fetch(
         corpus_name=args.downstream_corpus_name,
