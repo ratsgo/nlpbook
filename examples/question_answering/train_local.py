@@ -17,10 +17,10 @@ if __name__ == "__main__":
             downstream_model_dir="checkpoint/question-answering",
             do_eval=True,
             max_query_length=64,
-            max_seq_length=384,
+            max_seq_length=256,
             doc_stride=128,
             batch_size=32,
-            epochs=3,
+            epochs=10,
         )
     # case2 : python train_local.py train_config.json
     elif len(sys.argv) == 2 and sys.argv[-1].endswith(".json"):
@@ -69,7 +69,6 @@ if __name__ == "__main__":
         val_dataloader = None
     pretrained_model_config = BertConfig.from_pretrained(
         args.pretrained_model_name,
-        num_labels=corpus.num_labels,
     )
     model = BertForQuestionAnswering.from_pretrained(
             args.pretrained_model_name,
