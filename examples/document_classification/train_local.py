@@ -1,21 +1,20 @@
 import sys
 from ratsnlp import nlpbook
 from Korpora import Korpora
-from ratsnlp.nlpbook.arguments import load_arguments
+from ratsnlp.nlpbook import load_arguments
 from torch.utils.data import DataLoader, SequentialSampler, RandomSampler
 from transformers import BertConfig, BertTokenizer, BertForSequenceClassification
-from ratsnlp.nlpbook.classification import NsmcCorpus, ClassificationDataset, ClassificationTask
+from ratsnlp.nlpbook.classification import TrainArguments, NsmcCorpus, ClassificationDataset, ClassificationTask
 
 
 if __name__ == "__main__":
     # case1 : python train_local.py
     if len(sys.argv) == 1:
-        args = nlpbook.TrainArguments(
+        args = TrainArguments(
             pretrained_model_name="beomi/kcbert-base",
             downstream_corpus_root_dir="data",
             downstream_corpus_name="nsmc",
             force_download=True,
-            downstream_task_name="document-classification",
             downstream_model_dir="checkpoint/document-classification",
             do_eval=True,
             batch_size=32,
@@ -23,10 +22,10 @@ if __name__ == "__main__":
         )
     # case2 : python train_local.py train_config.json
     elif len(sys.argv) == 2 and sys.argv[-1].endswith(".json"):
-        args = load_arguments(nlpbook.TrainArguments, json_file_path=sys.argv[-1])
+        args = load_arguments(TrainArguments, json_file_path=sys.argv[-1])
     # case3 : python train_local.py --pretrained_model_name beomi/kcbert-base --downstream_corpus_root_dir data --downstream_corpus_name nsmc --downstream_task_name document-classification --downstream_model_dir checkpoint/document-classification --do_eval --batch_size 32
     else:
-        args = load_arguments(nlpbook.TrainArguments)
+        args = load_arguments(TrainArguments)
     nlpbook.set_logger(args)
     Korpora.fetch(
         corpus_name=args.downstream_corpus_name,
