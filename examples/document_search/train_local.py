@@ -1,6 +1,5 @@
 import sys
 from ratsnlp import nlpbook
-from Korpora import Korpora
 from ratsnlp.nlpbook.search import *
 from ratsnlp.nlpbook import load_arguments
 from torch.utils.data import DataLoader, RandomSampler
@@ -13,12 +12,13 @@ if __name__ == "__main__":
         args = SearchTrainArguments(
             pretrained_model_name="beomi/kcbert-base",
             downstream_corpus_root_dir="data",
-            downstream_corpus_name="korean_chatbot_data",
+            downstream_corpus_name="korquad-v1",
             force_download=False,
             downstream_model_dir="checkpoint/document-search",
-            max_seq_length=48,
+            question_max_seq_length=32,
+            passage_max_seq_length=256,
             batch_size=32,
-            epochs=30,
+            epochs=5,
         )
     # case2 : python train_local.py train_config.json
     elif len(sys.argv) == 2 and sys.argv[-1].endswith(".json"):
@@ -27,27 +27,23 @@ if __name__ == "__main__":
     else:
         args = load_arguments(SearchTrainArguments)
     nlpbook.set_logger(args)
-    Korpora.fetch(
-        corpus_name=args.downstream_corpus_name,
-        root_dir=args.downstream_corpus_root_dir,
-        force_download=args.force_download,
-    )
+    nlpbook.download_downstream_dataset(args)
     nlpbook.seed_setting(args)
     tokenizer = BertTokenizer.from_pretrained(
         args.pretrained_model_name,
         do_lower_case=False,
     )
-    corpus = KoreanChatbotDataCorpus()
-    train_dataset = SearchDataset(
+    corpus = KorQuADV1Corpus()
+    dataset = SearchDataset(
         args=args,
-        corpus=corpus,
         tokenizer=tokenizer,
+        corpus=corpus,
         mode="train",
     )
-    train_dataloader = DataLoader(
-        train_dataset,
+    dataloader = DataLoader(
+        dataset,
         batch_size=args.batch_size,
-        sampler=RandomSampler(train_dataset, replacement=False),
+        sampler=RandomSampler(dataset, replacement=False),
         collate_fn=search_train_collator,
         drop_last=False,
         num_workers=args.cpu_workers,
@@ -63,7 +59,7 @@ if __name__ == "__main__":
         args.pretrained_model_name,
         config=pretrained_model_config,
     )
-    model = SearchModel(
+    model = SearchModelForTrain(
         question_tower=question_tower,
         passage_tower=passage_tower,
     )
@@ -71,5 +67,5 @@ if __name__ == "__main__":
     trainer = nlpbook.get_trainer(args, eval=False)
     trainer.fit(
         task,
-        train_dataloader=train_dataloader,
+        train_dataloader=dataloader,
     )
