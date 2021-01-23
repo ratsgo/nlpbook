@@ -1,19 +1,25 @@
+import sys
 import torch
-from ratsnlp import nlpbook
-from transformers import BertConfig, BertTokenizer
-from ratsnlp.nlpbook.ner import ModelForNER, get_web_service_app
+from ratsnlp.nlpbook import load_arguments
+from ratsnlp.nlpbook.ner import NERDeployArguments, get_web_service_app
+from transformers import BertConfig, BertTokenizer, BertForTokenClassification
 
 
 if __name__ == "__main__":
-
-    # 학습이 완료된 모델 준비
-    args = nlpbook.DeployArguments(
-        pretrained_model_cache_dir="/Users/david/works/cache/kcbert-base",
-        downstream_model_checkpoint_path="/Users/david/works/cache/checkpoint-ner/epoch=3.ckpt",
-        downstream_model_labelmap_path="/Users/david/works/cache/checkpoint-ner/label_map.txt",
-        downstream_task_name="named-entity-recognition",
-        max_seq_length=128,
-    )
+    # case1 : python deploy_local.py
+    if len(sys.argv) == 1:
+        args = NERDeployArguments(
+            pretrained_model_name="beomi/kcbert-base",
+            downstream_model_checkpoint_path="checkpoint/ner/epoch=2.ckpt",
+            downstream_model_labelmap_path="checkpoint/ner/label_map.txt",
+            max_seq_length=128,
+        )
+    # case2 : python deploy_local.py deploy_config.json
+    elif len(sys.argv) == 2 and sys.argv[-1].endswith(".json"):
+        args = load_arguments(NERDeployArguments, json_file_path=sys.argv[-1])
+    # case3 : python deploy_local.py --pretrained_model_name beomi/kcbert-base
+    else:
+        args = load_arguments(NERDeployArguments)
     fine_tuned_model_ckpt = torch.load(
         args.downstream_model_checkpoint_path,
         map_location=torch.device("cpu")
@@ -22,39 +28,37 @@ if __name__ == "__main__":
     id_to_label = {}
     for idx, label in enumerate(labels):
         if "PER" in label:
-            label = f"인명({label})"
+            label = "인명"
         elif "LOC" in label:
-            label = f"지명({label})"
+            label = "지명"
         elif "ORG" in label:
-            label = f"기관명({label})"
+            label = "기관명"
         elif "DAT" in label:
-            label = f"날짜({label})"
+            label = "날짜"
         elif "TIM" in label:
-            label = f"시간({label})"
+            label = "시간"
         elif "DUR" in label:
-            label = f"기간({label})"
+            label = "기간"
         elif "MNY" in label:
-            label = f"통화({label})"
+            label = "통화"
         elif "PNT" in label:
-            label = f"비율({label})"
+            label = "비율"
         elif "NOH" in label:
-            label = f"기타 수량표현({label})"
+            label = "기타 수량표현"
         elif "POH" in label:
-            label = f"기타({label})"
+            label = "기타"
         else:
             label = label
         id_to_label[idx] = label
-    # 계산 그래프를 학습 때처럼 그려놓고,
     pretrained_model_config = BertConfig.from_pretrained(
-        args.pretrained_model_cache_dir,
+        args.pretrained_model_name,
         num_labels=fine_tuned_model_ckpt['state_dict']['model.classifier.bias'].shape.numel(),
     )
-    model = ModelForNER(pretrained_model_config)
-    # 학습된 모델의 체크포인트를 해당 그래프에 부어넣는다
+    model = BertForTokenClassification(pretrained_model_config)
     model.load_state_dict({k.replace("model.", ""): v for k, v in fine_tuned_model_ckpt['state_dict'].items()})
     model.eval()
     tokenizer = BertTokenizer.from_pretrained(
-        args.pretrained_model_cache_dir,
+        args.pretrained_model_name,
         do_lower_case=False,
     )
 
@@ -85,5 +89,5 @@ if __name__ == "__main__":
             "result": result,
         }
 
-    app = get_web_service_app(inference_fn)
-    app.run(host='0.0.0.0', port=5000)
+    app = get_web_service_app(inference_fn, is_colab=False)
+    app.run()
