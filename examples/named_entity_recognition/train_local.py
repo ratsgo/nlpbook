@@ -16,7 +16,7 @@ if __name__ == "__main__":
             downstream_model_dir="checkpoint/ner",
             do_eval=True,
             batch_size=32,
-            epochs=3,
+            epochs=30,
         )
     # case2 : python train_local.py train_config.json
     elif len(sys.argv) == 2 and sys.argv[-1].endswith(".json"):
