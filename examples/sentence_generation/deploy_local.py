@@ -27,6 +27,39 @@ generated_ids = model.generate(
 # 안녕하세요</s><s> 나 지금 집에 가고 있어.</s><s> 잘 자요 내 사랑</s><s> 사랑해</s>...
 tokenizer.decode([el.item() for el in generated_ids[0]])
 
+# beam search without sampling
+# beam size만큼의 candidate 가운데 최대 확률을 내는 시퀀스를 찾는다 (deteministic)
+# 생성할 때마다 같은 문장이 나온다
+generated_ids = model.generate(
+    input_ids,
+    do_sample=False,
+    max_length=50,
+    num_beams=10,
+)
+# 안녕하세요"라는 글과 함께 한 장의 사진을 게재했다.</s><s> 한편 이날...
+tokenizer.decode([el.item() for el in generated_ids[0]])
+
+# beam search with sampling
+generated_ids = model.generate(
+    input_ids,
+    do_sample=True,
+    max_length=50,
+    num_beams=10,
+)
+tokenizer.decode([el.item() for el in generated_ids[0]])
+
+# beam search with sampling + length penalty
+# length penalty는 beam search일 때 동작한다
+generated_ids = model.generate(
+    input_ids,
+    do_sample=True,
+    max_length=50,
+    num_beams=10,
+    length_penalty=1.5,
+)
+# 안녕하세요</s><s> 나 지금 집에 가고 있어.</s><s> 잘 자요 내 사랑</s><s> 사랑해</s>...
+tokenizer.decode([el.item() for el in generated_ids[0]])
+
 # top-p sampling
 # p는 0~1 범위, sampling을 한다고는 하지만 p가 0에 가까울 수록 greedy decoding
 # do_sample이 False일 경우 top_p가 작동하지 않는다
