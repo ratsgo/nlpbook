@@ -11,8 +11,8 @@ if __name__ == "__main__":
         args = QADeployArguments(
             pretrained_model_name="beomi/kcbert-base",
             downstream_model_checkpoint_path="checkpoint/question-answering/epoch=0.ckpt",
-            max_seq_length=256,
-            max_query_length=64,
+            max_seq_length=128,
+            max_query_length=32,
             max_answer_length=30,
         )
     # case2 : python deploy_local.py deploy_config.json

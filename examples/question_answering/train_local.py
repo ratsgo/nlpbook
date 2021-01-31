@@ -16,9 +16,9 @@ if __name__ == "__main__":
             force_download=False,
             downstream_model_dir="checkpoint/question-answering",
             do_eval=True,
-            max_query_length=64,
-            max_seq_length=256,
-            doc_stride=128,
+            max_seq_length=128,
+            max_query_length=32,
+            doc_stride=64,
             batch_size=32,
             epochs=10,
         )
