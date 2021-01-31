@@ -12,7 +12,7 @@ if __name__ == "__main__":
             pretrained_model_name="beomi/kcbert-base",
             downstream_model_checkpoint_path="checkpoint/ner/epoch=2.ckpt",
             downstream_model_labelmap_path="checkpoint/ner/label_map.txt",
-            max_seq_length=128,
+            max_seq_length=64,
         )
     # case2 : python deploy_local.py deploy_config.json
     elif len(sys.argv) == 2 and sys.argv[-1].endswith(".json"):
