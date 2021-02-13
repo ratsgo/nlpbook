@@ -65,7 +65,7 @@ if __name__ == "__main__":
     else:
         val_dataloader = None
     pretrained_model_config = BertConfig.from_pretrained(
-        args.pretrained_model_cache_dir,
+        args.pretrained_model_name,
         num_labels=corpus.num_labels,
     )
     model = BertForTokenClassification.from_pretrained(
