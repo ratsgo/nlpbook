@@ -4,6 +4,7 @@ from Korpora import Korpora
 from transformers import GPT2LMHeadModel
 from ratsnlp.nlpbook import load_arguments
 from ratsnlp.nlpbook.generation import *
+from ratsnlp.nlpbook.tokenizers import KoGPT2Tokenizer
 from torch.utils.data import DataLoader, SequentialSampler, RandomSampler
 
 

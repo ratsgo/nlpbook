@@ -1,6 +1,6 @@
 import torch
 from transformers import GPT2LMHeadModel, GPT2Config
-from ratsnlp.nlpbook.generation import KoGPT2Tokenizer
+from ratsnlp.nlpbook.tokenizers import KoGPT2Tokenizer
 
 # initialize model and tokenizer
 pretrained_model_config = GPT2Config.from_pretrained("taeminlee/kogpt2")
