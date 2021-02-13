@@ -1,10 +1,17 @@
-from transformers import GPT2LMHeadModel
+import torch
+from transformers import GPT2LMHeadModel, GPT2Config
 from ratsnlp.nlpbook.generation import KoGPT2Tokenizer
 
 # initialize model and tokenizer
-model = GPT2LMHeadModel.from_pretrained("taeminlee/kogpt2")
+pretrained_model_config = GPT2Config.from_pretrained("taeminlee/kogpt2")
+model = GPT2LMHeadModel(pretrained_model_config)
+fine_tuned_model_ckpt = torch.load(
+    "/Users/david/Downloads/epoch=5.ckpt",
+    map_location=torch.device("cpu"),
+)
+model.load_state_dict({k.replace("model.", ""): v for k, v in fine_tuned_model_ckpt['state_dict'].items()})
 tokenizer = KoGPT2Tokenizer.from_pretrained("taeminlee/kogpt2")
-input_ids = tokenizer.encode("안녕하세요", return_tensors="pt")
+input_ids = tokenizer.encode("부정 와 정말", return_tensors="pt")
 
 # greedy decoding
 # best1 선택, 생성할 때마다 같은 문장이 나온다
