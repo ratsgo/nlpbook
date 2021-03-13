@@ -42,25 +42,32 @@ nav_order: 3
 
 ## 환경 설정
 
-이전 장에서 학습한 모델의 체크포인트는 구글 드라이브에 저장해 두었으므로 코드1을 실행해 코랩 노트북과 자신 구글 드라이브를 연동합니다.
+코드1을 실행해 의존성 있는 패키지를 우선 설치합니다. 코랩 환경에서는 명령어 맨 앞에 느낌표(!)를 붙이면 파이썬이 아닌, 배쉬 명령을 수행할 수 있습니다.
 
-## **코드1** 구글드라이브 연동
+## **코드1** 의존성 패키지 설치
+{: .no_toc .text-delta }
+```python
+!pip install ratsnlp
+```
+
+이전 장에서 학습한 모델의 체크포인트는 구글 드라이브에 저장해 두었으므로 코드2를 실행해 코랩 노트북과 자신 구글 드라이브를 연동합니다.
+
+## **코드2** 구글드라이브 연동
 {: .no_toc .text-delta }
 ```python
 from google.colab import drive
 drive.mount('/gdrive', force_remount=True)
 ```
 
-코드2를 실행하면 각종 설정을 할 수 있습니다.
+코드3을 실행하면 각종 설정을 할 수 있습니다.
 
-## **코드2** 인퍼런스 설정
+## **코드3** 인퍼런스 설정
 {: .no_toc .text-delta }
 ```python
-from ratsnlp import nlpbook
-args = nlpbook.DeployArguments(
+from ratsnlp.nlpbook.classification import ClassificationDeployArguments
+args = ClassificationDeployArguments(
     pretrained_model_name="beomi/kcbert-base",
-    downstream_model_checkpoint_path="/gdrive/My Drive/nlpbook/checkpoint-cls/_ckpt_epoch_0.ckpt",
-    downstream_task_name="document-doc_cls",
+    downstream_model_checkpoint_path="/gdrive/My Drive/nlpbook/checkpoint-doccls/epoch=0.ckpt",
     max_seq_length=128,
 )
 ```
@@ -78,9 +85,9 @@ args = nlpbook.DeployArguments(
 
 ## 토크나이저 및 모델 로딩
 
-코드3을 실행하면 토크나이저를 초기화할 수 있습니다.
+코드4를 실행하면 토크나이저를 초기화할 수 있습니다.
 
-## **코드3** 토크나이저 로드
+## **코드4** 토크나이저 로드
 {: .no_toc .text-delta }
 ```python
 from transformers import BertTokenizer
@@ -90,9 +97,9 @@ tokenizer = BertTokenizer.from_pretrained(
 )
 ```
 
-코드4를 실행하면 이전 장에서 파인튜닝한 모델의 체크포인트를 읽어들입니다.
+코드5를 실행하면 이전 장에서 파인튜닝한 모델의 체크포인트를 읽어들입니다.
 
-## **코드4** 체크포인트 로드
+## **코드5** 체크포인트 로드
 {: .no_toc .text-delta }
 ```python
 import torch
@@ -102,9 +109,9 @@ fine_tuned_model_ckpt = torch.load(
 )
 ```
 
-코드5를 수행하면 이전 장에서 파인튜닝한 모델이 사용한 프리트레인 마친 언어모델의 설정 값들을 읽어들일 수 있습니다. 이어 코드6을 실행하면 해당 설정값대로 BERT 모델을 초기화합니다.
+코드6을 수행하면 이전 장에서 파인튜닝한 모델이 사용한 프리트레인 마친 언어모델의 설정 값들을 읽어들일 수 있습니다. 이어 코드7을 실행하면 해당 설정값대로 BERT 모델을 초기화합니다.
 
-## **코드5** BERT 설정 로드
+## **코드6** BERT 설정 로드
 {: .no_toc .text-delta }
 ```python
 from transformers import BertConfig
@@ -114,22 +121,22 @@ pretrained_model_config = BertConfig.from_pretrained(
 )
 ```
 
-## **코드6** BERT 모델 초기화
+## **코드7** BERT 모델 초기화
 {: .no_toc .text-delta }
 ```python
 from transformers import BertForSequenceClassification
 model = BertForSequenceClassification(pretrained_model_config)
 ```
 
-코드7을 수행하면 코드6에서 초기화한 BERT 모델에 코드4의 체크포인트를 읽어들이게 됩니다. 이어 코드8을 실행하면 모델이 평가 모드로 전환됩니다.
+코드8을 수행하면 코드6에서 초기화한 BERT 모델에 코드5의 체크포인트를 읽어들이게 됩니다. 이어 코드9를 실행하면 모델이 평가 모드로 전환됩니다.
 
-## **코드7** 체크포인트 읽기
+## **코드8** 체크포인트 읽기
 {: .no_toc .text-delta }
 ```python
 model.load_state_dict({k.replace("model.", ""): v for k, v in fine_tuned_model_ckpt['state_dict'].items()})
 ```
 
-## **코드8** eval mode
+## **코드9** eval mode
 {: .no_toc .text-delta }
 ```python
 model.eval()
@@ -139,11 +146,11 @@ model.eval()
 
 ## 인퍼런스 과정 정의
 
-코드9는 인퍼런스 과정을 정의한 함수입니다. 문장(sentence)을 입력받아 토큰화를 수행한 뒤 `input_ids` 따위의 입력값으로 만듭니다. 이들 입력값을 파이토치 텐서(tensor) 자료형으로 변환한 뒤 모델에 입력합니다. 모델 출력값는 소프트맥스 함수 적용 이전의 로짓(logit) 형태인데요. 여기에 소프트맥스 함수를 써서 모델 출력을 [`부정`일 확률, `긍정`일 확률] 형태의 확률 형태로 바꿉니다.
+코드10은 인퍼런스 과정을 정의한 함수입니다. 문장(sentence)을 입력받아 토큰화를 수행한 뒤 `input_ids` 따위의 입력값으로 만듭니다. 이들 입력값을 파이토치 텐서(tensor) 자료형으로 변환한 뒤 모델에 입력합니다. 모델 출력값는 소프트맥스 함수 적용 이전의 로짓(logit) 형태인데요. 여기에 소프트맥스 함수를 써서 모델 출력을 [`부정`일 확률, `긍정`일 확률] 형태의 확률 형태로 바꿉니다.
 
 마지막으로 모델 출력을 약간 후처리하여 예측 확률의 최댓값이 `부정` 위치일 경우 해당 문장이 부정(positive), 반대의 경우 긍정(positive)이 되도록 `pred` 값을 만듭니다.
 
-## **코드9** inference
+## **코드10** inference
 {: .no_toc .text-delta }
 ```python
 def inference_fn(sentence):
@@ -176,9 +183,9 @@ def inference_fn(sentence):
 
 ## 웹 서비스 런칭
 
-코드9에서 정의한 인퍼런스 함수(`inference_fn`)을 가지고 코드10을 실행하면 웹 서비스를 띄울 수 있습니다. 파이썬 플라스크(flask)를 활용한 앱입니다.
+코드10에서 정의한 인퍼런스 함수(`inference_fn`)을 가지고 코드11을 실행하면 웹 서비스를 띄울 수 있습니다. 파이썬 플라스크(flask)를 활용한 앱입니다.
 
-## **코드10** 웹 서비스
+## **코드11** 웹 서비스
 {: .no_toc .text-delta }
 ```python
 from ratsnlp.nlpbook.classification import get_web_service_app
@@ -186,7 +193,7 @@ app = get_web_service_app(inference_fn)
 app.run()
 ```
 
-코드10을 실행하면 그림2처럼 뜨는데요. 웹 브라우저로 `http://daf9739bca4e.ngrok.io`에 접속하면 영상1 같은 화면을 만날 수 있습니다. 단 실행할 때마다 이 주소가 변동하니 실제 접속할 때는 직접 코드10을 실행해 당시 출력된 주소로 접근해야 합니다.
+코드11을 실행하면 그림2처럼 뜨는데요. 웹 브라우저로 `http://daf9739bca4e.ngrok.io`에 접속하면 영상1 같은 화면을 만날 수 있습니다. 단 실행할 때마다 이 주소가 변동하니 실제 접속할 때는 직접 코드10을 실행해 당시 출력된 주소로 접근해야 합니다.
 
 ## **그림2** colab에서 띄운 예시
 {: .no_toc .text-delta }
