@@ -52,16 +52,15 @@ drive.mount('/gdrive', force_remount=True)
 ## **코드3** 모델 환경 설정
 {: .no_toc .text-delta }
 ```python
-from ratsnlp import nlpbook
-args = nlpbook.TrainArguments(
+from ratsnlp.nlpbook.classification import ClassificationTrainArguments
+args = ClassificationTrainArguments(
     pretrained_model_name="beomi/kcbert-base",
     downstream_corpus_root_dir="/root/Korpora",
     downstream_corpus_name="nsmc",
-    downstream_task_name="document-doc_cls",
-    downstream_model_dir="/gdrive/My Drive/nlpbook/checkpoint-cls",
+    downstream_model_dir="/gdrive/My Drive/nlpbook/checkpoint-doccls",
     do_eval=True,
-    max_seq_length=128,
     batch_size=32,
+    epochs=10,
 )
 ```
 
@@ -82,6 +81,7 @@ args = nlpbook.TrainArguments(
 ## **코드4** 랜덤 시드 고정
 {: .no_toc .text-delta }
 ```python
+from ratsnlp import nlpbook
 nlpbook.seed_setting(args)
 ```
 
