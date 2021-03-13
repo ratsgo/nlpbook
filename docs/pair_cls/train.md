@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Training
-parent: Document Search
+parent: Pair Classification
 nav_order: 2
 ---
 
