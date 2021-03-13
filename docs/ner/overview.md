@@ -19,6 +19,27 @@ nav_order: 1
 
 ---
 
-## 집필 예정
 
-집필 예정입니다
+
+## 모델 전체 구조
+
+
+## **그림1** 개체명 인식
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/MjbcakT.png" width="350px" title="source: imgur.com" />
+
+
+---
+
+## 태스크 모듈
+
+## **그림2** 개체명 인식 태스크 모듈
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/tDKNUJh.png" width="350px" title="source: imgur.com" />
+
+## **그림3** 개체명 인식 태스크 모듈
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/U5mPOBh.png" title="source: imgur.com" />
+
+
+---

@@ -206,13 +206,19 @@ app.run()
 
 ## **그림2** colab에서 띄운 예시
 {: .no_toc .text-delta }
-<img src="https://i.imgur.com/DnRSS7E.png" width="500px" title="source: imgur.com" />
+<img src="https://i.imgur.com/WuFRNOI.png" width="500px" title="source: imgur.com" />
 
-## **영상1** colab에서 띄운 예시
+## **그림3** colab에서 띄운 예시
 {: .no_toc .text-delta }
-<video autoplay controls loop muted preload="auto" width="500">
-  <source src=" https://drive.google.com/uc?export=download&id=1k2wBsFRt2hHmzALMcBpT94R356NFAS57" type="video/mp4">
-</video>
+<img src="https://i.imgur.com/wFl0r2t.png" width="500px" title="source: imgur.com" />
+
+## **그림4** colab에서 띄운 예시
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/VuA85p3.png" width="500px" title="source: imgur.com" />
+
+## **그림5** colab에서 띄운 예시
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/uu4moTQ.png" width="500px" title="source: imgur.com" />
 
 
 ---

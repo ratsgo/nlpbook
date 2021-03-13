@@ -19,6 +19,24 @@ nav_order: 1
 
 ---
 
-## 집필 예정
 
-집필 예정입니다
+
+## 모델 전체 구조
+
+
+## **그림1** 문서 쌍 분류
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/Wd9UK1s.png" width="350px" title="source: imgur.com" />
+
+
+---
+
+## 태스크 모듈
+
+## **그림2** 문서 쌍 분류 태스크 모듈
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/qub0zK2.png" width="350px" title="source: imgur.com" />
+
+
+
+---
