@@ -1,7 +1,7 @@
 ---
 layout: default
 title: ↗️ Customization
-parent: Document Search
+parent: Pair Classification
 nav_order: 4
 ---
 

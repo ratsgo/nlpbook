@@ -4,7 +4,7 @@ title: Document Classification
 nav_order: 5
 has_children: true
 has_toc: true
-permalink: /docs/classification
+permalink: /docs/doc_cls
 ---
 
 # 문서에 꼬리표 달기

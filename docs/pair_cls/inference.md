@@ -1,14 +1,14 @@
 ---
 layout: default
-title: Overview
-parent: Document Search
-nav_order: 1
+title: Inference
+parent: Pair Classification
+nav_order: 3
 ---
 
-# Overview
+# Inference
 {: .no_toc }
 
-모델 아키텍처, 입/출력 등 전반을 조망합니다.
+학습을 마친 모델을 인퍼런스하고 플라스크 등 웹서비스하는 과정을 실습합니다.
 {: .fs-4 .ls-1 .code-example }
 
 ## Table of contents

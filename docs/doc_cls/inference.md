@@ -60,7 +60,7 @@ from ratsnlp import nlpbook
 args = nlpbook.DeployArguments(
     pretrained_model_name="beomi/kcbert-base",
     downstream_model_checkpoint_path="/gdrive/My Drive/nlpbook/checkpoint-cls/_ckpt_epoch_0.ckpt",
-    downstream_task_name="document-classification",
+    downstream_task_name="document-doc_cls",
     max_seq_length=128,
 )
 ```
