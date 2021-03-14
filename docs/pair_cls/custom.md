@@ -5,10 +5,10 @@ parent: Pair Classification
 nav_order: 4
 ---
 
-# ↗️ Customization
+# ↗️ 나만의 문장 쌍 분류 모델 만들기
 {: .no_toc }
 
-커스텀 데이터, 토크나이저, 모델, trainer로 나만의 문장 쌍 분류 모델을 만드는 과정을 소개합니다.
+내가 가진 데이터, 토크나이저, 모델, 트레이너(trainer)로 나만의 문장 쌍 분류 모델을 만드는 과정을 소개합니다.
 {: .fs-4 .ls-1 .code-example }
 
 ## Table of contents
@@ -21,11 +21,7 @@ nav_order: 4
 
 ## 내 데이터 사용하기
 
-우리 책 문장 쌍 분류 튜토리얼은 카카오브레인에서 공개한 [KorNLIDatasets](https://github.com/kakaobrain/KorNLUDatasets)를 사용하고 있는데요.
-커스텀 문장 쌍 모델 구축을 위한 첫걸음은 내가 가진 데이터를 활용하는 것일 겁니다.
-이를 위해서는 말뭉치를 읽어들이는 코드에 대한 이해가 선행되어야 할텐데요.
-우리 책 튜토리얼에서 KorNLI 데이터를 어떻게 읽고 전처리하고 있는지 살펴보겠습니다.
-코드1과 같습니다.
+우리 책 문장 쌍 분류 튜토리얼은 카카오브레인에서 공개한 [KorNLIDatasets](https://github.com/kakaobrain/KorNLUDatasets)를 사용하고 있는데요. 나만의 문장 쌍 모델 구축을 위한 첫걸음은 내가 가진 데이터를 활용하는 것일 겁니다. 이를 위해서는 말뭉치를 읽어들이는 코드에 대한 이해가 선행되어야 할텐데요. 우리 책 튜토리얼에서 KorNLI 데이터를 어떻게 읽고 전처리하고 있는지 살펴보겠습니다. 코드1과 같습니다.
 
 ## **코드1** KorNLI 데이터 로딩 및 전처리
 {: .no_toc .text-delta }
@@ -45,12 +41,9 @@ train_dataset = ClassificationDataset(
 )
 ```
 
-코드1에서 선언한 `KorNLICorpus` 클래스는 KorNLI 데이터를 파이썬 문자열(string) 자료형으로 읽어들이는 역할을 합니다.
-`KorNLICorpus` 클래스의 구체적 내용은 코드2와 같습니다.
-이 클래스의 `get_examples` 메소드는 KorNLI 데이터를 읽어들이고 `get_labels`는 KorNLI 데이터의 모든 레이블 종류("entailment", "contradiction", "neutral")를 반환하는 역할을 합니다. 
+코드1에서 선언한 `KorNLICorpus` 클래스는 KorNLI 데이터를 파이썬 문자열(string) 자료형으로 읽어들이는 역할을 합니다. `KorNLICorpus` 클래스의 구체적 내용은 코드2와 같습니다. 이 클래스의 `get_examples` 메소드는 KorNLI 데이터를 읽어들이고 `get_labels`는 KorNLI 데이터의 모든 레이블 종류(`entailment`, `contradiction`, `neutral`)를 반환하는 역할을 합니다. 
 
-`ClassificationDataset`는 `KorNLICorpus` 클래스의 `get_examples` 메소드를 호출하는 방식으로 말뭉치를 읽어들이는데요.
-따라서 `KorNLICorpus` 클래스의 `get_examples`를 자신이 가진 말뭉치에 맞게 커스터마이즈하면 우리가 원하는 목적을 달성할 수 있을 겁니다.
+`ClassificationDataset`는 `KorNLICorpus` 클래스의 `get_examples` 메소드를 호출하는 방식으로 말뭉치를 읽어들이는데요. 따라서 `KorNLICorpus` 클래스의 `get_examples`를 자신이 가진 말뭉치에 맞게 고치면 우리가 원하는 목적을 달성할 수 있을 겁니다.
 
 ## **코드2** KorNLICorpus 클래스
 {: .no_toc .text-delta }
@@ -98,8 +91,7 @@ class KorNLICorpus:
         return len(self.get_labels())
 ```
 
-자, 이제 커스텀 말뭉치 클래스를 만들어 봅시다.
-예컨대 우리가 가진 학습데이터의 파일 이름이 `train.txt`이고 각 레코드가 다음과 같이 진술, 가설 문장, 그리고 진술과 가설 사이의 관계(레이블)로 구성되어 있다고 가정해 봅시다. 
+자, 이제 커스텀 말뭉치 클래스를 만들어 봅시다. 예컨대 우리가 가진 학습데이터의 파일 이름이 `train.txt`이고 각 레코드가 다음과 같이 진술, 가설 문장, 그리고 진술과 가설 사이의 관계(레이블)로 구성되어 있다고 가정해 봅시다. 
 
 ```
 오늘 공원에서 친구를 만났다,오늘 공원에 갔다,함의
@@ -108,9 +100,7 @@ class KorNLICorpus:
 ...
 ```
 
-이 말뭉치를 읽어들일 수 있도록 클래스를 새로 정의한 것은 코드3입니다.
-`get_examples`에서 텍스트 파일을 라인(line) 단위로 읽어들인 뒤 쉼표(`,`)로 진술, 가설, 레이블을 분리합니다.
-이후 진술은 `ClassificationExample`의 `text_a`에, 가설은 `text_b`에, 둘 사이의 관계는 `label`에 저장해 둡니다.
+이 말뭉치를 읽어들일 수 있도록 클래스를 새로 정의한 것은 코드3입니다. `CustomNLICorpus` 클래스의 `get_examples`가 텍스트 파일을 라인(line) 단위로 읽어들인 뒤 쉼표(`,`)로 진술, 가설, 레이블을 분리합니다. 이후 진술은 `ClassificationExample`의 `text_a`에, 가설은 `text_b`에, 둘 사이의 관계는 `label`에 저장해 둡니다.
 
 ## **코드3** 커스텀 말뭉치 클래스
 {: .no_toc .text-delta }
@@ -143,11 +133,9 @@ class CustomNLICorpus:
         return len(self.get_labels())
 ```
 
-한편 `get_labels`은 분류 대상 레이블의 종류를 리턴하는 역할을 하는 함수인데요.
-코드3 예시에서는 이를 하드 코딩으로 ["함의", "모순", "중립"]라고 명시했습니다만, 말뭉치를 읽어들인 뒤 해당 말뭉치의 레이블을 전수 조사한 뒤 유니크한 레이블들만 리스트 형태로 리턴하는 방식으로 구현해도 상관 없습니다.
+한편 `CustomNLICorpus` 클래스의 `get_labels` 메소드는 분류 대상 레이블의 종류를 리턴하는 역할을 하는 함수인데요. 코드3 예시에서는 이를 하드 코딩으로 ["함의", "모순", "중립"]라고 명시했습니다만, 말뭉치를 읽어들인 뒤 해당 말뭉치의 레이블을 전수 조사한 뒤 유니크한 레이블들만 리스트 형태로 리턴하는 방식으로 구현해도 상관 없습니다.
 
-코드4는 코드3에서 정의한 커스텀 데이터에 전처리를 수행하는 코드입니다.
-만일 평가용 데이터셋으로 `valid.txt`를 가지고 있다면 코드4에서 `mode="valid"` 인자를 주어서 `val_dataset`도 선언할 수 있습니다.
+코드4는 코드3에서 정의한 커스텀 데이터에 전처리를 수행하는 코드입니다. 만일 평가용 데이터셋으로 `valid.txt`를 가지고 있다면 코드4에서 `mode="valid"` 인자를 주어서 `val_dataset`도 선언할 수 있습니다.
 
 ## **코드4** 커스텀 데이터 로딩 및 전처리
 {: .no_toc .text-delta }
@@ -173,8 +161,7 @@ train_dataset = ClassificationDataset(
 만약에 이번 학습에 $i$번째 문서-레이블이 필요하다고 하면 자료 창고에서 $i$번째 데이터를 꺼내 주는 기능이 핵심 역할입니다. `ClassificationDataset`은 [4장 문서 분류 태스크](https://ratsgo.github.io/nlpbook/docs/doc_cls), 그리고 [5장 문장 쌍 분류 태스크](https://ratsgo.github.io/nlpbook/docs/pair_cls) 모두 수행 가능합니다.
 
 코드5를 코드4와 연관지어 전체 데이터 전처리 과정이 어떻게 이뤄지는지 살펴보겠습니다.
-코드4에서 `CustomNLICorpus`를 `ClassificationDataset` 클래스의 `corpus`로 넣었다고 가정해봅시다.
-그러면 `ClassificationDataset` 클래스는 `CustomNLICorpus`의 `get_examples` 메소드를 호출해 진술, 가설, 레이블을 `ClassificationExample` 형태로 읽어들입니다.
+코드4에서 `CustomNLICorpus`를 `ClassificationDataset` 클래스의 `corpus`로 넣었다고 가정해봅시다. 그러면 `ClassificationDataset` 클래스는 `CustomNLICorpus`의 `get_examples` 메소드를 호출해 진술, 가설, 레이블을 `ClassificationExample` 형태로 읽어들입니다.
 
 
 ## **코드5** ClassificationDataset 클래스
@@ -218,12 +205,9 @@ class ClassificationDataset(Dataset):
         return self.corpus.get_labels()
 ```
 
-`ClassificationDataset` 클래스는 이후 `_convert_examples_to_classification_features` 함수를 호출해 앞서 읽어들인 `example`을 `feature`로 변환합니다.
-`convert_examples_to_classification_features`가 하는 역할은 문서 쌍(진술, 가설)-레이블을 모델이 학습할 수 있는 형태로 가공하는 것입니다. 다시 말해 문장을 토큰화하고 이를 인덱스로 변환하는 한편, 레이블 역시 정수(integer)로 바꿔주는 기능을 합니다.
-이와 관련해 자세한 내용은 [5-2장 Training](https://ratsgo.github.io/nlpbook/docs/classification/train/#%EB%8D%B0%EC%9D%B4%ED%84%B0-%EC%A0%84%EC%B2%98%EB%A6%AC)을 참고하면 좋을 것 같습니다.
+`ClassificationDataset` 클래스는 이후 `_convert_examples_to_classification_features` 함수를 호출해 앞서 읽어들인 `example`을 `feature`로 변환합니다. `convert_examples_to_classification_features`가 하는 역할은 문서 쌍(진술, 가설)-레이블을 모델이 학습할 수 있는 형태로 가공하는 것입니다. 다시 말해 문장을 토큰화하고 이를 인덱스로 변환하는 한편, 레이블 역시 정수(integer)로 바꿔주는 기능을 합니다. 이와 관련해 자세한 내용은 [5-2장 Training](https://ratsgo.github.io/nlpbook/docs/pair_cls/train/#4%EB%8B%A8%EA%B3%84-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EC%A0%84%EC%B2%98%EB%A6%AC%ED%95%98%EA%B8%B0)을 참고하면 좋을 것 같습니다.
 
-한편 `ClassificationDataset` 클래스의 `convert_examples_to_features_fn` 인자로 기본값인 `_convert_examples_to_classification_features` 말고 다른 함수를 넣어줄 수도 있습니다.
-이 경우 피처 구축은 해당 함수로 진행하게 됩니다. 단, 해당 함수의 결과물은 `List[ClassificationFeatures]` 형태여야 합니다. `ClassificationFeatures`의 구성 요소는 다음과 같습니다.
+한편 `ClassificationDataset` 클래스의 `convert_examples_to_features_fn` 인자로 기본값인 `_convert_examples_to_classification_features` 말고 다른 함수를 넣어줄 수도 있습니다. 이 경우 피처 구축은 해당 함수로 진행하게 됩니다. 단, 해당 함수의 결과물은 `List[ClassificationFeatures]` 형태여야 합니다. `ClassificationFeatures`의 구성 요소는 다음과 같습니다.
 
 - input_ids: `List[int]`
 - attention_mask: `List[int]`
@@ -235,10 +219,7 @@ class ClassificationDataset(Dataset):
 
 ## 다른 모델 사용하기
 
-우리 책 문서 분류 튜토리얼에서는 이준범 님이 공개한 `kcbert`를 사용했습니다.
-허깅페이스 라이브러리에 등록된 모델이라면 별다른 코드 수정 없이 다른 모델을 사용할 수 있습니다.
-예컨대 `bert-base-uncased` 모델은 구글이 공개한 다국어 BERT 모델인데요.
-`pretrained_model_name`에 해당 모델명을 입력하면 이 모델을 즉시 사용 가능합니다.
+우리 책 문서 분류 튜토리얼에서는 이준범 님이 공개한 `kcbert`를 사용했습니다. 허깅페이스 라이브러리에 등록된 모델이라면 별다른 코드 수정 없이 다른 모델을 사용할 수 있습니다. 예컨대 `bert-base-uncased` 모델은 구글이 공개한 다국어 BERT 모델인데요. `pretrained_model_name`에 해당 모델명을 입력하면 이 모델을 즉시 사용 가능합니다.
 
 ## **코드6** 다른 모델 사용하기
 {: .no_toc .text-delta }
@@ -270,9 +251,7 @@ model = BertForSequenceClassification.from_pretrained(
 
 ## 태스크 이해하기
 
-우리 책 튜토리얼에서는 [파이토치 라이트닝(pytorch lightning)](https://github.com/PyTorchLightning/pytorch-lightning) 모듈을 상속 받아 태스크(task)를 정의합니다.
-이 태스크에는 모델과 옵티마이저(optimizer), 학습 과정 등이 정의돼 있습니다.
-이와 관련된 튜토리얼 코드는 코드7과 같습니다.
+우리 책 튜토리얼에서는 [파이토치 라이트닝(pytorch lightning)](https://github.com/PyTorchLightning/pytorch-lightning) 모듈을 상속 받아 태스크(task)를 정의합니다. 이 태스크에는 모델과 옵티마이저(optimizer), 학습 과정 등이 정의돼 있습니다. 이와 관련된 튜토리얼 코드는 코드7과 같습니다.
 
 ## **코드7** 문서 분류 태스크 정의
 {: .no_toc .text-delta }
@@ -282,9 +261,7 @@ from ratsnlp.nlpbook.classification import ClassificationTask
 task = ClassificationTask(model, args)
 ```
 
-`ClassificationTask`는 대부분의 문서 분류 태스크를 수행할 수 있도록 일반화되어 있어 말뭉치 등이 바뀌더라도 커스터마이즈를 별도로 할 필요가 없습니다. 
-특히 이 태스크는 [4장 문서 분류 태스크](https://ratsgo.github.io/nlpbook/docs/doc_cls), 그리고 [5장 문장 쌍 분류 태스크](https://ratsgo.github.io/nlpbook/docs/pair_cls) 모두 수행 가능합니다.
-코드8은 코드7이 사용하는 `ClassificationTask` 클래스를 자세하게 나타낸 것입니다. 
+`ClassificationTask`는 대부분의 문서 분류 태스크를 수행할 수 있도록 일반화되어 있어 말뭉치 등이 바뀌더라도 커스터마이즈를 별도로 할 필요가 없습니다. 특히 이 태스크는 [4장 문서 분류 태스크](https://ratsgo.github.io/nlpbook/docs/doc_cls), 그리고 [5장 문장 쌍 분류 태스크](https://ratsgo.github.io/nlpbook/docs/pair_cls) 모두 수행 가능합니다. 코드8은 코드7이 사용하는 `ClassificationTask` 클래스를 자세하게 나타낸 것입니다. 
 
 코드8 태스크 클래스의 주요 메소드에 관한 설명은 다음과 같습니다.
 
@@ -388,19 +365,11 @@ class ClassificationTask(LightningModule):
         return tqdm_dict
 ```
 
-코드8에서 핵심적인 역할을 하는 메소드는 `step`입니다. 
-미니 배치(input)를 모델에 태운 뒤 손실(loss)과 로짓(logit)을 계산합니다. 
-모델의 최종 출력은 '입력 문장이 특정 범주일 확률'인데요. 
-로짓은 소프트맥스를 취하기 직전의 벡터입니다. 
+코드8에서 핵심적인 역할을 하는 메소드는 `step`입니다. 미니 배치(input)를 모델에 태운 뒤 손실(loss)과 로짓(logit)을 계산합니다. 모델의 최종 출력은 '입력 문장 쌍이 특정 범주(참, 거짓, 중립)일 확률'인데요. 로짓은 소프트맥스를 취하기 직전의 벡터입니다. 
 
-로짓에 argmax를 취해 모델이 예측한 문서 범주를 가려내고 이로부터 정확도(accuracy)를 계산합니다. 
-로짓으로 예측 범주(`preds`)를 만드는 이유는 소프트맥스를 취한다고 대소 관계가 바뀌는 것은 아니니, 로짓으로 argmax를 하더라도 예측 범주가 달라지진 않기 때문입니다. 
-이후 손실, 정확도 등의 정보를 로그에 남긴 뒤 `step` 메소드를 종료합니다.
+로짓에 argmax를 취해 모델이 예측한 범주를 가려내고 이로부터 정확도(accuracy)를 계산합니다. 로짓으로 예측 범주(`preds`)를 만드는 이유는 소프트맥스를 취한다고 대소 관계가 바뀌는 것은 아니니, 로짓으로 argmax를 하더라도 예측 범주가 달라지진 않기 때문입니다. 이후 손실, 정확도 등의 정보를 로그에 남긴 뒤 `step` 메소드를 종료합니다.
 
-코드8의 `step` 메소드는 `self.model`을 호출(call)해 손실과 로짓을 계산하는데요. 
-`self.model`은 코드9의 `BertForSequenceClassification` 클래스를 가리킵니다. 
-본서에서는 허깅페이스의 [트랜스포머(transformers) 라이브러리](https://github.com/huggingface/transformers)에서 제공하는 클래스를 사용합니다. 
-코드9와 같습니다.
+코드8의 `step` 메소드는 `self.model`을 호출(call)해 손실과 로짓을 계산하는데요. `self.model`은 코드9의 `BertForSequenceClassification` 클래스를 가리킵니다. 본서에서는 허깅페이스의 [트랜스포머(transformers) 라이브러리](https://github.com/huggingface/transformers)에서 제공하는 클래스를 사용합니다. 코드9와 같습니다.
 
 ## **코드9** BertForSequenceClassification
 {: .no_toc .text-delta }
@@ -463,14 +432,9 @@ class BertForSequenceClassification(BertPreTrainedModel):
         return outputs  # (loss), logits, (hidden_states), (attentions)
 ```
 
-코드9의 `self.bert`는 [4-1장](https://ratsgo.github.io/nlpbook/docs/classification/overview)의 BERT 모델을 가리킵니다. 
-빈칸 맞추기, 즉 마스크 언어모델(Masked Language Model)로 프리트레인을 이미 완료한 모델입니다. 
-`self.dropout`와 `self.classifier`는 4-1장에서 소개한 [문서 분류 태스크 모듈](https://ratsgo.github.io/nlpbook/docs/classification/overview/#%ED%83%9C%EC%8A%A4%ED%81%AC-%EB%AA%A8%EB%93%88)이 되겠습니다. 
-NLI 데이터에 대해 진술, 가설 사이의 관계(함의, 모순, 중립)를 최대한 잘 맞추는 방향으로 `self.bert`, `self.classifier`가 학습됩니다.
+코드9의 `self.bert`는 [4-1장](https://ratsgo.github.io/nlpbook/docs/classification/overview)의 BERT 모델을 가리킵니다. 빈칸 맞추기, 즉 마스크 언어모델(Masked Language Model)로 프리트레인을 이미 완료한 모델입니다. `self.dropout`와 `self.classifier`는 5-1장에서 소개한 [문서 분류 태스크 모듈](https://ratsgo.github.io/nlpbook/docs/pair_cls/overview/#%ED%83%9C%EC%8A%A4%ED%81%AC-%EB%AA%A8%EB%93%88)이 되겠습니다. NLI 데이터에 대해 진술, 가설 사이의 관계(참, 거짓, 중립)를 최대한 잘 맞추는 방향으로 `self.bert`, `self.classifier`가 학습됩니다.
 
-한편 코드8의 `step` 메소드에서 `self.model`을 호출하면 `BertForSequenceClassification`의 `forward` 메소드가 실행됩니다. 
-레이블(label)이 있을 경우 `BertForSequenceClassification.forward` 메소드의 출력은 `loss`, `logits`이고, `ClassificationTask.step` 메소드에서는 `loss, logits = self.model(**inputs)`로 호출함을 확인할 수 있습니다. 
-다시 말해 `step` 메소드는 `self.model`과 짝을 지어 구현해야 한다는 이야기입니다. 
+한편 코드8의 `step` 메소드에서 `self.model`을 호출하면 `BertForSequenceClassification`의 `forward` 메소드가 실행됩니다. 레이블(label)이 있을 경우 `BertForSequenceClassification.forward` 메소드의 출력은 `loss`, `logits`이고, `ClassificationTask.step` 메소드에서는 `loss, logits = self.model(**inputs)`로 호출함을 확인할 수 있습니다. 다시 말해 `step` 메소드는 `self.model` 메소드와 짝을 지어 구현해야 한다는 이야기입니다. 
 
 
 ---
