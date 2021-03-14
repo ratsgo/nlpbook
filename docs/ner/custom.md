@@ -5,10 +5,10 @@ parent: Named Entity Recognition
 nav_order: 4
 ---
 
-# ↗️ Customization
+# ↗️ 나만의 개체명 인식 모델 만들기
 {: .no_toc }
 
-커스텀 데이터, 토크나이저, 모델, trainer로 나만의 문서 분류 모델을 만드는 과정을 소개합니다.
+커스텀 데이터, 토크나이저, 모델, trainer로 나만의 개체명 인식 모델을 만드는 과정을 소개합니다.
 {: .fs-4 .ls-1 .code-example }
 
 ## Table of contents
@@ -21,7 +21,7 @@ nav_order: 4
 
 ## 피처 구축 방식 이해하기
 
-개체명 인식의 경우 레이블 데이터 포맷이 저마다 천차만별입니다. 레이블 종류와 데이터 포맷이 달라질 경우 우리 책에서 제공하는 개체명 인식 튜토리얼용 코드를 그대로 사용하기 어렵습니다. 이에 이 글에서는 우리 책에서 제공하는 코드의 피처 구축 방식을 이해하는 데 중점을 두도록 하겠습니다. 우리 책 개체명 인식 튜토리얼의 피처 구축 관련 코드는 코드1과 같습니다.
+개체명 인식의 경우 데이터 포맷이 저마다 천차만별입니다. 데이터 포맷이 달라질 경우 우리 책에서 제공하는 개체명 인식 튜토리얼용 코드를 그대로 사용하기 어렵습니다. 이에 이 글에서는 우리 책에서 제공하는 코드의 피처 구축 방식을 이해하는 데 중점을 두도록 하겠습니다. 우리 책 개체명 인식 튜토리얼의 피처 구축 관련 코드는 코드1과 같습니다.
 
 ## **코드1** NERCorpus
 {: .no_toc .text-delta }
@@ -132,8 +132,7 @@ class NERDataset(Dataset):
         return self.corpus.get_labels()
 ```
 
-`NERDataset` 클래스는 이후 `convert_examples_to_features_fn` 함수를 호출해 앞서 읽어들인 `example`을 `feature`로 변환합니다. `convert_examples_to_features_fn`가 하는 역할은 원본 문서와 레이블링된 문서를 모델이 학습할 수 있는 형태로 가공하는 것입니다. 다시 말해 문장을 토큰화하고 이를 인덱스로 변환하는 한편, 레이블 역시 정수(integer)로 바꿔주는 기능을 합니다.
-이와 관련해 자세한 내용은 [6-2장 Training](https://ratsgo.github.io/nlpbook/docs/ner/train/)을 참고하면 좋을 것 같습니다.
+`NERDataset` 클래스는 이후 `convert_examples_to_features_fn` 함수를 호출해 앞서 읽어들인 `example`을 `feature`로 변환합니다. `convert_examples_to_features_fn`가 하는 역할은 원본 문서와 레이블링된 문서를 모델이 학습할 수 있는 형태로 가공하는 것입니다. 다시 말해 문장을 토큰화하고 이를 인덱스로 변환하는 한편, 레이블 역시 정수(integer)로 바꿔주는 기능을 합니다. 이와 관련해 자세한 내용은 [6-2장 Training](https://ratsgo.github.io/nlpbook/docs/ner/train/)을 참고하면 좋을 것 같습니다.
 
 한편 `NERDataset` 클래스의 `convert_examples_to_features_fn` 인자로 기본값인 `_convert_examples_to_ner_features` 말고 다른 함수를 넣어줄 수도 있습니다.
 이 경우 피처 구축은 해당 함수로 진행하게 됩니다. 단, 해당 함수의 결과물은 `List[NERFeatures]` 형태여야 합니다. `NERFeatures`의 구성 요소는 다음과 같습니다.
@@ -148,10 +147,7 @@ class NERDataset(Dataset):
 
 ## 다른 모델 사용하기
 
-우리 책 개체명 인식 튜토리얼에서는 이준범 님이 공개한 `kcbert`를 사용했습니다.
-허깅페이스 라이브러리에 등록된 모델이라면 별다른 코드 수정 없이 다른 모델을 사용할 수 있습니다.
-예컨대 `bert-base-uncased` 모델은 구글이 공개한 다국어 BERT 모델인데요.
-`pretrained_model_name`에 해당 모델명을 입력하면 이 모델을 즉시 사용 가능합니다. 코드4와 같습니다.
+우리 책 개체명 인식 튜토리얼에서는 이준범 님이 공개한 `kcbert`를 사용했습니다. 허깅페이스 라이브러리에 등록된 모델이라면 별다른 코드 수정 없이 다른 모델을 사용할 수 있습니다. 예컨대 `bert-base-uncased` 모델은 구글이 공개한 다국어 BERT 모델인데요. `pretrained_model_name`에 해당 모델명을 입력하면 이 모델을 즉시 사용 가능합니다. 코드4와 같습니다.
 
 ## **코드4** 다른 모델 사용하기
 {: .no_toc .text-delta }
@@ -194,9 +190,7 @@ from ratsnlp.nlpbook.ner import NERTask
 task = NERTask(model, args)
 ```
 
-`NERTask`는 대부분의 개체명 인식 태스크를 수행할 수 있도록 일반화되어 있어 말뭉치 등이 바뀌더라도 커스터마이즈를 별도로 할 필요가 없습니다. 
-다만 해당 클래스가 어떤 역할을 하고 있는지 추가 설명이 필요할 것 같습니다. 
-코드6은 코드5가 사용하는 `NERTask` 클래스를 자세하게 나타낸 것입니다. 
+`NERTask`는 대부분의 개체명 인식 태스크를 수행할 수 있도록 일반화되어 있어 말뭉치 등이 바뀌더라도 커스터마이즈를 별도로 할 필요가 없습니다. 다만 해당 클래스가 어떤 역할을 하고 있는지 추가 설명이 필요할 것 같습니다. 코드6은 코드5가 사용하는 `NERTask` 클래스를 자세하게 나타낸 것입니다. 
 
 코드6 태스크 클래스의 주요 메소드에 관한 설명은 다음과 같습니다.
 
@@ -299,19 +293,11 @@ class NERTask(LightningModule):
         return tqdm_dict
 ```
 
-코드6에서 핵심적인 역할을 하는 메소드는 `step`입니다. 
-미니 배치(input)를 모델에 태운 뒤 손실(loss)과 로짓(logit)을 계산합니다. 
-모델의 최종 출력은 '입력 문장이 특정 범주일 확률'인데요. 
-로짓은 소프트맥스를 취하기 직전의 벡터입니다. 
+코드6에서 핵심적인 역할을 하는 메소드는 `step`입니다. 미니 배치(input)를 모델에 태운 뒤 손실(loss)과 로짓(logit)을 계산합니다. 모델의 최종 출력은 토큰 각각에 대해 '해당 토큰이 특정 개체명 태그일 확률'인데요. 로짓은 소프트맥스를 취하기 직전의 벡터입니다. 
 
-로짓에 argmax를 취해 모델이 예측한 문서 범주를 가려내고 이로부터 정확도(accuracy)를 계산합니다. 
-로짓으로 예측 범주(`preds`)를 만드는 이유는 소프트맥스를 취한다고 대소 관계가 바뀌는 것은 아니니, 로짓으로 argmax를 하더라도 예측 범주가 달라지진 않기 때문입니다. 
-이후 손실, 정확도 등의 정보를 로그에 남긴 뒤 `step` 메소드를 종료합니다.
+로짓에 argmax를 취해 모델이 예측한 개체명 태그를 가려내고 이로부터 정확도(accuracy)를 계산합니다.  로짓으로 예측 범주(`preds`)를 만드는 이유는 소프트맥스를 취한다고 대소 관계가 바뀌는 것은 아니니, 로짓으로 argmax를 하더라도 예측 범주가 달라지진 않기 때문입니다. 이후 손실, 정확도 등의 정보를 로그에 남긴 뒤 `step` 메소드를 종료합니다.
 
-코드6의 `step` 메소드는 `self.model`을 호출(call)해 손실과 로짓을 계산하는데요. 
-`self.model`은 코드7의 `BertForTokenClassification` 클래스를 가리킵니다. 
-본서에서는 허깅페이스의 [트랜스포머(transformers) 라이브러리](https://github.com/huggingface/transformers)에서 제공하는 클래스를 사용합니다. 
-코드7과 같습니다.
+코드6의 `step` 메소드는 `self.model`을 호출(call)해 손실과 로짓을 계산하는데요. `self.model`은 코드7의 `BertForTokenClassification` 클래스를 가리킵니다. 본서에서는 허깅페이스의 [트랜스포머(transformers) 라이브러리](https://github.com/huggingface/transformers)에서 제공하는 클래스를 사용합니다. 코드7과 같습니다.
 
 ## **코드7** BertForTokenClassification
 {: .no_toc .text-delta }
@@ -377,14 +363,9 @@ class BertForTokenClassification(BertPreTrainedModel):
         return outputs  # (loss), scores, (hidden_states), (attentions)
 ```
 
-코드7의 `self.bert`는 [4-1장](https://ratsgo.github.io/nlpbook/docs/classification/overview)의 BERT 모델을 가리킵니다. 
-빈칸 맞추기, 즉 마스크 언어모델(Masked Language Model)로 프리트레인을 이미 완료한 모델입니다. 
-`self.dropout`와 `self.classifier`는 4-1장에서 소개한 [문서 분류 태스크 모듈](https://ratsgo.github.io/nlpbook/docs/classification/overview/#%ED%83%9C%EC%8A%A4%ED%81%AC-%EB%AA%A8%EB%93%88)이 되겠습니다. 
-개체명 인식 데이터에 대해 개체명 태그를 최대한 잘 맞추는 방향으로 `self.bert`, `self.classifier`가 학습됩니다.
+코드7의 `self.bert`는 [4-1장](https://ratsgo.github.io/nlpbook/docs/classification/overview)의 BERT 모델을 가리킵니다. 빈칸 맞추기, 즉 마스크 언어모델(Masked Language Model)로 프리트레인을 이미 완료한 모델입니다. `self.dropout`와 `self.classifier`는 6-1장에서 소개한 [문서 분류 태스크 모듈](https://ratsgo.github.io/nlpbook/docs/ner/overview/)이 되겠습니다. 개체명 인식 데이터에 대해 개체명 태그를 최대한 잘 맞추는 방향으로 `self.bert`, `self.classifier`가 학습됩니다.
 
-한편 코드6의 `step` 메소드에서 `self.model`을 호출하면 코드7 `BertForTokenClassification`의 `forward` 메소드가 실행됩니다. 
-레이블(label)이 있을 경우 `BertForTokenClassification.forward` 메소드의 출력은 `loss`, `logits`이고, `ClassificationTask.step` 메소드에서는 `loss, logits = self.model(**inputs)`로 호출함을 확인할 수 있습니다. 
-다시 말해 `step` 메소드는 `self.model`과 짝을 지어 구현해야 한다는 이야기입니다. 
+한편 코드6의 `step` 메소드에서 `self.model`을 호출하면 코드7 `BertForTokenClassification`의 `forward` 메소드가 실행됩니다. 레이블(label)이 있을 경우 `BertForTokenClassification.forward` 메소드의 출력은 `loss`, `logits`이고, `ClassificationTask.step` 메소드에서는 `loss, logits = self.model(**inputs)`로 호출함을 확인할 수 있습니다. 다시 말해 `step` 메소드는 `self.model` 메소드와 짝을 지어 구현해야 한다는 이야기입니다. 
 
 
 ---
