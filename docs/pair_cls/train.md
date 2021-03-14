@@ -287,6 +287,6 @@ trainer.fit(
 
 ## **그림3** 코랩 환경에서의 학습
 {: .no_toc .text-delta }
-<img src="https://i.imgur.com/Igrcjjx.png" width="500px" title="source: imgur.com" />
+<img src="https://i.imgur.com/vt2MI5t.png" width="500px" title="source: imgur.com" />
 
 ----
