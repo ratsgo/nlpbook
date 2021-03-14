@@ -6,10 +6,10 @@ nav_order: 4
 ---
 
 
-# ↗️ Customization
+# ↗️ 나만의 문서 분류 모델 만들기
 {: .no_toc }
 
-커스텀 데이터, 토크나이저, 모델, trainer로 나만의 질의 응답 모델을 만드는 과정을 소개합니다.
+커스텀 데이터, 토크나이저, 모델, 트레이너(trainer)로 나만의 질의 응답 모델을 만드는 과정을 소개합니다.
 {: .fs-4 .ls-1 .code-example }
 
 ## Table of contents
@@ -42,12 +42,7 @@ train_dataset = QADataset(
 )
 ```
 
-우리 책 튜토리얼의 학습데이터는 [KorQuAD 1.0](https://korquad.github.io/KorQuad%201.0/)입니다. 그 포맷은 `json`입니다. 코드2의 `KorQuADV1Corpus` 클래스는 위의 데이터 형식을 아래 같이 `QAExample`로 읽어들이는 역할을 합니다. `QAExample`의 필드명과 예시는 다음과 같습니다.
-
-- **question_text** : 바그너는 괴테의 파우스트를 읽고 무엇을 쓰고자 했는가?
-- **context_text** : 1839년 바그너는 괴테의 파우스트을 처음 읽고 그 내용에 마음이 끌려 이를 소재로 해서 하나의 교향곡을 쓰려는 뜻을 갖는다. 이 시기 바그너는 1838년에 빛 독촉으로 산전수전을 다 걲은 상황이라 좌절과 실망에 가득했으며 메피스토펠레스를 만나는 파우스트의 심경에 공감했다고 한다. 또한 파리에서 아브네크의 지휘로 파리 음악원 관현악단이 연주하는 베토벤의 교향곡 9번을 듣고 깊은 감명을 받았는데, 이것이 이듬해 1월에 파우스트의 서곡으로 쓰여진 이 작품에 조금이라도 영향을 끼쳤으리라는 것은 의심할 여지가 없다. 여기의 라단조 조성의 경우에도 그의 전기에 적혀 있는 것처럼 단순한 정신적 피로나 실의가 반영된 것이 아니라 베토벤의 합창교향곡 조성의 영향을 받은 것을 볼 수 있다. 그렇게 교향곡 작곡을 1839년부터 40년에 걸쳐 파리에서 착수했으나 1악장을 쓴 뒤에 중단했다. 또한 작품의 완성과 동시에 그는 이 서곡(1악장)을 파리 음악원의 연주회에서 연주할 파트보까지 준비하였으나, 실제로는 이루어지지는 않았다. 결국 초연은 4년 반이 지난 후에 드레스덴에서 연주되었고 재연도 이루어졌지만, 이후에 그대로 방치되고 말았다. 그 사이에 그는 리엔치와 방황하는 네덜란드인을 완성하고 탄호이저에도 착수하는 등 분주한 시간을 보냈는데, 그런 바쁜 생활이 이 곡을 잊게 한 것이 아닌가 하는 의견도 있다.
-- **answer_text** : 교향곡
-- **start_position_character** : 54
+우리 책 튜토리얼의 학습데이터는 [KorQuAD 1.0](https://korquad.github.io/KorQuad%201.0/)입니다. 그 포맷은 `json`입니다. 코드2의 `KorQuADV1Corpus` 클래스는 위의 데이터 형식을 `QAExample`로 읽어들이는 역할을 합니다. 이와 관련해서는 [7-2장 Training](https://ratsgo.github.io/nlpbook/docs/qa/train)을 참고하시면 좋을 것 같습니다.
 
 
 ## **코드2** KorQuADV1Corpus
@@ -297,19 +292,11 @@ class QATask(LightningModule):
         return tqdm_dict
 ```
 
-코드6에서 핵심적인 역할을 하는 메소드는 `step`입니다. 
-미니 배치(input)를 모델에 태운 뒤 손실(loss)과 로짓(logit)을 계산합니다. 
-모델의 최종 출력은 '각 토큰이 정답의 시작일 확률'인데요. 
-로짓은 소프트맥스를 취하기 직전의 벡터입니다. 
+코드6에서 핵심적인 역할을 하는 메소드는 `step`입니다. 미니 배치(input)를 모델에 태운 뒤 손실(loss)과 로짓(logit)을 계산합니다. 모델의 최종 출력은 '각 토큰이 정답의 시작/끝일 확률'인데요. 로짓은 소프트맥스를 취하기 직전의 벡터입니다. 
 
-로짓에 argmax를 취해 모델이 예측한 시작 토큰을 가려내고 이로부터 정확도(accuracy)를 계산합니다. 
-로짓으로 예측 범주(`preds`)를 만드는 이유는 소프트맥스를 취한다고 대소 관계가 바뀌는 것은 아니니, 로짓으로 argmax를 하더라도 예측 범주가 달라지진 않기 때문입니다. 
-이후 손실, 정확도 등의 정보를 로그에 남긴 뒤 `step` 메소드를 종료합니다.
+로짓에 argmax를 취해 모델이 예측한 시작/끝 토큰을 가려내고 이로부터 정확도(accuracy)를 계산합니다.  로짓으로 예측 범주(`preds`)를 만드는 이유는 소프트맥스를 취한다고 대소 관계가 바뀌는 것은 아니니, 로짓으로 argmax를 하더라도 예측 범주가 달라지진 않기 때문입니다. 이후 손실, 정확도 등의 정보를 로그에 남긴 뒤 `step` 메소드를 종료합니다.
 
-코드6의 `step` 메소드는 `self.model`을 호출(call)해 손실과 로짓을 계산하는데요. 
-`self.model`은 코드7의 `BertForTokenClassification` 클래스를 가리킵니다. 
-본서에서는 허깅페이스의 [트랜스포머(transformers) 라이브러리](https://github.com/huggingface/transformers)에서 제공하는 클래스를 사용합니다. 
-코드7과 같습니다.
+코드6의 `step` 메소드는 `self.model`을 호출(call)해 손실과 로짓을 계산하는데요. `self.model`은 코드7의 `BertForTokenClassification` 클래스를 가리킵니다. 본서에서는 허깅페이스의 [트랜스포머(transformers) 라이브러리](https://github.com/huggingface/transformers)에서 제공하는 클래스를 사용합니다. 코드7과 같습니다.
 
 ## **코드7** BertForQuestionAnswering
 {: .no_toc .text-delta }
@@ -380,14 +367,9 @@ class BertForQuestionAnswering(BertPreTrainedModel):
         return outputs  # (loss), start_logits, end_logits, (hidden_states), (attentions)
 ```
 
-코드7의 `self.bert`는 [4-1장](https://ratsgo.github.io/nlpbook/docs/classification/overview)의 BERT 모델을 가리킵니다. 
-빈칸 맞추기, 즉 마스크 언어모델(Masked Language Model)로 프리트레인을 이미 완료한 모델입니다. 
-`self.dropout`와 `self.classifier`는 4-1장에서 소개한 [문서 분류 태스크 모듈](https://ratsgo.github.io/nlpbook/docs/classification/overview/#%ED%83%9C%EC%8A%A4%ED%81%AC-%EB%AA%A8%EB%93%88)이 되겠습니다. 
-개체명 인식 데이터에 대해 개체명 태그를 최대한 잘 맞추는 방향으로 `self.bert`, `self.classifier`가 학습됩니다.
+코드7의 `self.bert`는 [4-1장](https://ratsgo.github.io/nlpbook/docs/classification/overview)의 BERT 모델을 가리킵니다. 빈칸 맞추기, 즉 마스크 언어모델(Masked Language Model)로 프리트레인을 이미 완료한 모델입니다. `self.dropout`와 `self.classifier`는 7-1장에서 소개한 [질의 응답 태스크 모듈](http://localhost:4000/nlpbook/docs/qa/overview/)이 되겠습니다. KorQuAD 1.0 데이터에 대해 정답의 시작/끝 토큰 위치를 최대한 잘 맞추는 방향으로 `self.bert`, `self.classifier`가 학습됩니다.
 
-한편 코드6의 `step` 메소드에서 `self.model`을 호출하면 코드7 `BertForQuestionAnswering`의 `forward` 메소드가 실행됩니다. 
-레이블(label)이 있을 경우 `BertForQuestionAnswering.forward` 메소드의 출력은 `loss`, `logits`이고, `QATask.step` 메소드에서는 `loss, logits = self.model(**inputs)`로 호출함을 확인할 수 있습니다. 
-다시 말해 `step` 메소드는 `self.model`과 짝을 지어 구현해야 한다는 이야기입니다. 
+한편 코드6의 `step` 메소드에서 `self.model`을 호출하면 코드7 `BertForQuestionAnswering`의 `forward` 메소드가 실행됩니다. 레이블(label)이 있을 경우 `BertForQuestionAnswering.forward` 메소드의 출력은 `loss`, `logits`이고, `QATask.step` 메소드에서는 `loss, logits = self.model(**inputs)`로 호출함을 확인할 수 있습니다. 다시 말해 `step` 메소드는 `self.model` 메소드와 짝을 지어 구현해야 한다는 이야기입니다. 
 
 
 ---
