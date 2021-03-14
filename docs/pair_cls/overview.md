@@ -22,7 +22,9 @@ nav_order: 1
 
 ## 과제 소개
 
-문장 쌍 분류(Sentence Pair Classification)이란 문장 두 개가 주어졌을 때 해당 문장 사이의 관계가 어떤 범주일지 분류하는 과제(task)입니다. 문장 쌍 분류의 대표 예시로 자연어 추론(Natural Langugage Inference; NLI)이 있습니다. 두 개 문장이 함의(entailment), 모순(contradiction), 중립(neutral)인지 가려내는 것입니다. 
+문장 쌍 분류(Sentence Pair Classification)이란 문장 두 개가 주어졌을 때 해당 문장 사이의 관계가 어떤 범주일지 분류하는 과제(task)입니다. 문장 쌍 분류의 대표 예시로 자연어 추론(Natural Langugage Inference; NLI)이 있습니다. 두 개 문장이 참(entailment), 거짓(contradiction), 중립(neutral)인지 가려내는 것입니다. 예컨대 다음과 같습니다.
+
+- 나 출근했어 + 난 백수야 → 거짓(contradiction)
 
 이번 튜토리얼에서 사용할 데이터는 카카오브레인에서 공개한 [KorNLI](https://github.com/kakaobrain/KorNLUDatasets/tree/master/KorNLI) 데이터셋입니다. 영어 NLI 데이터셋을 번역한 데이터로 다음과 같이 구성되어 있습니다. 아래에서 살펴볼 수 있듯 전제(premise)에 대한 가설(hypothesis)이 참(`entailment`)인지, 거짓(`contradiction`)인지, 중립 혹은 판단불가(`neutral`)인지 정보가 레이블(label)로 주어져 있습니다. 여기에서 `entailment`는 함의, `contradiction`은 모순으로 번역되기도 합니다.
 
