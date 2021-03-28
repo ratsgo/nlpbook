@@ -71,7 +71,7 @@ if __name__ == "__main__":
     else:
         val_dataloader = None
     model = GPT2LMHeadModel.from_pretrained(
-            args.pretrained_model_name,
+            args.pretrained_model_cache_dir,
     )
     task = GenerationTask(model, args)
     trainer = nlpbook.get_trainer(args)
