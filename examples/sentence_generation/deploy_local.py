@@ -1,143 +1,77 @@
+import sys
 import torch
-from transformers import GPT2LMHeadModel, GPT2Config
-from ratsnlp.nlpbook.tokenizers import KoGPT2Tokenizer
+from ratsnlp import nlpbook
+from transformers import GPT2LMHeadModel, GPT2Config, GPT2Tokenizer
+from ratsnlp.nlpbook.generation import GenerationDeployArguments, get_web_service_app
 
-# initialize model and tokenizer
-pretrained_model_config = GPT2Config.from_pretrained("taeminlee/kogpt2")
-model = GPT2LMHeadModel(pretrained_model_config)
-fine_tuned_model_ckpt = torch.load(
-    "/Users/david/Downloads/epoch=5.ckpt",
-    map_location=torch.device("cpu"),
-)
-model.load_state_dict({k.replace("model.", ""): v for k, v in fine_tuned_model_ckpt['state_dict'].items()})
-tokenizer = KoGPT2Tokenizer.from_pretrained("taeminlee/kogpt2")
-input_ids = tokenizer.encode("부정 와 정말", return_tensors="pt")
+if __name__ == "__main__":
+    # case1 : python deploy_local.py
+    if len(sys.argv) == 1:
+        args = GenerationDeployArguments(
+            pretrained_model_name="kogpt2",
+            pretrained_model_cache_dir="/Users/david/Downloads/KoGPT2-384",
+        )
+    # case2 : python deploy_local.py deploy_config.json
+    elif len(sys.argv) == 2 and sys.argv[-1].endswith(".json"):
+        args = nlpbook.load_arguments(GenerationDeployArguments, json_file_path=sys.argv[-1])
+    # case3 : python deploy_local.py --pretrained_model_name beomi/kcbert-base --downstream_model_checkpoint_path checkpoint/document-classification/epoch=10.ckpt --downstream_task_name document-classification --max_seq_length 128
+    else:
+        args = nlpbook.load_arguments(GenerationDeployArguments)
 
-# greedy decoding
-# best1 선택, 생성할 때마다 같은 문장이 나온다
-generated_ids = model.generate(
-    input_ids,
-    do_sample=False,
-    max_length=50,
-)
-# 안녕하세요</s><s> 나 지금 집에 가고 있어</s><s> 나 지금 집에 가고 있어</s>...
-tokenizer.decode([el.item() for el in generated_ids[0]])
+    if args.downstream_model_checkpoint_path is None:
+        nlpbook.download_pretrained_model(args)
+        model = GPT2LMHeadModel.from_pretrained(
+            args.pretrained_model_cache_dir,
+        )
+    else:
+        nlpbook.download_pretrained_model(args, config_only=True)
+        pretrained_model_config = GPT2Config.from_pretrained(
+            args.pretrained_model_cache_dir,
+        )
+        model = GPT2LMHeadModel(pretrained_model_config)
+        fine_tuned_model_ckpt = torch.load(
+            args.downstream_model_checkpoint_path,
+            map_location=torch.device("cpu")
+        )
+        model.load_state_dict({k.replace("model.", ""): v for k, v in fine_tuned_model_ckpt['state_dict'].items()})
+    model.eval()
+    tokenizer = GPT2Tokenizer.from_pretrained(
+        args.pretrained_model_cache_dir,
+    )
 
-# greedy decoding + repetition penalty
-# 반복을 방지하지만 greedy이기 때문에 생성할 때마다 같은 문장이 나온다
-generated_ids = model.generate(
-    input_ids,
-    do_sample=False,
-    max_length=50,
-    repetition_penalty=1.2,
-)
-# 안녕하세요</s><s> 나 지금 집에 가고 있어.</s><s> 잘 자요 내 사랑</s><s> 사랑해</s>...
-tokenizer.decode([el.item() for el in generated_ids[0]])
+    def inference_fn(
+            prompt,
+            max_length=30,
+            top_p=1.0,
+            top_k=1,
+            repetition_penalty=1.0,
+            temperature=1.0,
+    ):
+        try:
+            input_ids = tokenizer.encode(prompt, return_tensors="pt")
+            with torch.no_grad():
+                generated_ids = model.generate(
+                    input_ids,
+                    do_sample=True,
+                    top_p=float(top_p),
+                    top_k=int(top_k),
+                    max_length=int(max_length),
+                    repetition_penalty=float(repetition_penalty),
+                    temperature=float(temperature),
+                )
+            generated_sentence = tokenizer.decode([el.item() for el in generated_ids[0]])
+        except:
+            generated_sentence = """처리 중 오류가 발생했습니다. <br>
+            변수의 입력 범위를 확인하세요. <br><br> 
+            생성 길이: 1 이상의 정수 <br>
+            top-p: 0 이상 1 이하의 실수 <br>
+            top-k: 1 이상의 정수 <br>
+            repetition penalty: 1 이상의 실수 <br>
+            temperature: 0 이상의 실수
+            """
+        return {
+            'result': generated_sentence,
+        }
 
-# beam search without sampling
-# beam size만큼의 candidate 가운데 최대 확률을 내는 시퀀스를 찾는다 (deteministic)
-# 생성할 때마다 같은 문장이 나온다
-generated_ids = model.generate(
-    input_ids,
-    do_sample=False,
-    max_length=50,
-    num_beams=10,
-)
-# 안녕하세요"라는 글과 함께 한 장의 사진을 게재했다.</s><s> 한편 이날...
-tokenizer.decode([el.item() for el in generated_ids[0]])
-
-# beam search with sampling
-generated_ids = model.generate(
-    input_ids,
-    do_sample=True,
-    max_length=50,
-    num_beams=10,
-)
-tokenizer.decode([el.item() for el in generated_ids[0]])
-
-# beam search with sampling + length penalty
-# length penalty는 beam search일 때 동작한다
-generated_ids = model.generate(
-    input_ids,
-    do_sample=True,
-    max_length=50,
-    num_beams=10,
-    length_penalty=1.5,
-)
-# 안녕하세요</s><s> 나 지금 집에 가고 있어.</s><s> 잘 자요 내 사랑</s><s> 사랑해</s>...
-tokenizer.decode([el.item() for el in generated_ids[0]])
-
-# top-p sampling
-# p는 0~1 범위, sampling을 한다고는 하지만 p가 0에 가까울 수록 greedy decoding
-# do_sample이 False일 경우 top_p가 작동하지 않는다
-generated_ids = model.generate(
-    input_ids,
-    do_sample=True,
-    top_p=0.0001,
-    max_length=50,
-)
-# 안녕하세요</s><s> 나 지금 집에 가고 있어</s><s> 나 지금 집에 가고 있어</s>...
-tokenizer.decode([el.item() for el in generated_ids[0]])
-
-# top-p sampling
-# p가 1에 가깝다면 모델 출력 분포를 가공 없이 그대로 사용
-# do_sample이 False일 경우 top_p가 작동하지 않는다
-generated_ids = model.generate(
-    input_ids,
-    do_sample=True,
-    top_p=0.9999,
-    max_length=50,
-)
-# 모델 출력 분포에서 다음 단어를 샘플하는 것이기 때문에 생성할 때마다 다른 문장이 나온다
-tokenizer.decode([el.item() for el in generated_ids[0]])
-
-# top-k sampling
-# k가 1이라면 greedy decoding과 동일
-generated_ids = model.generate(
-    input_ids,
-    do_sample=True,
-    top_k=1,
-    max_length=50,
-)
-tokenizer.decode([el.item() for el in generated_ids[0]])
-
-# k가 커질수록 다양성이 커진다
-generated_ids = model.generate(
-    input_ids,
-    do_sample=True,
-    top_k=100,
-    max_length=50,
-)
-tokenizer.decode([el.item() for el in generated_ids[0]])
-
-# temperature sampling
-# t는 0에서 inf 범위
-# t가 0에 가까워질 수록 토큰 분포가 sharp해진다 > 1등 토큰이 뽑힐 확률이 그만큼 높아진다 > 사실상 greedy decoding이 된다
-generated_ids = model.generate(
-    input_ids,
-    do_sample=True,
-    temperature=0.0001,
-    max_length=50,
-)
-# 안녕하세요</s><s> 나 지금 집에 가고 있어</s><s> 나 지금 집에 가고 있어</s>...
-tokenizer.decode([el.item() for el in generated_ids[0]])
-
-# temperature가 1이라면 모델 출력 분포를 가공 없이 그대로 사용
-generated_ids = model.generate(
-    input_ids,
-    do_sample=True,
-    temperature=1,
-    max_length=50,
-)
-# 모델 출력 분포에서 다음 단어를 샘플하는 것이기 때문에 생성할 때마다 다른 문장이 나온다
-tokenizer.decode([el.item() for el in generated_ids[0]])
-
-# temperature가 클수록 uniform > 그만큼 다양한 문장이 생성된다 (정확도는 낮아짐)
-generated_ids = model.generate(
-    input_ids,
-    do_sample=True,
-    temperature=100,
-    max_length=50,
-)
-# 생성할 때마다 다른 문장이 나온다
-tokenizer.decode([el.item() for el in generated_ids[0]])
+    app = get_web_service_app(inference_fn, is_colab=False)
+    app.run()
