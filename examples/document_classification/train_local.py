@@ -16,7 +16,6 @@ if __name__ == "__main__":
             downstream_corpus_name="nsmc",
             force_download=True,
             downstream_model_dir="checkpoint/document-classification",
-            do_eval=True,
             batch_size=32,
             epochs=5,
         )
@@ -52,23 +51,20 @@ if __name__ == "__main__":
         drop_last=False,
         num_workers=args.cpu_workers,
     )
-    if args.do_eval:
-        val_dataset = ClassificationDataset(
-            args=args,
-            corpus=corpus,
-            tokenizer=tokenizer,
-            mode="test",
-        )
-        val_dataloader = DataLoader(
-            val_dataset,
-            batch_size=args.batch_size,
-            sampler=SequentialSampler(val_dataset),
-            collate_fn=nlpbook.data_collator,
-            drop_last=False,
-            num_workers=args.cpu_workers,
-        )
-    else:
-        val_dataloader = None
+    val_dataset = ClassificationDataset(
+        args=args,
+        corpus=corpus,
+        tokenizer=tokenizer,
+        mode="test",
+    )
+    val_dataloader = DataLoader(
+        val_dataset,
+        batch_size=args.batch_size,
+        sampler=SequentialSampler(val_dataset),
+        collate_fn=nlpbook.data_collator,
+        drop_last=False,
+        num_workers=args.cpu_workers,
+    )
     pretrained_model_config = BertConfig.from_pretrained(
         args.pretrained_model_name,
         num_labels=corpus.num_labels,
