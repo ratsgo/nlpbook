@@ -18,7 +18,7 @@ if __name__ == "__main__":
             downstream_model_dir="checkpoint/document-classification",
             do_eval=True,
             batch_size=32,
-            epochs=10,
+            epochs=5,
         )
     # case2 : python train_local.py train_config.json
     elif len(sys.argv) == 2 and sys.argv[-1].endswith(".json"):
