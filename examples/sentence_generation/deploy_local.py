@@ -1,15 +1,15 @@
 import sys
 import torch
 from ratsnlp import nlpbook
-from transformers import GPT2LMHeadModel, GPT2Config, GPT2Tokenizer
+from transformers import GPT2LMHeadModel, GPT2Config, PreTrainedTokenizerFast
 from ratsnlp.nlpbook.generation import GenerationDeployArguments, get_web_service_app
 
 if __name__ == "__main__":
     # case1 : python deploy_local.py
     if len(sys.argv) == 1:
         args = GenerationDeployArguments(
-            pretrained_model_name="kogpt2",
-            pretrained_model_cache_dir="/Users/david/Downloads/KoGPT2-384",
+            pretrained_model_name="skt/kogpt2-base-v2",
+            downstream_model_checkpoint_path="checkpoint/sentence-generation/epoch=0.ckpt",
         )
     # case2 : python deploy_local.py deploy_config.json
     elif len(sys.argv) == 2 and sys.argv[-1].endswith(".json"):
@@ -21,12 +21,11 @@ if __name__ == "__main__":
     if args.downstream_model_checkpoint_path is None:
         nlpbook.download_pretrained_model(args)
         model = GPT2LMHeadModel.from_pretrained(
-            args.pretrained_model_cache_dir,
+            args.pretrained_model_name,
         )
     else:
-        nlpbook.download_pretrained_model(args, config_only=True)
         pretrained_model_config = GPT2Config.from_pretrained(
-            args.pretrained_model_cache_dir,
+            args.pretrained_model_name,
         )
         model = GPT2LMHeadModel(pretrained_model_config)
         fine_tuned_model_ckpt = torch.load(
@@ -35,8 +34,9 @@ if __name__ == "__main__":
         )
         model.load_state_dict({k.replace("model.", ""): v for k, v in fine_tuned_model_ckpt['state_dict'].items()})
     model.eval()
-    tokenizer = GPT2Tokenizer.from_pretrained(
-        args.pretrained_model_cache_dir,
+    tokenizer = PreTrainedTokenizerFast.from_pretrained(
+        args.pretrained_model_name,
+        eos_token='</s>',
     )
 
     def inference_fn(

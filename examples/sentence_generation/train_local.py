@@ -2,7 +2,7 @@ import sys
 from ratsnlp import nlpbook
 from Korpora import Korpora
 from ratsnlp.nlpbook.generation import *
-from transformers import GPT2LMHeadModel, GPT2Tokenizer
+from transformers import GPT2LMHeadModel, PreTrainedTokenizerFast
 from torch.utils.data import DataLoader, SequentialSampler, RandomSampler
 
 
@@ -10,8 +10,7 @@ if __name__ == "__main__":
     # case1 : python train_local.py
     if len(sys.argv) == 1:
         args = GenerationTrainArguments(
-            pretrained_model_name="kogpt2",
-            pretrained_model_cache_dir="model",
+            pretrained_model_name="skt/kogpt2-base-v2",
             downstream_corpus_root_dir="data",
             downstream_corpus_name="nsmc",
             force_download=True,
@@ -19,7 +18,7 @@ if __name__ == "__main__":
             do_eval=True,
             batch_size=32,
             max_seq_length=32,
-            epochs=10,
+            epochs=5,
         )
     # case2 : python train_local.py train_config.json
     elif len(sys.argv) == 2 and sys.argv[-1].endswith(".json"):
@@ -28,15 +27,15 @@ if __name__ == "__main__":
     else:
         args = nlpbook.load_arguments(GenerationTrainArguments)
     nlpbook.set_logger(args)
-    nlpbook.download_pretrained_model(args)
     Korpora.fetch(
         corpus_name=args.downstream_corpus_name,
         root_dir=args.downstream_corpus_root_dir,
         force_download=args.force_download,
     )
     nlpbook.seed_setting(args)
-    tokenizer = GPT2Tokenizer.from_pretrained(
-        args.pretrained_model_cache_dir
+    tokenizer = PreTrainedTokenizerFast.from_pretrained(
+        args.pretrained_model_name,
+        eos_token='</s>',
     )
     corpus = NsmcCorpus()
     train_dataset = GenerationDataset(
@@ -71,7 +70,7 @@ if __name__ == "__main__":
     else:
         val_dataloader = None
     model = GPT2LMHeadModel.from_pretrained(
-            args.pretrained_model_cache_dir,
+            args.pretrained_model_name,
     )
     task = GenerationTask(model, args)
     trainer = nlpbook.get_trainer(args)
