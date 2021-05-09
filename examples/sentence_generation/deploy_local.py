@@ -19,7 +19,6 @@ if __name__ == "__main__":
         args = nlpbook.load_arguments(GenerationDeployArguments)
 
     if args.downstream_model_checkpoint_path is None:
-        nlpbook.download_pretrained_model(args)
         model = GPT2LMHeadModel.from_pretrained(
             args.pretrained_model_name,
         )
@@ -41,10 +40,12 @@ if __name__ == "__main__":
 
     def inference_fn(
             prompt,
-            max_length=30,
+            min_length=10,
+            max_length=20,
             top_p=1.0,
-            top_k=1,
+            top_k=50,
             repetition_penalty=1.0,
+            no_repeat_ngram_size=3,
             temperature=1.0,
     ):
         try:
@@ -55,20 +56,22 @@ if __name__ == "__main__":
                     do_sample=True,
                     top_p=float(top_p),
                     top_k=int(top_k),
+                    min_length=int(min_length),
                     max_length=int(max_length),
                     repetition_penalty=float(repetition_penalty),
+                    no_repeat_ngram_size=int(no_repeat_ngram_size),
                     temperature=float(temperature),
                 )
             generated_sentence = tokenizer.decode([el.item() for el in generated_ids[0]])
         except:
             generated_sentence = """처리 중 오류가 발생했습니다. <br>
-            변수의 입력 범위를 확인하세요. <br><br> 
-            생성 길이: 1 이상의 정수 <br>
-            top-p: 0 이상 1 이하의 실수 <br>
-            top-k: 1 이상의 정수 <br>
-            repetition penalty: 1 이상의 실수 <br>
-            temperature: 0 이상의 실수
-            """
+                변수의 입력 범위를 확인하세요. <br><br> 
+                생성 길이: 1 이상의 정수 <br>
+                top-p: 0 이상 1 이하의 실수 <br>
+                top-k: 1 이상의 정수 <br>
+                repetition penalty: 1 이상의 실수 <br>
+                temperature: 0 이상의 실수
+                """
         return {
             'result': generated_sentence,
         }
