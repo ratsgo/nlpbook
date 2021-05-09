@@ -2,8 +2,8 @@ import sys
 from ratsnlp import nlpbook
 from ratsnlp.nlpbook import load_arguments
 from torch.utils.data import DataLoader, SequentialSampler, RandomSampler
-from transformers import BertConfig, BertTokenizer, BertForQuestionAnswering
 from ratsnlp.nlpbook.qa import QATrainArguments, KorQuADV1Corpus, QADataset, QATask
+from transformers import BertConfig, BertTokenizer, BertForQuestionAnswering, set_seed
 
 
 if __name__ == "__main__":
@@ -29,7 +29,7 @@ if __name__ == "__main__":
         args = load_arguments(QATrainArguments)
     nlpbook.set_logger(args)
     nlpbook.download_downstream_dataset(args)
-    nlpbook.seed_setting(args)
+    set_seed(args.seed)
     tokenizer = BertTokenizer.from_pretrained(
         args.pretrained_model_name,
         do_lower_case=False,

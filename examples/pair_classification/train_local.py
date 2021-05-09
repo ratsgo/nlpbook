@@ -3,7 +3,7 @@ from ratsnlp import nlpbook
 from Korpora import Korpora
 from ratsnlp.nlpbook import load_arguments
 from torch.utils.data import DataLoader, SequentialSampler, RandomSampler
-from transformers import BertConfig, BertTokenizer, BertForSequenceClassification
+from transformers import BertConfig, BertTokenizer, BertForSequenceClassification, set_seed
 from ratsnlp.nlpbook.classification import ClassificationTrainArguments, ClassificationDataset, ClassificationTask
 from ratsnlp.nlpbook.paircls import KorNLICorpus
 
@@ -34,7 +34,7 @@ if __name__ == "__main__":
         root_dir=args.downstream_corpus_root_dir,
         force_download=args.force_download,
     )
-    nlpbook.seed_setting(args)
+    set_seed(args.seed)
     tokenizer = BertTokenizer.from_pretrained(
         args.pretrained_model_name,
         do_lower_case=False,
