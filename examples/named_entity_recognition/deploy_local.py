@@ -70,8 +70,8 @@ if __name__ == "__main__":
             truncation=True,
         )
         with torch.no_grad():
-            logits, = model(**{k: torch.tensor(v) for k, v in inputs.items()})
-            probs = logits[0].softmax(dim=1)
+            outputs = model(**{k: torch.tensor(v) for k, v in inputs.items()})
+            probs = outputs.logits[0].softmax(dim=1)
             top_probs, preds = torch.topk(probs, dim=1, k=1)
             tokens = tokenizer.convert_ids_to_tokens(inputs["input_ids"][0])
             predicted_tags = [id_to_label[pred.item()] for pred in preds]

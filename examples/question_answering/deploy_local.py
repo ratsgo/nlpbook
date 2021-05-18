@@ -52,9 +52,9 @@ if __name__ == "__main__":
                 return_token_type_ids=True,
             )
             with torch.no_grad():
-                start_logits, end_logits, = model(**{k: torch.tensor([v]) for k, v in inputs.items()})
-                start_pred = start_logits.argmax(dim=-1).item()
-                end_pred = end_logits.argmax(dim=-1).item()
+                outputs = model(**{k: torch.tensor([v]) for k, v in inputs.items()})
+                start_pred = outputs.start_logits.argmax(dim=-1).item()
+                end_pred = outputs.end_logits.argmax(dim=-1).item()
                 pred_text = tokenizer.decode(inputs['input_ids'][start_pred:end_pred+1])
         else:
             pred_text = ""

@@ -45,8 +45,8 @@ if __name__ == "__main__":
             truncation=True,
         )
         with torch.no_grad():
-            logits, = model(**{k: torch.tensor(v) for k, v in inputs.items()})
-            prob = logits.softmax(dim=1)
+            outputs = model(**{k: torch.tensor(v) for k, v in inputs.items()})
+            prob = outputs.logits.softmax(dim=1)
             entailment_prob = round(prob[0][0].item(), 2)
             contradiction_prob = round(prob[0][1].item(), 2)
             neutral_prob = round(prob[0][2].item(), 2)
