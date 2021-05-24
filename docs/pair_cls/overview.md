@@ -26,30 +26,30 @@ nav_order: 1
 
 - 나 출근했어 + 난 백수야 → 거짓(contradiction)
 
-이번 튜토리얼에서 사용할 데이터는 카카오브레인에서 공개한 [KorNLI](https://github.com/kakaobrain/KorNLUDatasets/tree/master/KorNLI) 데이터셋입니다. 영어 NLI 데이터셋을 번역한 데이터로 다음과 같이 구성되어 있습니다. 아래에서 살펴볼 수 있듯 전제(premise)에 대한 가설(hypothesis)이 참(`entailment`)인지, 거짓(`contradiction`)인지, 중립 혹은 판단불가(`neutral`)인지 정보가 레이블(label)로 주어져 있습니다. 여기에서 `entailment`는 함의, `contradiction`은 모순으로 번역되기도 합니다.
+이번 튜토리얼에서 사용할 데이터는 업스테이지에서 공개한 [NLI 데이터셋](https://klue-benchmark.com/tasks/68/overview/description)입니다. 전제(premise)에 대한 가설(hypothesis)이 참(`entailment`)인지, 거짓(`contradiction`)인지, 중립 혹은 판단불가(`neutral`)인지 정보가 레이블(`gold_label`)로 주어져 있습니다. 여기에서 `entailment`는 함의, `contradiction`은 모순으로 번역되기도 합니다.
 
-- **전제(premise)**: 나는 정보가 부족해요.
-- **가설(hypothesis)**: 내게 필요할 정보는 다 갖고 있어요.
-- **레이블(label)**: `contradiction`
+- **전제(premise)**: 100분간 잘껄 그래도 소닉붐땜에 2점준다
+- **가설(hypothesis)**: 100분간 잤다.
+- **레이블(gold_label)**: `contradiction`
 
-- **전제(premise)**: 나는 정보가 부족해요.
-- **가설(hypothesis)**: 나는 어떤 차를 구입할지 결정하려면 더 많은 정보가 필요하다.
-- **레이블(label)**: `neutral`
+- **전제(premise)**: 100분간 잘껄 그래도 소닉붐땜에 2점준다
+- **가설(hypothesis)**: 소닉붐이 정말 멋있었다.
+- **레이블(gold_label)**: `neutral`
 
-- **전제(premise)**: 나는 정보가 부족해요.
-- **가설(hypothesis)**: 나는 이 일에 대한 정보를 더 모으고 싶어요.
-- **레이블(label)**: `entailment`
+- **전제(premise)**: 101빌딩 근처에 나름 즐길거리가 많습니다.
+- **가설(hypothesis)**: 101빌딩 부근에서는 여러가지를 즐길수 있습니다.
+- **레이블(gold_label)**: `entailment`
 
 
 우리가 만들 NLI 과제 수행 모델은 전제와 가설 두 개 문장을 입력으로 하고, 두 문장의 관계가 어떤 범주일지 확률(`entailment`, `contradiction`, `neutral`)을 출력으로 합니다. 예컨대 다음과 같습니다.
 
-- 나는 정보가 부족해요 + 내게 필요할 정보는 다 갖고 있어요 → [0.02, 0.97, 0.01]
-- 나는 정보가 부족해요 + 나는 이 일에 대한 정보를 더 모으고 싶어요 → [0.98, 0.01, 0.01]
+- 100분간 잘껄 그래도 소닉붐땜에 2점준다 + 100분간 잤다. → [0.02, 0.97, 0.01]
+- 100분간 잘껄 그래도 소닉붐땜에 2점준다 + 소닉붐이 정말 멋있었다. → [0.01, 0.01, 0.98]
 
 NLI 모델의 출력은 확률입니다. 적당한 후처리(post processing) 과정을 거쳐 사람이 보기에 좋은 형태로 가공해 줍니다. 
 
-- 나는 정보가 부족해요 + 내게 필요할 정보는 다 갖고 있어요 → [0.02, 0.97, 0.01] → `contradiction`
-- 나는 정보가 부족해요 + 나는 이 일에 대한 정보를 더 모으고 싶어요 → [0.98, 0.01, 0.01] → `entailment`
+- 100분간 잘껄 그래도 소닉붐땜에 2점준다 + 100분간 잤다. → [0.02, 0.97, 0.01] → `contradiction`
+- 100분간 잘껄 그래도 소닉붐땜에 2점준다 + 소닉붐이 정말 멋있었다. → [0.01, 0.01, 0.98] → `neutral`
 
 
 ---
@@ -87,3 +87,4 @@ NLI 모델의 출력은 확률입니다. 적당한 후처리(post processing) �
 
 
 ---
+

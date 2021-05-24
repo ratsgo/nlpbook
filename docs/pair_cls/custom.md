@@ -21,15 +21,15 @@ nav_order: 4
 
 ## 내 데이터 사용하기
 
-우리 책 문장 쌍 분류 튜토리얼은 카카오브레인에서 공개한 [KorNLIDatasets](https://github.com/kakaobrain/KorNLUDatasets)를 사용하고 있는데요. 나만의 문장 쌍 모델 구축을 위한 첫걸음은 내가 가진 데이터를 활용하는 것일 겁니다. 이를 위해서는 말뭉치를 읽어들이는 코드에 대한 이해가 선행되어야 할텐데요. 우리 책 튜토리얼에서 KorNLI 데이터를 어떻게 읽고 전처리하고 있는지 살펴보겠습니다. 코드1과 같습니다.
+우리 책 문장 쌍 분류 튜토리얼은 인공지능 기업 '업스테이지'에서 공개한 [NLI 데이터셋](https://klue-benchmark.com/tasks/68/overview/description)을 사용하고 있는데요. 나만의 문장 쌍 모델 구축을 위한 첫걸음은 내가 가진 데이터를 활용하는 것일 겁니다. 이를 위해서는 말뭉치를 읽어들이는 코드에 대한 이해가 선행되어야 할텐데요. 우리 책 튜토리얼에서 KorNLI 데이터를 어떻게 읽고 전처리하고 있는지 살펴보겠습니다. 코드1과 같습니다.
 
 ## **코드1** KorNLI 데이터 로딩 및 전처리
 {: .no_toc .text-delta }
 
 ```python
 # 데이터 로딩
-from ratsnlp.nlpbook.paircls import KorNLICorpus
-corpus = KorNLICorpus()
+from ratsnlp.nlpbook.paircls import KlueNLICorpus
+corpus = KlueNLICorpus()
 
 # 데이터 전처리
 from ratsnlp.nlpbook.classification import ClassificationDataset
@@ -41,46 +41,41 @@ train_dataset = ClassificationDataset(
 )
 ```
 
-코드1에서 선언한 `KorNLICorpus` 클래스는 KorNLI 데이터를 파이썬 문자열(string) 자료형으로 읽어들이는 역할을 합니다. `KorNLICorpus` 클래스의 구체적 내용은 코드2와 같습니다. 이 클래스의 `get_examples` 메소드는 KorNLI 데이터를 읽어들이고 `get_labels`는 KorNLI 데이터의 모든 레이블 종류(`entailment`, `contradiction`, `neutral`)를 반환하는 역할을 합니다. 
+코드1에서 선언한 `KlueNLICorpus` 클래스는 NLI 데이터를 파이썬 문자열(string) 자료형으로 읽어들이는 역할을 합니다. `KlueNLICorpus` 클래스의 구체적 내용은 코드2와 같습니다. 이 클래스의 `get_examples` 메소드는 NLI 데이터를 읽어들이고 `get_labels`는 NLI 데이터의 모든 레이블 종류(`entailment`, `contradiction`, `neutral`)를 반환하는 역할을 합니다. 
 
-`ClassificationDataset`는 `KorNLICorpus` 클래스의 `get_examples` 메소드를 호출하는 방식으로 말뭉치를 읽어들이는데요. 따라서 `KorNLICorpus` 클래스의 `get_examples`를 자신이 가진 말뭉치에 맞게 고치면 우리가 원하는 목적을 달성할 수 있을 겁니다.
+`ClassificationDataset`는 `KlueNLICorpus` 클래스의 `get_examples` 메소드를 호출하는 방식으로 말뭉치를 읽어들이는데요. 따라서 `KlueNLICorpus` 클래스의 `get_examples`를 자신이 가진 말뭉치에 맞게 고치면 우리가 원하는 목적을 달성할 수 있을 겁니다.
 
-## **코드2** KorNLICorpus 클래스
+## **코드2** KlueNLICorpus 클래스
 {: .no_toc .text-delta }
 
 ```python
 import os, csv
 from ratsnlp.nlpbook.classification.corpus import ClassificationExample
 
-class KorNLICorpus:
+class KlueNLICorpus:
 
     def __init__(self):
         pass
 
     def _create_examples(self, data_path):
         examples = []
-        corpus = open(data_path, "r", encoding="utf-8").readlines()
-        lines = [line.strip().split("\t") for line in corpus]
-        for (i, line) in enumerate(lines):
-            if i == 0:
-                continue
-            text_a, text_b, label = line
-            examples.append(ClassificationExample(text_a=text_a, text_b=text_b, label=label))
+        data = json.load(open(data_path, "r"))
+        for el in data:
+            example = ClassificationExample(
+                text_a=el["premise"],
+                text_b=el["hypothesis"],
+                label=el["gold_label"],
+            )
+            examples.append(example)
         return examples
 
     def get_examples(self, data_path, mode):
         if mode == "train":
-            multinli_train_data_fpath = os.path.join(data_path, "multinli.train.ko.tsv")
-            multinli_train_data = self._create_examples(multinli_train_data_fpath)
-            snli_train_data_fpath = os.path.join(data_path, "snli_1.0_train.ko.tsv")
-            snli_train_data = self._create_examples(snli_train_data_fpath)
-            examples = multinli_train_data + snli_train_data
-        elif mode == "val":
-            valid_data_fpath = os.path.join(data_path, "xnli.dev.ko.tsv")
-            examples = self._create_examples(valid_data_fpath)
+            data_fpath = os.path.join(data_path, "klue_nli_train.json")
         else:
-            test_data_fpath = os.path.join(data_path, "xnli.test.ko.tsv")
-            examples = self._create_examples(test_data_fpath)
+            data_fpath = os.path.join(data_path, "klue_nli_dev.json")
+        logger.info(f"loading {mode} data... LOOKING AT {data_fpath}")
+        examples = self._create_examples(data_fpath)
         return examples
 
     def get_labels(self):
@@ -156,12 +151,9 @@ train_dataset = ClassificationDataset(
 
 ## 피처 구축 방식 이해하기
 
-`ClassificationDataset`은 파이토치의 데이터셋(`Dataset`) 클래스 역할을 하는 클래스입니다. 
-모델이 학습할 데이터를 품고 있는 일종의 자료 창고라고 이해하면 좋을 것 같습니다. 
-만약에 이번 학습에 $i$번째 문서-레이블이 필요하다고 하면 자료 창고에서 $i$번째 데이터를 꺼내 주는 기능이 핵심 역할입니다. `ClassificationDataset`은 [4장 문서 분류 태스크](https://ratsgo.github.io/nlpbook/docs/doc_cls), 그리고 [5장 문장 쌍 분류 태스크](https://ratsgo.github.io/nlpbook/docs/pair_cls) 모두 수행 가능합니다.
+`ClassificationDataset`은 파이토치의 데이터셋(`Dataset`) 클래스 역할을 하는 클래스입니다. 모델이 학습할 데이터를 품고 있는 일종의 자료 창고라고 이해하면 좋을 것 같습니다. 만약에 이번 학습에 $i$번째 문서-레이블이 필요하다고 하면 자료 창고에서 $i$번째 데이터를 꺼내 주는 기능이 핵심 역할입니다. `ClassificationDataset`은 [4장 문서 분류 태스크](https://ratsgo.github.io/nlpbook/docs/doc_cls), 그리고 [5장 문장 쌍 분류 태스크](https://ratsgo.github.io/nlpbook/docs/pair_cls) 모두 수행 가능합니다.
 
-코드5를 코드4와 연관지어 전체 데이터 전처리 과정이 어떻게 이뤄지는지 살펴보겠습니다.
-코드4에서 `CustomNLICorpus`를 `ClassificationDataset` 클래스의 `corpus`로 넣었다고 가정해봅시다. 그러면 `ClassificationDataset` 클래스는 `CustomNLICorpus`의 `get_examples` 메소드를 호출해 진술, 가설, 레이블을 `ClassificationExample` 형태로 읽어들입니다.
+코드5를 코드4와 연관지어 전체 데이터 전처리 과정이 어떻게 이뤄지는지 살펴보겠습니다. 코드4에서 `CustomNLICorpus`를 `ClassificationDataset` 클래스의 `corpus`로 넣었다고 가정해봅시다. 그러면 `ClassificationDataset` 클래스는 `CustomNLICorpus`의 `get_examples` 메소드를 호출해 진술, 가설, 레이블을 `ClassificationExample` 형태로 읽어들입니다.
 
 
 ## **코드5** ClassificationDataset 클래스
@@ -268,10 +260,7 @@ task = ClassificationTask(model, args)
 - **configure_optimizers** : 모델 학습에 필요한 옵티마이저(optimizer)와 학습률(learning rate) 스케줄러(scheduler)를 정의합니다. 본서에서 제공하는 옵티마이저(`AdamW`)와 스케줄러(`CosineAnnealingWarmRestarts`)와 다른걸 사용하려면 이 메소드의 내용을 고치면 됩니다.
 - **training_step** : 학습(train) 과정에서 한 개의 미니배치(inputs)가 입력됐을 때 손실(loss)을 계산하는 과정을 정의합니다.
 - **validation_step** : 평가(validation) 과정에서 한 개의 미니배치(inputs)가 입력됐을 때 손실(loss)을 계산하는 과정을 정의합니다.
-- **test_step** : 테스트(test) 과정에서 한 개의 미니배치(inputs)가 입력됐을 때 손실(loss)을 계산하는 과정을 정의합니다.
-- **validation_epoch_end** : 평가(validation) 데이터 전체를 한번 다 계산했을 때 마무리 과정을 정의합니다.
-- **test_epoch_end** : 테스트(test) 데이터 전체를 한번 다 계산했을 때 마무리 과정을 정의합니다.
-- **get_progress_bar_dict** : 학습, 평가, 테스트 전반에 걸쳐 진행률 바(progress bar)에 표시할 내용을 정의합니다.
+
 
 ## **코드8** 문서 분류 태스크 클래스
 {: .no_toc .text-delta }
@@ -281,7 +270,6 @@ from transformers import PreTrainedModel
 from transformers.optimization import AdamW
 from ratsnlp.nlpbook.metrics import accuracy
 from pytorch_lightning import LightningModule
-from pytorch_lightning.trainer.supporters import TensorRunningAccum
 from torch.optim.lr_scheduler import ExponentialLR, CosineAnnealingWarmRestarts
 from ratsnlp.nlpbook.classification.arguments import ClassificationTrainArguments
 
@@ -295,7 +283,6 @@ class ClassificationTask(LightningModule):
         super().__init__()
         self.model = model
         self.args = args
-        self.running_accuracy = TensorRunningAccum(window_length=args.stat_window_length)
 
     def configure_optimizers(self):
         if self.args.optimizer == 'AdamW':
@@ -313,63 +300,32 @@ class ClassificationTask(LightningModule):
             'scheduler': scheduler,
         }
 
-    def forward(self, **kwargs):
-        return self.model(**kwargs)
-
-    def step(self, inputs, mode="train"):
-        loss, logits = self.model(**inputs)
-        preds = logits.argmax(dim=-1)
+    def training_step(self, inputs, batch_idx):
+        # outputs: SequenceClassifierOutput
+        outputs = self.model(**inputs)
+        preds = outputs.logits.argmax(dim=-1)
         labels = inputs["labels"]
         acc = accuracy(preds, labels)
-        self.running_accuracy.append(acc)
-        logs = {f"{mode}_loss": loss, f"{mode}_acc": acc}
-        return {"loss": loss, "log": logs}
-
-    def training_step(self, inputs, batch_idx):
-        return self.step(inputs, mode="train")
+        self.log("loss", outputs.loss, prog_bar=False, logger=True, on_step=True, on_epoch=False)
+        self.log("acc", acc, prog_bar=True, logger=True, on_step=True, on_epoch=False)
+        return outputs.loss
 
     def validation_step(self, inputs, batch_idx):
-        return self.step(inputs, mode="val")
-
-    def test_step(self, inputs, batch_idx):
-        return self.step(inputs, mode="test")
-
-    def epoch_end(self, outputs, mode="train"):
-        loss_mean, acc_mean = 0, 0
-        for output in outputs:
-            loss_mean += output['loss']
-            acc_mean += output['log'][f'{mode}_acc']
-        acc_mean /= len(outputs)
-        results = {
-            'log': {
-                f'{mode}_loss': loss_mean,
-                f'{mode}_acc': acc_mean,
-            },
-            'progress_bar': {f'{mode}_acc': acc_mean},
-        }
-        return results
-
-    def validation_epoch_end(self, outputs):
-        return self.epoch_end(outputs, mode="val")
-
-    def test_epoch_end(self, outputs):
-        return self.epoch_end(outputs, mode="test")
-
-    def get_progress_bar_dict(self):
-        running_train_loss = self.trainer.running_loss.mean()
-        running_train_accuracy = self.running_accuracy.mean()
-        tqdm_dict = {
-            'tr_loss': '{:.3f}'.format(running_train_loss.cpu().item()),
-            'tr_acc': '{:.3f}'.format(running_train_accuracy.cpu().item()),
-        }
-        return tqdm_dict
+        # outputs: SequenceClassifierOutput
+        outputs = self.model(**inputs)
+        preds = outputs.logits.argmax(dim=-1)
+        labels = inputs["labels"]
+        acc = accuracy(preds, labels)
+        self.log("val_loss", outputs.loss, prog_bar=True, logger=True, on_step=False, on_epoch=True)
+        self.log("val_acc", acc, prog_bar=True, logger=True, on_step=False, on_epoch=True)
+        return outputs.loss
 ```
 
-코드8에서 핵심적인 역할을 하는 메소드는 `step`입니다. 미니 배치(input)를 모델에 태운 뒤 손실(loss)과 로짓(logit)을 계산합니다. 모델의 최종 출력은 '입력 문장 쌍이 특정 범주(참, 거짓, 중립)일 확률'인데요. 로짓은 소프트맥스를 취하기 직전의 벡터입니다. 
+코드8의 `training_step`, `validation_step` 메소드에선  미니 배치(input)를 모델에 넣어 손실(loss), 로짓(logit) 등을 계산합니다. 모델의 최종 출력은 '입력 문장 쌍이 특정 범주(참, 거짓, 중립)일 확률'인데요. 로짓은 소프트맥스를 취하기 직전의 벡터입니다. 
 
-로짓에 argmax를 취해 모델이 예측한 범주를 가려내고 이로부터 정확도(accuracy)를 계산합니다. 로짓으로 예측 범주(`preds`)를 만드는 이유는 소프트맥스를 취한다고 대소 관계가 바뀌는 것은 아니니, 로짓으로 argmax를 하더라도 예측 범주가 달라지진 않기 때문입니다. 이후 손실, 정확도 등의 정보를 로그에 남긴 뒤 `step` 메소드를 종료합니다.
+로짓(`outputs.logits`)에 argmax를 취해 모델이 예측한 범주를 가려내고 이로부터 정확도(accuracy)를 계산합니다. 로짓으로 예측 범주(`preds`)를 만드는 이유는 소프트맥스를 취한다고 대소 관계가 바뀌는 것은 아니니, 로짓으로 argmax를 하더라도 예측 범주가 달라지진 않기 때문입니다. 이후 손실, 정확도 등의 정보를 로그에 남긴 뒤 메소드를 종료합니다.
 
-코드8의 `step` 메소드는 `self.model`을 호출(call)해 손실과 로짓을 계산하는데요. `self.model`은 코드9의 `BertForSequenceClassification` 클래스를 가리킵니다. 본서에서는 허깅페이스의 [트랜스포머(transformers) 라이브러리](https://github.com/huggingface/transformers)에서 제공하는 클래스를 사용합니다. 코드9와 같습니다.
+코드8의 `training_step`, `validation_step` 메소드는 `self.model`을 호출(call)해 손실과 로짓을 계산하는데요. `self.model`은 코드9의 `BertForSequenceClassification` 클래스를 가리킵니다. 본서에서는 허깅페이스의 [트랜스포머(transformers) 라이브러리](https://github.com/huggingface/transformers)에서 제공하는 클래스를 사용합니다. 그 핵심만 발췌한 코드는 코드9와 같습니다.
 
 ## **코드9** BertForSequenceClassification
 {: .no_toc .text-delta }
@@ -386,8 +342,6 @@ class BertForSequenceClassification(BertPreTrainedModel):
 
         self.init_weights()
 
-    @add_start_docstrings_to_callable(BERT_INPUTS_DOCSTRING.format("(batch_size, sequence_length)"))
-    @add_code_sample_docstrings(tokenizer_class=_TOKENIZER_FOR_DOC, checkpoint="bert-base-uncased")
     def forward(
         self,
         input_ids=None,
@@ -399,7 +353,9 @@ class BertForSequenceClassification(BertPreTrainedModel):
         labels=None,
         output_attentions=None,
         output_hidden_states=None,
+        return_dict=None,
     ):
+        return_dict = return_dict if return_dict is not None else self.config.use_return_dict
 
         outputs = self.bert(
             input_ids,
@@ -410,6 +366,7 @@ class BertForSequenceClassification(BertPreTrainedModel):
             inputs_embeds=inputs_embeds,
             output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
+            return_dict=return_dict,
         )
 
         pooled_output = outputs[1]
@@ -417,8 +374,7 @@ class BertForSequenceClassification(BertPreTrainedModel):
         pooled_output = self.dropout(pooled_output)
         logits = self.classifier(pooled_output)
 
-        outputs = (logits,) + outputs[2:]  # add hidden states and attention if they are here
-
+        loss = None
         if labels is not None:
             if self.num_labels == 1:
                 #  We are doing regression
@@ -427,14 +383,22 @@ class BertForSequenceClassification(BertPreTrainedModel):
             else:
                 loss_fct = CrossEntropyLoss()
                 loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
-            outputs = (loss,) + outputs
 
-        return outputs  # (loss), logits, (hidden_states), (attentions)
+        if not return_dict:
+            output = (logits,) + outputs[2:]
+            return ((loss,) + output) if loss is not None else output
+
+        return SequenceClassifierOutput(
+            loss=loss,
+            logits=logits,
+            hidden_states=outputs.hidden_states,
+            attentions=outputs.attentions,
+        )
 ```
 
 코드9의 `self.bert`는 [4-1장](https://ratsgo.github.io/nlpbook/docs/classification/overview)의 BERT 모델을 가리킵니다. 빈칸 맞추기, 즉 마스크 언어모델(Masked Language Model)로 프리트레인을 이미 완료한 모델입니다. `self.dropout`와 `self.classifier`는 5-1장에서 소개한 [문서 분류 태스크 모듈](https://ratsgo.github.io/nlpbook/docs/pair_cls/overview/#%ED%83%9C%EC%8A%A4%ED%81%AC-%EB%AA%A8%EB%93%88)이 되겠습니다. NLI 데이터에 대해 진술, 가설 사이의 관계(참, 거짓, 중립)를 최대한 잘 맞추는 방향으로 `self.bert`, `self.classifier`가 학습됩니다.
 
-한편 코드8의 `step` 메소드에서 `self.model`을 호출하면 `BertForSequenceClassification`의 `forward` 메소드가 실행됩니다. 레이블(label)이 있을 경우 `BertForSequenceClassification.forward` 메소드의 출력은 `loss`, `logits`이고, `ClassificationTask.step` 메소드에서는 `loss, logits = self.model(**inputs)`로 호출함을 확인할 수 있습니다. 다시 말해 `step` 메소드는 `self.model` 메소드와 짝을 지어 구현해야 한다는 이야기입니다. 
+한편 코드8의 `training_step`, `validation_step` 메소드에서 `self.model`을 호출하면 `BertForSequenceClassification`의 `forward` 메소드가 실행됩니다. 다시 말해 `training_step`, `validation_step` 메소드는 `self.model` 메소드와 짝을 지어 구현해야 한다는 이야기입니다. 
 
 
 ---
