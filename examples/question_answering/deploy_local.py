@@ -10,10 +10,9 @@ if __name__ == "__main__":
     if len(sys.argv) == 1:
         args = QADeployArguments(
             pretrained_model_name="beomi/kcbert-base",
-            downstream_model_checkpoint_path="checkpoint/question-answering/epoch=0.ckpt",
+            downstream_model_dir="checkpoint/question-answering/epoch=0.ckpt",
             max_seq_length=128,
             max_query_length=32,
-            max_answer_length=30,
         )
     # case2 : python deploy_local.py deploy_config.json
     elif len(sys.argv) == 2 and sys.argv[-1].endswith(".json"):
@@ -23,7 +22,7 @@ if __name__ == "__main__":
         args = load_arguments(QADeployArguments)
 
     fine_tuned_model_ckpt = torch.load(
-        args.downstream_model_checkpoint_path,
+        args.downstream_model_checkpoint_fpath,
         map_location=torch.device("cpu")
     )
     pretrained_model_config = BertConfig.from_pretrained(args.pretrained_model_name)

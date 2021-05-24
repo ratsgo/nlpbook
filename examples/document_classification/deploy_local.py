@@ -10,7 +10,7 @@ if __name__ == "__main__":
     if len(sys.argv) == 1:
         args = ClassificationDeployArguments(
             pretrained_model_name="beomi/kcbert-base",
-            downstream_model_checkpoint_path="checkpoint/document-classification/epoch=10.ckpt",
+            downstream_model_dir="checkpoint/document-classification",
             max_seq_length=128,
         )
     # case2 : python deploy_local.py deploy_config.json
@@ -21,7 +21,7 @@ if __name__ == "__main__":
         args = load_arguments(ClassificationDeployArguments)
 
     fine_tuned_model_ckpt = torch.load(
-        args.downstream_model_checkpoint_path,
+        args.downstream_model_checkpoint_fpath,
         map_location=torch.device("cpu")
     )
     pretrained_model_config = BertConfig.from_pretrained(

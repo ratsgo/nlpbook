@@ -9,7 +9,7 @@ if __name__ == "__main__":
     if len(sys.argv) == 1:
         args = GenerationDeployArguments(
             pretrained_model_name="skt/kogpt2-base-v2",
-            downstream_model_checkpoint_path="checkpoint/sentence-generation/epoch=0.ckpt",
+            downstream_model_dir="checkpoint/sentence-generation",
         )
     # case2 : python deploy_local.py deploy_config.json
     elif len(sys.argv) == 2 and sys.argv[-1].endswith(".json"):
@@ -28,7 +28,7 @@ if __name__ == "__main__":
         )
         model = GPT2LMHeadModel(pretrained_model_config)
         fine_tuned_model_ckpt = torch.load(
-            args.downstream_model_checkpoint_path,
+            args.downstream_model_checkpoint_fpath,
             map_location=torch.device("cpu")
         )
         model.load_state_dict({k.replace("model.", ""): v for k, v in fine_tuned_model_ckpt['state_dict'].items()})

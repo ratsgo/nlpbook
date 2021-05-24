@@ -10,8 +10,7 @@ if __name__ == "__main__":
     if len(sys.argv) == 1:
         args = NERDeployArguments(
             pretrained_model_name="beomi/kcbert-base",
-            downstream_model_checkpoint_path="checkpoint/ner/epoch=2.ckpt",
-            downstream_model_labelmap_path="checkpoint/ner/label_map.txt",
+            downstream_model_dir="checkpoint/ner",
             max_seq_length=64,
         )
     # case2 : python deploy_local.py deploy_config.json
@@ -21,10 +20,10 @@ if __name__ == "__main__":
     else:
         args = load_arguments(NERDeployArguments)
     fine_tuned_model_ckpt = torch.load(
-        args.downstream_model_checkpoint_path,
+        args.downstream_model_checkpoint_fpath,
         map_location=torch.device("cpu")
     )
-    labels = [label.strip() for label in open(args.downstream_model_labelmap_path, "r").readlines()]
+    labels = [label.strip() for label in open(args.downstream_model_labelmap_fpath, "r").readlines()]
     id_to_label = {}
     for idx, label in enumerate(labels):
         if "PER" in label:
