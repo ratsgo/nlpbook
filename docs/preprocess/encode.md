@@ -16,6 +16,30 @@ nav_order: 4
 
 ---
 
+## 실습 환경 만들기
+
+
+이 튜토리얼에서 사용하는 코드를 모두 정리해 구글 코랩(colab) 노트북으로 만들어 두었습니다. 아래 링크를 클릭하면 코랩 환경에서 수행할 수 있습니다. 코랩 노트북 사용과 관한 자세한 내용은 [1-4장 개발환경 설정](https://ratsgo.github.io/nlpbook/docs/introduction/environment) 챕터를 참고하세요.
+
+- <a href="https://colab.research.google.com/github/ratsgo/nlpbook/blob/master/examples/basic/tokenization.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+
+위 노트북은 읽기 권한만 부여돼 있기 때문에 실행하거나 노트북 내용을 고칠 수가 없을 겁니다. 노트북을 복사해 내 것으로 만들면 이 문제를 해결할 수 있습니다. 
+
+위 링크를 클릭한 후 구글 아이디로 로그인한 뒤 메뉴 탭 하단의 `드라이브로 복사`를 클릭하면 코랩 노트북이 자신의 드라이브에 복사됩니다. 이 다음부터는 해당 노트북을 자유롭게 수정, 실행할 수 있게 됩니다. 별도의 설정을 하지 않았다면 해당 노트북은 `내 드라이브/Colab Notebooks` 폴더에 담깁니다.
+
+한편 이 튜토리얼에서는 하드웨어 가속기가 따로 필요 없습니다. 그림1과 같이 코랩 화면의 메뉴 탭에서 런타임 > 런타임 유형 변경을 클릭합니다. 이후 그림2의 화면에서 `None`을 선택합니다.
+
+## **그림1** 하드웨어 가속기 설정 (1)
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/JFUva3P.png" width="500px" title="source: imgur.com" />
+
+## **그림2** 하드웨어 가속기 설정 (2)
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/i4XvOhQ.png" width="300px" title="source: imgur.com" />
+
+
+---
+
 ## GPT 입력값 만들기
 
 GPT 입력값을 만들려면 토크나이저부터 준비해야 합니다. 코드1을 수행하면 GPT 모델이 사용하는 토크나이저를 초기화할 수 있습니다. `save_path`에는 GPT용 BPE 어휘 집합(`vocab.json`)과 바이그램 쌍의 병합 우선순위(`merge.txt`)가 있어야 합니다. 누군가가 구축해 놓은 결과를 사용해도 되고요, 독자 여러분이 가진 말뭉치로 직접 만든 걸 써도 됩니다. 후자처럼 하고 싶으시다면 [이전 장](https://ratsgo.github.io/nlpbook/docs/tokenization/vocab)을 참고하세요.
@@ -24,8 +48,8 @@ GPT 입력값을 만들려면 토크나이저부터 준비해야 합니다. 코�
 {: .no_toc .text-delta } 
 ```python
 from transformers import GPT2Tokenizer
-tokenizer = GPT2Tokenizer.from_pretrained(save_path)
-tokenizer.pad_token = "[PAD]"
+tokenizer_gpt = GPT2Tokenizer.from_pretrained(save_path)
+tokenizer_gpt.pad_token = "[PAD]"
 ```
 
 예시 문장 세 개를 토큰화하는 코드는 코드2입니다. 그 결과는 표1과 같습니다.
@@ -38,7 +62,7 @@ sentences = [
     "흠...포스터보고 초딩영화줄....오버연기조차 가볍지 않구나",
     "별루 였다..",
 ]
-tokenized_sentences = [tokenizer.tokenize(sentence) for sentence in sentences]
+tokenized_sentences = [tokenizer_gpt.tokenize(sentence) for sentence in sentences]
 ```
 
 표1을 보면 토큰들이 알 수 없는 문자열로 구성돼 있음을 확인할 수 있습니다. 그도 그럴 것이 GPT 모델은 바이트 레벨 BPE를 적용하기 때문인데요. 문장들을 유니코드 바이트로 변환한 뒤 BPE를 수행합니다.
@@ -57,7 +81,7 @@ tokenized_sentences = [tokenizer.tokenize(sentence) for sentence in sentences]
 ## **코드3** GPT 모델 입력 만들기
 {: .no_toc .text-delta } 
 ```python
-batch_inputs = tokenizer(
+batch_inputs = tokenizer_gpt(
     sentences,
     padding="max_length",
     max_length=12,
@@ -100,7 +124,7 @@ batch_inputs = tokenizer(
 {: .no_toc .text-delta } 
 ```python
 from transformers import BertTokenizer
-tokenizer = BertTokenizer.from_pretrained(save_path, do_lower_case=False)
+tokenizer_bert = BertTokenizer.from_pretrained(save_path, do_lower_case=False)
 ```
 
 예시 문장 세 개를 토큰화하는 코드는 코드5입니다. 그 결과는 표4와 같습니다. 토큰 일부에 있는 `##`은 해당 토큰이 어절(띄어쓰기 기준)의 시작이 아님을 나타냅니다. 예컨대 `##네요`는 이 토큰이 앞선 토큰 `짜증나`와 같은 어절에 위치하며 어절 내에서 연속되고 있음을 표시합니다.
@@ -113,7 +137,7 @@ sentences = [
     "흠...포스터보고 초딩영화줄....오버연기조차 가볍지 않구나",
     "별루 였다..",
 ]
-tokenized_sentences = [tokenizer.tokenize(sentence) for sentence in sentences]
+tokenized_sentences = [tokenizer_bert.tokenize(sentence) for sentence in sentences]
 ```
 
 ## **표4** BERT 토크나이저 토큰화 결과
@@ -130,7 +154,7 @@ tokenized_sentences = [tokenizer.tokenize(sentence) for sentence in sentences]
 ## **코드6** BERT 모델 입력 만들기
 {: .no_toc .text-delta } 
 ```python
-batch_inputs = tokenizer(
+batch_inputs = tokenizer_bert(
     sentences,
     padding="max_length",
     max_length=12,
@@ -145,9 +169,9 @@ batch_inputs = tokenizer(
 
 |구분|토큰1|토큰2|토큰3|토큰4|토큰5|토큰6|토큰7|토큰8|토큰9|토큰10|토큰11|토큰12|
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-|문장1|2|621|2631|16|16|1993|3678|1990|3323|3|0|0|
-|문장2|2|997|16|16|16|2609|2045|2796|1981|1517|16|3|
-|문장3|2|3274|9507|16|16|3|0|0|0|0|0|0|
+|문장1|2|622|2639|16|16|1993|3682|1990|3467|3|0|0|
+|문장2|2|997|16|16|16|2596|2045|2809|1981|1225|16|3|
+|문장3|2|3341|9157|16|16|3|0|0|0|0|0|0|
 
 표5를 자세히 보시면 모든 문장 앞에 2, 끝에 3이 덧붙여진 걸 확인할 수 있습니다. 이는 각각 `[CLS]`, `[SEP]`라는 토큰에 대응하는 인덱스인데요. BERT는 문장 시작과 끝에 이 두 개 토큰을 덧붙이는 특징이 있습니다.
 
