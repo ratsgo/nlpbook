@@ -9,7 +9,7 @@ nav_order: 3
 # 학습 마친 모델을 실전 투입하기
 {: .no_toc }
 
-학습을 마친 질의 응답 모델을 인퍼런스하는 과정을 실습합니다.
+학습을 마친 질의 응답 모델을 인퍼런스하는 과정을 실습합니다. 인퍼런스란 학습을 마친 모델로 실제 과제를 수행하는 행위 혹은 그 과정을 가리킵니다. 다시 말해 모델을 질의 응답이라는 실전에 투입하는 것입니다.
 {: .fs-4 .ls-1 .code-example }
 
 ## Table of contents
@@ -19,15 +19,6 @@ nav_order: 3
 {:toc}
 
 ---
-
-## 코랩 노트북
-
-이 튜토리얼에서 사용하는 코드를 모두 정리해 구글 코랩(colab) 노트북으로 만들어 두었습니다. 아래 링크를 클릭해 코랩 환경에서도 수행할 수 있습니다. 코랩 노트북 사용과 관한 자세한 내용은 [1-4장 개발환경 설정](https://ratsgo.github.io/nlpbook/docs/introduction/environment) 챕터를 참고하세요.
-
-- <a href="https://colab.research.google.com/github/ratsgo/nlpbook/blob/master/examples/question_answering/deploy_colab.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
-
----
-
 
 ## 이번 실습의 목표
 
@@ -39,7 +30,30 @@ nav_order: 3
 
 ---
 
-## 1단계 환경 설정하기
+## 1단계 코랩 노트북 초기화하기
+
+이 튜토리얼에서 사용하는 코드를 모두 정리해 구글 코랩(colab) 노트북으로 만들어 두었습니다. 아래 링크를 클릭해 코랩 환경에서도 수행할 수 있습니다. 코랩 노트북 사용과 관한 자세한 내용은 [1-4장 개발환경 설정](https://ratsgo.github.io/nlpbook/docs/introduction/environment) 챕터를 참고하세요.
+
+- <a href="https://colab.research.google.com/github/ratsgo/nlpbook/blob/master/examples/question_answering/deploy_colab.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+
+위 노트북은 읽기 권한만 부여돼 있기 때문에 실행하거나 노트북 내용을 고칠 수가 없을 겁니다. 노트북을 복사해 내 것으로 만들면 이 문제를 해결할 수 있습니다. 
+
+위 링크를 클릭한 후 구글 아이디로 로그인한 뒤 메뉴 탭 하단의 `드라이브로 복사`를 클릭하면 코랩 노트북이 자신의 드라이브에 복사됩니다. 이 다음부터는 해당 노트북을 자유롭게 수정, 실행할 수 있게 됩니다. 별도의 설정을 하지 않았다면 해당 노트북은 `내 드라이브/Colab Notebooks` 폴더에 담깁니다.
+
+한편 이 튜토리얼에서는 하드웨어 가속기가 따로 필요 없습니다. 그림2와 같이 코랩 화면의 메뉴 탭에서 런타임 > 런타임 유형 변경을 클릭합니다. 이후 그림3의 화면에서 `None`을 선택합니다.
+
+## **그림2** 하드웨어 가속기 설정 (1)
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/JFUva3P.png" width="500px" title="source: imgur.com" />
+
+## **그림3** 하드웨어 가속기 설정 (2)
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/i4XvOhQ.png" width="300px" title="source: imgur.com" />
+
+
+---
+
+## 2단계 환경 설정하기
 
 코드1을 실행해 의존성 있는 패키지를 우선 설치합니다. 코랩 환경에서는 명령어 맨 앞에 느낌표(!)를 붙이면 파이썬이 아닌, 배쉬 명령을 수행할 수 있습니다.
 
@@ -66,26 +80,24 @@ drive.mount('/gdrive', force_remount=True)
 from ratsnlp.nlpbook.qa import QADeployArguments
 args = QADeployArguments(
     pretrained_model_name="beomi/kcbert-base",
-    downstream_model_checkpoint_path="/gdrive/My Drive/nlpbook/checkpoint-qa/epoch=0.ckpt",
+    downstream_model_dir="/gdrive/My Drive/nlpbook/checkpoint-qa",
     max_seq_length=128,
     max_query_length=32,
-    max_answer_length=30,
 )
 ```
 
 각 인자(argument)의 역할과 내용은 다음과 같습니다.
 
 - **pretrained_model_name** : 이전 장에서 파인튜닝한 모델이 사용한 프리트레인 마친 언어모델 이름(단 해당 모델은 허깅페이스 라이브러리에 등록되어 있어야 합니다)
-- **downstream_model_checkpoint_path** : 이전 장에서 파인튜닝한 모델의 체크포인트 저장 위치.
+- **downstream_model_dir** : 이전 장에서 파인튜닝한 모델의 체크포인트 저장 위치.
 - **max_seq_length** : 토큰 기준 입력 문장 최대 길이(지문, 질문 모두 포함).
 - **max_query_length** : 토큰 기준 질문 최대 길이.
-- **doc_stride** : 지문(context)에서 몇 개 토큰을 슬라이딩해가면서 데이터를 불릴지 결정. [7장 Training](http://ratsgo.github.io/nlpbook/docs/qa/train/#4%EB%8B%A8%EA%B3%84-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EC%A0%84%EC%B2%98%EB%A6%AC%ED%95%98%EA%B8%B0) 참고.
 
 
 ---
 
 
-## 2단계 토크나이저 및 모델 불러오기
+## 3단계 토크나이저 및 모델 불러오기
 
 코드4를 실행하면 토크나이저를 초기화할 수 있습니다.
 
@@ -145,7 +157,7 @@ model.eval()
 
 ---
 
-## 3단계 모델 출력값 만들고 후처리하기
+## 4단계 모델 출력값 만들고 후처리하기
 
 코드10은 인퍼런스 과정을 정의한 함수입니다. 질문(question)과 지문(context)을 입력받아 토큰화를 수행한 뒤 `input_ids`, `attention_mask`, `token_type_ids`를 만듭니다. 이들 입력값을 파이토치 텐서(tensor) 자료형으로 변환한 뒤 모델에 입력합니다. 모델 출력값은 소프트맥스 함수 적용 이전의 로짓(logit) 형태입니다.
 
@@ -171,9 +183,9 @@ def inference_fn(question, context):
             return_token_type_ids=True,
         )
         with torch.no_grad():
-            start_logits, end_logits, = model(**{k: torch.tensor([v]) for k, v in inputs.items()})
-            start_pred = start_logits.argmax(dim=-1).item()
-            end_pred = end_logits.argmax(dim=-1).item()
+            outputs = model(**{k: torch.tensor([v]) for k, v in inputs.items()})
+            start_pred = outputs.start_logits.argmax(dim=-1).item()
+            end_pred = outputs.end_logits.argmax(dim=-1).item()
             pred_text = tokenizer.decode(inputs['input_ids'][start_pred:end_pred+1])
     else:
         pred_text = ""
@@ -187,7 +199,7 @@ def inference_fn(question, context):
 ---
 
 
-## 4단계 웹 서비스 시작하기
+## 5단계 웹 서비스 시작하기
 
 코드10에서 정의한 인퍼런스 함수(`inference_fn`)을 가지고 코드11을 실행하면 웹 서비스를 띄울 수 있습니다. 파이썬 플라스크(flask)를 활용한 앱입니다.
 
