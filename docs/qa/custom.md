@@ -6,7 +6,7 @@ nav_order: 4
 ---
 
 
-# ↗️ 나만의 문서 분류 모델 만들기
+# ↗️ 나만의 질의 응답 모델 만들기
 {: .no_toc }
 
 커스텀 데이터, 토크나이저, 모델, 트레이너(trainer)로 나만의 질의 응답 모델을 만드는 과정을 소개합니다.
@@ -190,13 +190,10 @@ task = QATask(model, args)
 
 코드6 태스크 클래스의 주요 메소드에 관한 설명은 다음과 같습니다.
 
-- **configure_optimizers** : 모델 학습에 필요한 옵티마이저(optimizer)와 학습률(learning rate) 스케줄러(scheduler)를 정의합니다. 본서에서 제공하는 옵티마이저(`AdamW`)와 스케줄러(`CosineAnnealingWarmRestarts`)와 다른걸 사용하려면 이 메소드의 내용을 고치면 됩니다.
+- **configure_optimizers** : 모델 학습에 필요한 옵티마이저(optimizer)와 학습률(learning rate) 스케줄러(scheduler)를 정의합니다. 다른 옵티마이저와 스케줄러를 사용하려면 이 메소드의 내용을 고치면 됩니다.
 - **training_step** : 학습(train) 과정에서 한 개의 미니배치(inputs)가 입력됐을 때 손실(loss)을 계산하는 과정을 정의합니다.
 - **validation_step** : 평가(validation) 과정에서 한 개의 미니배치(inputs)가 입력됐을 때 손실(loss)을 계산하는 과정을 정의합니다.
-- **test_step** : 테스트(test) 과정에서 한 개의 미니배치(inputs)가 입력됐을 때 손실(loss)을 계산하는 과정을 정의합니다.
-- **validation_epoch_end** : 평가(validation) 데이터 전체를 한번 다 계산했을 때 마무리 과정을 정의합니다.
-- **test_epoch_end** : 테스트(test) 데이터 전체를 한번 다 계산했을 때 마무리 과정을 정의합니다.
-- **get_progress_bar_dict** : 학습, 평가, 테스트 전반에 걸쳐 진행률 바(progress bar)에 표시할 내용을 정의합니다.
+
 
 ## **코드6** 질의 응답 태스크 클래스
 {: .no_toc .text-delta }
@@ -207,9 +204,8 @@ from transformers.optimization import AdamW
 from ratsnlp.nlpbook.metrics import accuracy
 from pytorch_lightning import LightningModule
 from ratsnlp.nlpbook.qa import QATrainArguments
-from pytorch_lightning.metrics.classification import accuracy
-from pytorch_lightning.trainer.supporters import TensorRunningAccum
-from torch.optim.lr_scheduler import ExponentialLR, CosineAnnealingWarmRestarts
+from torch.optim.lr_scheduler import ExponentialLR
+
 
 class QATask(LightningModule):
 
@@ -220,83 +216,45 @@ class QATask(LightningModule):
         super().__init__()
         self.model = model
         self.args = args
-        self.running_accuracy = TensorRunningAccum(window_length=args.stat_window_length)
 
     def configure_optimizers(self):
-        if self.args.optimizer == 'AdamW':
-            optimizer = AdamW(self.parameters(), lr=self.args.learning_rate)
-        else:
-            raise NotImplementedError('Only AdamW is Supported!')
-        if self.args.lr_scheduler == 'cos':
-            scheduler = CosineAnnealingWarmRestarts(optimizer, T_0=1, T_mult=2)
-        elif self.args.lr_scheduler == 'exp':
-            scheduler = ExponentialLR(optimizer, gamma=0.5)
-        else:
-            raise NotImplementedError('Only cos and exp lr scheduler is Supported!')
+        optimizer = AdamW(self.parameters(), lr=self.args.learning_rate)
+        scheduler = ExponentialLR(optimizer, gamma=0.9)
         return {
             'optimizer': optimizer,
             'scheduler': scheduler,
         }
 
-    def forward(self, **kwargs):
-        return self.model(**kwargs)
-
-    def step(self, inputs, mode="train"):
-        loss, start_logits, end_logits = self.model(**inputs)
-        start_preds = start_logits.argmax(dim=-1)
-        end_preds = end_logits.argmax(dim=-1)
+    def training_step(self, inputs, batch_idx):
+        # outputs: QuestionAnsweringModelOutput
+        outputs = self.model(**inputs)
+        start_preds = outputs.start_logits.argmax(dim=-1)
         start_positions = inputs["start_positions"]
+        end_preds = outputs.end_logits.argmax(dim=-1)
         end_positions = inputs["end_positions"]
         acc = (accuracy(start_preds, start_positions) + accuracy(end_preds, end_positions)) / 2
-        self.running_accuracy.append(acc)
-        logs = {f"{mode}_loss": loss, f"{mode}_acc": acc}
-        return {"loss": loss, "log": logs}
-
-    def training_step(self, inputs, batch_idx):
-        return self.step(inputs, mode="train")
+        self.log("loss", outputs.loss, prog_bar=False, logger=True, on_step=True, on_epoch=False)
+        self.log("acc", acc, prog_bar=True, logger=True, on_step=True, on_epoch=False)
+        return outputs.loss
 
     def validation_step(self, inputs, batch_idx):
-        return self.step(inputs, mode="val")
-
-    def test_step(self, inputs, batch_idx):
-        return self.step(inputs, mode="test")
-
-    def epoch_end(self, outputs, mode="train"):
-        loss_mean, acc_mean = 0, 0
-        for output in outputs:
-            loss_mean += output['loss']
-            acc_mean += output['log'][f'{mode}_acc']
-        acc_mean /= len(outputs)
-        results = {
-            'log': {
-                f'{mode}_loss': loss_mean,
-                f'{mode}_acc': acc_mean,
-            },
-            'progress_bar': {f'{mode}_acc': acc_mean},
-        }
-        return results
-
-    def validation_epoch_end(self, outputs):
-        return self.epoch_end(outputs, mode="val")
-
-    def test_epoch_end(self, outputs):
-        return self.epoch_end(outputs, mode="test")
-
-    def get_progress_bar_dict(self):
-        running_train_loss = self.trainer.running_loss.mean()
-        running_train_accuracy = self.running_accuracy.mean()
-        tqdm_dict = {
-            'tr_loss': '{:.3f}'.format(running_train_loss.cpu().item()),
-            'tr_acc': '{:.3f}'.format(running_train_accuracy.cpu().item()),
-        }
-        return tqdm_dict
+        # outputs: QuestionAnsweringModelOutput
+        outputs = self.model(**inputs)
+        start_preds = outputs.start_logits.argmax(dim=-1)
+        start_positions = inputs["start_positions"]
+        end_preds = outputs.end_logits.argmax(dim=-1)
+        end_positions = inputs["end_positions"]
+        acc = (accuracy(start_preds, start_positions) + accuracy(end_preds, end_positions)) / 2
+        self.log("val_loss", outputs.loss, prog_bar=True, logger=True, on_step=False, on_epoch=True)
+        self.log("val_acc", acc, prog_bar=True, logger=True, on_step=False, on_epoch=True)
+        return outputs.loss
 ```
 
-코드6에서 핵심적인 역할을 하는 메소드는 `step`입니다. 미니 배치(input)를 모델에 태운 뒤 손실(loss)과 로짓(logit)을 계산합니다. 모델의 최종 출력은 '각 토큰이 정답의 시작/끝일 확률'인데요. 로짓은 소프트맥스를 취하기 직전의 벡터입니다. 
+코드6의 `training_step`, `validation_step` 메소드에선 미니 배치(input)를 모델에 태운 뒤 손실(loss)과 로짓(logit) 등을 계산합니다. 모델의 최종 출력은 '각 토큰이 정답의 시작/끝일 확률'인데요. 로짓은 소프트맥스를 취하기 직전의 벡터입니다. 
 
-로짓에 argmax를 취해 모델이 예측한 시작/끝 토큰을 가려내고 이로부터 정확도(accuracy)를 계산합니다.  로짓으로 예측 범주(`preds`)를 만드는 이유는 소프트맥스를 취한다고 대소 관계가 바뀌는 것은 아니니, 로짓으로 argmax를 하더라도 예측 범주가 달라지진 않기 때문입니다. 이후 손실, 정확도 등의 정보를 로그에 남긴 뒤 `step` 메소드를 종료합니다.
+로짓(`outputs.logits`)에 argmax를 취해 모델이 예측한 시작/끝 토큰을 가려내고 이로부터 정확도(accuracy)를 계산합니다. 로짓으로 예측 범주(`preds`)를 만드는 이유는 소프트맥스를 취한다고 대소 관계가 바뀌는 것은 아니니, 로짓으로 argmax를 하더라도 예측 범주가 달라지진 않기 때문입니다. 이후 손실, 정확도 등의 정보를 로그에 남긴 뒤 메소드를 종료합니다.
 
-코드6의 `step` 메소드는 `self.model`을 호출(call)해 손실과 로짓을 계산하는데요. `self.model`은 코드7의 `BertForTokenClassification` 클래스를 가리킵니다. 본서에서는 허깅페이스의 [트랜스포머(transformers) 라이브러리](https://github.com/huggingface/transformers)에서 제공하는 클래스를 사용합니다. 코드7과 같습니다.
+코드6의 `training_step`, `validation_step` 메소드는 `self.model`을 호출(call)해 손실과 로짓을 계산하는데요. `self.model`은 코드7의 `BertForTokenClassification` 클래스를 가리킵니다. 본서에서는 허깅페이스의 [트랜스포머(transformers) 라이브러리](https://github.com/huggingface/transformers)에서 제공하는 클래스를 사용합니다. 그 핵심만 발췌한 코드는 코드7과 같습니다.
 
 ## **코드7** BertForQuestionAnswering
 {: .no_toc .text-delta }
@@ -307,13 +265,11 @@ class BertForQuestionAnswering(BertPreTrainedModel):
         super().__init__(config)
         self.num_labels = config.num_labels
 
-        self.bert = BertModel(config)
+        self.bert = BertModel(config, add_pooling_layer=False)
         self.qa_outputs = nn.Linear(config.hidden_size, config.num_labels)
 
         self.init_weights()
 
-    @add_start_docstrings_to_callable(BERT_INPUTS_DOCSTRING.format("(batch_size, sequence_length)"))
-    @add_code_sample_docstrings(tokenizer_class=_TOKENIZER_FOR_DOC, checkpoint="bert-base-uncased")
     def forward(
         self,
         input_ids=None,
@@ -326,7 +282,9 @@ class BertForQuestionAnswering(BertPreTrainedModel):
         end_positions=None,
         output_attentions=None,
         output_hidden_states=None,
+        return_dict=None,
     ):
+        ...
 
         outputs = self.bert(
             input_ids,
@@ -337,6 +295,7 @@ class BertForQuestionAnswering(BertPreTrainedModel):
             inputs_embeds=inputs_embeds,
             output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
+            return_dict=return_dict,
         )
 
         sequence_output = outputs[0]
@@ -346,7 +305,7 @@ class BertForQuestionAnswering(BertPreTrainedModel):
         start_logits = start_logits.squeeze(-1)
         end_logits = end_logits.squeeze(-1)
 
-        outputs = (start_logits, end_logits,) + outputs[2:]
+        total_loss = None
         if start_positions is not None and end_positions is not None:
             # If we are on multi-GPU, split add a dimension
             if len(start_positions.size()) > 1:
@@ -362,14 +321,21 @@ class BertForQuestionAnswering(BertPreTrainedModel):
             start_loss = loss_fct(start_logits, start_positions)
             end_loss = loss_fct(end_logits, end_positions)
             total_loss = (start_loss + end_loss) / 2
-            outputs = (total_loss,) + outputs
 
-        return outputs  # (loss), start_logits, end_logits, (hidden_states), (attentions)
+        ...
+
+        return QuestionAnsweringModelOutput(
+            loss=total_loss,
+            start_logits=start_logits,
+            end_logits=end_logits,
+            hidden_states=outputs.hidden_states,
+            attentions=outputs.attentions,
+        )
 ```
 
 코드7의 `self.bert`는 [4-1장](https://ratsgo.github.io/nlpbook/docs/classification/overview)의 BERT 모델을 가리킵니다. 빈칸 맞추기, 즉 마스크 언어모델(Masked Language Model)로 프리트레인을 이미 완료한 모델입니다. `self.dropout`와 `self.classifier`는 7-1장에서 소개한 [질의 응답 태스크 모듈](http://localhost:4000/nlpbook/docs/qa/overview/)이 되겠습니다. KorQuAD 1.0 데이터에 대해 정답의 시작/끝 토큰 위치를 최대한 잘 맞추는 방향으로 `self.bert`, `self.classifier`가 학습됩니다.
 
-한편 코드6의 `step` 메소드에서 `self.model`을 호출하면 코드7 `BertForQuestionAnswering`의 `forward` 메소드가 실행됩니다. 레이블(label)이 있을 경우 `BertForQuestionAnswering.forward` 메소드의 출력은 `loss`, `logits`이고, `QATask.step` 메소드에서는 `loss, logits = self.model(**inputs)`로 호출함을 확인할 수 있습니다. 다시 말해 `step` 메소드는 `self.model` 메소드와 짝을 지어 구현해야 한다는 이야기입니다. 
+한편 코드6의 `training_step`, `validation_step` 메소드에서 `self.model`을 호출하면 코드7 `BertForQuestionAnswering`의 `forward` 메소드가 실행됩니다. 다시 말해 코드6의 `training_step`, `validation_step` 메소드는 `self.model` 메소드와 짝을 지어 구현해야 한다는 이야기입니다. 
 
 
 ---
