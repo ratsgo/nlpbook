@@ -85,13 +85,14 @@ from ratsnlp.nlpbook.classification import ClassificationTrainArguments
 args = ClassificationTrainArguments(
     pretrained_model_name="beomi/kcbert-base",
     downstream_task_name="pair-classification",
-    downstream_corpus_root_dir="/root/Korpora",
     downstream_corpus_name="klue-nli",
     downstream_model_dir="/gdrive/My Drive/nlpbook/checkpoint-paircls",
     batch_size=32 if torch.cuda.is_available() else 4,
+    learning_rate=5e-5,
     max_seq_length=64,
     epochs=5,
     tpu_cores=0 if torch.cuda.is_available() else 8,
+    seed=7,
 )
 ```
 
@@ -99,13 +100,14 @@ args = ClassificationTrainArguments(
 
 - **pretrained_model_name** : 프리트레인 마친 언어모델의 이름(단 해당 모델은 허깅페이스 라이브러리에 등록되어 있어야 합니다)
 - **downstream_task_name** : 다운스트림 태스크의 이름.
-- **downstream_corpus_root_dir** : 다운스트림 데이터를 저장해 둘 위치. `/root/Korpora`라고 함은 코랩 노트북이 실행되는 환경의 루트 하위에 위치한 `Korpora` 디렉토리라는 의미입니다.
 - **downstream_corpus_name** : 다운스트림 데이터의 이름.
 - **downstream_model_dir** : 파인튜닝된 모델의 체크포인트가 저장될 위치. `/gdrive/My Drive/nlpbook/checkpoint-paircls`라고 함은 자신의 구글 드라이브의 `내 폴더` 하위의 `nlpbook/checkpoint-paircls` 디렉토리에 모델 체크포인트가 저장됩니다.
 - **batch_size** : 배치 크기. 하드웨어 가속기로 GPU를 선택(`torch.cuda.is_available() == True`)했다면 32, TPU라면(`torch.cuda.is_available() == False`) 4. 코랩 환경에서 TPU는 보통 8개 코어가 할당되는데 `batch_size`는 코어별로 적용되는 배치 크기이기 때문에 이렇게 설정해 둡니다.
-- **max_seq_length** : 토큰 기준 입력 문장 최대 길이.
+- **learning_rate** : 러닝레이트. 1회 스텝에서 한 번에 얼마나 업데이트할지에 관한 크기를 가리킵니다. 이와 관련한 자세한 내용은 [3-2-2장 Technics](https://ratsgo.github.io/nlpbook/docs/language_model/tr_technics)를 참고하세요.
+- **max_seq_length** : 토큰 기준 입력 문장 최대 길이. 이보다 긴 문장은 `max_seq_length`로 자르고, 짧은 문장은 `max_seq_length`가 되도록 스페셜 토큰(`PAD`)을 붙여 줍니다.
 - **epochs** : 학습 에폭 수. 3이라면 학습 데이터를 3회 반복 학습합니다.
 - **tpu_cores** : TPU 코어 수. 하드웨어 가속기로 GPU를 선택(`torch.cuda.is_available() == True`)했다면 0, TPU라면(`torch.cuda.is_available() == False`) 8.
+- **seed** : 랜덤 시드.
 
 코드5를 실행해 랜덤 시드를 설정합니다. `args`에 지정된 시드로 고정하는 역할을 합니다.
 
@@ -281,7 +283,7 @@ model = BertForSequenceClassification.from_pretrained(
 {: .no_toc .text-delta }
 <img src="https://i.imgur.com/ViOHWFw.jpg" width="350px" title="source: imgur.com" />
 
-코드13을 실행하면 문장 쌍 분류용 Task를 정의할 수 있습니다. 모델은 코드12에서 준비한 모델 클래스를 `ClassificationTask`에 포함시킵니다. `ClassificationTask` 클래스에는 옵티마이저와 학습 과정이 이미 정의되어 있는데요. 옵티마이저는 웜업 스케줄링(Warm-up Scheduling)을 적용한 Adam을 사용합니다. 옵티마이저와 관련 자세한 내용은 [3-2-2장 Technics](https://ratsgo.github.io/nlpbook/docs/language_model/tr_technics)를 참고하시면 좋을 것 같습니다.
+코드13을 실행하면 문장 쌍 분류용 Task를 정의할 수 있습니다. 모델은 코드12에서 준비한 모델 클래스를 `ClassificationTask`에 포함시킵니다. `ClassificationTask` 클래스에는 옵티마이저, 러닝레이트 스케줄러(learning rate scheduler)가 정의되어 있는데요. 옵티마이저로는 아담(Adam), 러닝레이트 스케줄러로는 `ExponentialLR`을 사용합니다. 
 
 ## **코드13** Task 정의
 {: .no_toc .text-delta }
