@@ -19,7 +19,9 @@ if __name__ == "__main__":
             max_query_length=32,
             doc_stride=64,
             batch_size=32,
-            epochs=5,
+            learning_rate=5e-5,
+            epochs=3,
+            seed=7,
         )
     # case2 : python train_local.py train_config.json
     elif len(sys.argv) == 2 and sys.argv[-1].endswith(".json"):

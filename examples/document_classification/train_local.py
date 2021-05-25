@@ -14,10 +14,12 @@ if __name__ == "__main__":
             pretrained_model_name="beomi/kcbert-base",
             downstream_corpus_root_dir="data",
             downstream_corpus_name="nsmc",
-            force_download=True,
             downstream_model_dir="checkpoint/document-classification",
             batch_size=32,
-            epochs=5,
+            learning_rate=5e-5,
+            max_seq_length=128,
+            epochs=3,
+            seed=7,
         )
     # case2 : python train_local.py train_config.json
     elif len(sys.argv) == 2 and sys.argv[-1].endswith(".json"):

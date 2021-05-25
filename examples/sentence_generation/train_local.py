@@ -17,7 +17,9 @@ if __name__ == "__main__":
             downstream_model_dir="checkpoint/sentence-generation",
             batch_size=32,
             max_seq_length=32,
-            epochs=5,
+            learning_rate=5e-5,
+            epochs=3,
+            seed=7,
         )
     # case2 : python train_local.py train_config.json
     elif len(sys.argv) == 2 and sys.argv[-1].endswith(".json"):

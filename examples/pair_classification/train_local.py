@@ -18,8 +18,10 @@ if __name__ == "__main__":
             force_download=True,
             downstream_model_dir="checkpoint/pair-classification",
             batch_size=32,
+            learning_rate=5e-5,
             max_seq_length=64,
-            epochs=5,
+            epochs=3,
+            seed=7,
         )
     # case2 : python train_local.py train_config.json
     elif len(sys.argv) == 2 and sys.argv[-1].endswith(".json"):
