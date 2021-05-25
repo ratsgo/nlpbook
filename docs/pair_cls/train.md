@@ -292,7 +292,7 @@ from ratsnlp.nlpbook.classification import ClassificationTask
 task = ClassificationTask(model, args)
 ```
 
-코드13을 실행하면 트레이너(Trainer)를 정의할 수 있습니다. 이 트레이너는 파이토치 라이트닝 라이브러리의 도움을 받아 GPU 설정, 로그 및 체크포인트 등 귀찮은 설정들을 알아서 해줍니다.
+코드13을 실행하면 트레이너(Trainer)를 정의할 수 있습니다. 이 트레이너는 파이토치 라이트닝 라이브러리의 도움을 받아 GPU/TPU 설정, 로그 및 체크포인트 등 귀찮은 설정들을 알아서 해줍니다.
 
 ## **코드13** Trainer 정의
 {: .no_toc .text-delta }
