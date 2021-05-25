@@ -42,7 +42,7 @@ train_dataset = GenerationDataset(
 )
 ```
 
-코드1에서 선언한 `NsmcCorpus` 클래스는 CSV 파일 형식의 NSMC 데이터를 파이썬 문자열(string) 자료형으로 읽어들이는 역할을 합니다. `NsmcCorpus` 클래스의 구체적 내용은 코드2와 같습니다. 이 클래스의 `get_examples` 메소드는 `_create_examples` 메소드를 호출해 NSMC 데이터를 읽어들이는 역할을 합니다. `_create_examples`는 NSMC 데이터를 `레이블(긍정 혹은 부정)`과 `리뷰 문장`을 공백으로 연결한 텍스트로 처리하는걸 확인할 수 있습니다.
+코드1에서 선언한 `NsmcCorpus` 클래스는 CSV 파일 형식의 NSMC 데이터를 파이썬 문자열(string) 자료형으로 읽어들이는 역할을 합니다. `NsmcCorpus` 클래스의 구체적 내용은 코드2와 같습니다. 이 클래스의 `get_examples` 메소드는 `_create_examples` 메소드를 호출합니다. `_create_examples`는 NSMC 데이터를 `레이블(긍정 혹은 부정)`과 `리뷰 문장`을 공백으로 연결한 텍스트를 반환하는 걸 확인할 수 있습니다.
 
 `GenerationDataset`는 `NsmcCorpus` 클래스의 `get_examples` 메소드를 호출하는 방식으로 말뭉치를 읽어들이는데요. 따라서 `NsmcCorpus` 클래스의 `get_examples`를 자신이 가진 말뭉치에 맞게 고치면 우리가 원하는 목적을 달성할 수 있을 겁니다.
 
@@ -241,7 +241,7 @@ task = GenerationTask(model, args)
 
 코드6 태스크 클래스의 주요 메소드에 관한 설명은 다음과 같습니다.
 
-- **configure_optimizers** : 모델 학습에 필요한 옵티마이저(optimizer)와 학습률(learning rate) 스케줄러(scheduler)를 정의합니다. 본서에서 제공하는 옵티마이저(`AdamW`)와 스케줄러(`CosineAnnealingWarmRestarts`)와 다른걸 사용하려면 이 메소드의 내용을 고치면 됩니다.
+- **configure_optimizers** : 모델 학습에 필요한 옵티마이저(optimizer)와 학습률(learning rate) 스케줄러(scheduler)를 정의합니다. 다른 옵티마이저와 스케줄러를 사용하려면 이 메소드의 내용을 고치면 됩니다.
 - **training_step** : 학습(train) 과정에서 한 개의 미니배치(inputs)가 입력됐을 때 손실(loss)을 계산하는 과정을 정의합니다.
 - **validation_step** : 평가(validation) 과정에서 한 개의 미니배치(inputs)가 입력됐을 때 손실(loss)을 계산하는 과정을 정의합니다.
 
@@ -266,16 +266,8 @@ class GenerationTask(LightningModule):
         self.args = args
 
     def configure_optimizers(self):
-        if self.args.optimizer == 'AdamW':
-            optimizer = AdamW(self.parameters(), lr=self.args.learning_rate)
-        else:
-            raise NotImplementedError('Only AdamW is Supported!')
-        if self.args.lr_scheduler == 'cos':
-            scheduler = CosineAnnealingWarmRestarts(optimizer, T_0=1, T_mult=2)
-        elif self.args.lr_scheduler == 'exp':
-            scheduler = ExponentialLR(optimizer, gamma=0.5)
-        else:
-            raise NotImplementedError('Only cos and exp lr scheduler is Supported!')
+        optimizer = AdamW(self.parameters(), lr=self.args.learning_rate)
+        scheduler = ExponentialLR(optimizer, gamma=0.9)
         return {
             'optimizer': optimizer,
             'scheduler': scheduler,
@@ -308,7 +300,9 @@ class GPT2LMHeadModel(GPT2PreTrainedModel):
         super().__init__(config)
         self.transformer = GPT2Model(config)
         self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
+
         self.init_weights()
+
         self.model_parallel = False
 
     def forward(
@@ -328,7 +322,7 @@ class GPT2LMHeadModel(GPT2PreTrainedModel):
         output_hidden_states=None,
         return_dict=None,
     ):
-        return_dict = return_dict if return_dict is not None else self.config.use_return_dict
+        ...
 
         transformer_outputs = self.transformer(
             input_ids,
@@ -363,9 +357,7 @@ class GPT2LMHeadModel(GPT2PreTrainedModel):
             loss_fct = CrossEntropyLoss()
             loss = loss_fct(shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1))
 
-        if not return_dict:
-            output = (lm_logits,) + transformer_outputs[1:]
-            return ((loss,) + output) if loss is not None else output
+        ...
 
         return CausalLMOutputWithCrossAttentions(
             loss=loss,

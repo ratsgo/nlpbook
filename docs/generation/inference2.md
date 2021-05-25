@@ -28,6 +28,11 @@ nav_order: 3
 {: .no_toc .text-delta }
 <img src="https://i.imgur.com/I4lGm3J.jpg" width="500px" title="source: imgur.com" />
 
+
+---
+
+## 1단계 코랩 노트북 초기화하기
+
 이 튜토리얼에서 사용하는 코드를 모두 정리해 구글 코랩(colab) 노트북으로 만들어 두었습니다. 아래 링크를 클릭해 코랩 환경에서도 수행할 수 있습니다. 코랩 노트북 사용과 관한 자세한 내용은 [1-4장 개발환경 설정](https://ratsgo.github.io/nlpbook/docs/introduction/environment) 챕터를 참고하세요.
 
 - <a href="https://colab.research.google.com/github/ratsgo/nlpbook/blob/master/examples/sentence_generation/deploy_colab2.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
@@ -49,7 +54,7 @@ nav_order: 3
 
 ---
 
-## 1단계 환경 설정하기
+## 2단계 환경 설정하기
 
 코드1을 실행해 의존성 있는 패키지를 우선 설치합니다. 코랩 환경에서는 명령어 맨 앞에 느낌표(!)를 붙이면 파이썬이 아닌, 배쉬 명령을 수행할 수 있습니다.
 
@@ -76,19 +81,19 @@ drive.mount('/gdrive', force_remount=True)
 from ratsnlp.nlpbook.generation import GenerationDeployArguments
 args = GenerationDeployArguments(
     pretrained_model_name="skt/kogpt2-base-v2",
-    downstream_model_checkpoint_path="/gdrive/My Drive/nlpbook/checkpoint-generation/epoch=0-val_loss=2.33.ckpt",
+    downstream_model_dir="/gdrive/My Drive/nlpbook/checkpoint-generation",
 )
 ```
 
 각 인자(argument)의 역할과 내용은 다음과 같습니다.
 
 - **pretrained_model_name** : 이전 장에서 파인튜닝한 모델이 사용한 프리트레인 마친 언어모델 이름(단 해당 모델은 허깅페이스 라이브러리에 등록되어 있어야 합니다)
-- **downstream_model_checkpoint_path** : 이전 장에서 파인튜닝한 모델의 체크포인트 저장 위치. 이 인자에 `None`으로 입력하면 파인튜닝한 모델 대신 SK텔레콤이 공개한 KoGPT2(`skt/kogpt2-base-v2`)를 인퍼런스합니다.
+- **downstream_model_dir** : 이전 장에서 파인튜닝한 모델의 체크포인트 저장 위치. 이 인자에 `None`으로 입력하면 파인튜닝한 모델 대신 SK텔레콤이 공개한 KoGPT2(`skt/kogpt2-base-v2`)를 인퍼런스합니다.
 
 ---
 
 
-## 2단계 토크나이저 및 모델 불러오기
+## 3단계 토크나이저 및 모델 불러오기
 
 코드4를 실행하면 토크나이저를 초기화할 수 있습니다.
 
@@ -132,7 +137,7 @@ model.eval()
 
 ---
 
-## 3단계 모델 출력값 만들고 후처리하기
+## 4단계 모델 출력값 만들고 후처리하기
 
 코드6은 인퍼런스 과정을 정의한 함수입니다. 우선 프롬프트(입력 문장, `prompt`)을 받아 토큰화하고 인덱싱한 뒤 파이토치 텐서(tensor)로 만듭니다(`input_ids`). 이를 모델에 넣어 이후 입력 문장에 이어지는 토큰ID 시퀀스(`generated_ids`)를 생성합니다. 마지막으로 토큰ID 시퀀스를 사람이 보기 좋은 형태의 문장(string)으로 변환해 반환합니다.
 
@@ -187,7 +192,7 @@ def inference_fn(
 ---
 
 
-## 4단계 웹 서비스 시작하기
+## 5단계 웹 서비스 시작하기
 
 코드6에서 정의한 인퍼런스 함수(`inference_fn`)을 가지고 코드7을 실행하면 웹 서비스를 띄울 수 있습니다. 파이썬 플라스크(flask)를 활용한 앱입니다.
 

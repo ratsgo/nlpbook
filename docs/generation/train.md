@@ -83,26 +83,28 @@ import torch
 from ratsnlp.nlpbook.generation import GenerationTrainArguments
 args = GenerationTrainArguments(
     pretrained_model_name="skt/kogpt2-base-v2",
-    downstream_corpus_root_dir="/root/Korpora",
     downstream_corpus_name="nsmc",
     downstream_model_dir="/gdrive/My Drive/nlpbook/checkpoint-generation",
     max_seq_length=32,
     batch_size=32 if torch.cuda.is_available() else 4,
+    learning_rate=5e-5,
     epochs=3,
     tpu_cores=0 if torch.cuda.is_available() else 8,
+    seed=7,
 )
 ```
 
 참고로 `GenerationTrainArguments`의 각 인자(argument)가 하는 역할과 의미는 다음과 같습니다.
 
 - **pretrained_model_name** : 프리트레인 마친 언어모델의 이름(단 해당 모델은 허깅페이스 라이브러리에 등록되어 있어야 합니다), 이번 튜토리얼에서는 SK텔레콤이 공개한 KoGPT2(`skt/kogpt2-base-v2`)를 사용합니다.
-- **downstream_corpus_root_dir** : 다운스트림 데이터를 저장해 둘 위치. `/root/Korpora`라고 함은 코랩 노트북이 실행되는 환경의 루트 하위에 위치한 `Korpora` 디렉토리라는 의미입니다.
 - **downstream_corpus_name** : 다운스트림 데이터의 이름.
 - **downstream_model_dir** : 파인튜닝된 모델의 체크포인트가 저장될 위치. `/gdrive/My Drive/nlpbook/checkpoint-generation`라고 함은 자신의 구글 드라이브의 `내 폴더` 하위의 `nlpbook/checkpoint-generation`에 모델 체크포인트가 저장됩니다.
-- **max_seq_length** : 토큰 기준 입력 문장 최대 길이.
+- **max_seq_length** : 토큰 기준 입력 문장 최대 길이. 이보다 긴 문장은 `max_seq_length`로 자르고, 짧은 문장은 `max_seq_length`가 되도록 스페셜 토큰(`PAD`)을 붙여 줍니다.
 - **batch_size** : 배치 크기. 하드웨어 가속기로 GPU를 선택(`torch.cuda.is_available() == True`)했다면 32, TPU라면(`torch.cuda.is_available() == False`) 4. 코랩 환경에서 TPU는 보통 8개 코어가 할당되는데 `batch_size`는 코어별로 적용되는 배치 크기이기 때문에 이렇게 설정해 둡니다.
+- **learning_rate** : 러닝레이트. 1회 스텝에서 한 번에 얼마나 업데이트할지에 관한 크기를 가리킵니다. 이와 관련한 자세한 내용은 [3-2-2장 Technics](https://ratsgo.github.io/nlpbook/docs/language_model/tr_technics)를 참고하세요.
 - **epochs** : 학습 에폭 수. 3이라면 학습 데이터를 3회 반복 학습합니다.
 - **tpu_cores** : TPU 코어 수. 하드웨어 가속기로 GPU를 선택(`torch.cuda.is_available() == True`)했다면 0, TPU라면(`torch.cuda.is_available() == False`) 8.
+- **seed** : 랜덤 시드.
 
 코드5를 실행해 랜덤 시드를 설정합니다. `args`에 지정된 시드로 고정하는 역할을 합니다.
 
@@ -163,13 +165,13 @@ tokenizer = PreTrainedTokenizerFast.from_pretrained(
 
 ## 5단계 데이터 전처리하기
 
-딥러닝 모델을 학습하려면 학습데이터를 배치(batch) 단위로 지속적으로 모델에 공급해 주어야 합니다. 파이토치(PyTorch)에서는 이 역할을 데이터 로더(DataLoader)가 수행하는데요. 그 개념을 도식적으로 나타내면 그림1과 같습니다.
+딥러닝 모델을 학습하려면 학습데이터를 배치(batch) 단위로 지속적으로 모델에 공급해 주어야 합니다. 파이토치(PyTorch)에서는 이 역할을 데이터 로더(DataLoader)가 수행하는데요. 그 개념을 도식적으로 나타내면 그림3과 같습니다.
 
-## **그림1** DataLoader
+## **그림3** DataLoader
 {: .no_toc .text-delta }
 <img src="https://i.imgur.com/bD07LbT.jpg" width="350px" title="source: imgur.com" />
 
-코드9를 수행하면 그림1의 Dataset을 만들 수 있습니다. 여기에서 `NsmcCorpus`는 NSMC 데이터를 읽어들이는 역할을 하고요. `GenerationDataset`는 그림1의 DataSet 역할을 수행합니다.
+코드9를 수행하면 그림3의 Dataset을 만들 수 있습니다. 여기에서 `NsmcCorpus`는 NSMC 데이터를 읽어들이는 역할을 하고요. `GenerationDataset`는 그림3의 DataSet 역할을 수행합니다.
 
 ## **코드9** 학습 데이터셋 구축
 {: .no_toc .text-delta }
@@ -281,7 +283,7 @@ model = GPT2LMHeadModel.from_pretrained(
 
 [파이토치 라이트닝(pytorch lightning)](https://github.com/PyTorchLightning/pytorch-lightning)이 제공하는 라이트닝(lightning) 모듈을 상속받아 태스크(task)를 정의합니다. 태스크에는 그림2와 같이 모델과 옵티마이저(optimizer), 학습 과정 등이 정의돼 있습니다.
 
-## **그림2** Task의 역할
+## **그림4** Task의 역할
 {: .no_toc .text-delta }
 <img src="https://i.imgur.com/ViOHWFw.jpg" width="350px" title="source: imgur.com" />
 
@@ -302,7 +304,7 @@ task = GenerationTask(model, args)
 trainer = nlpbook.get_trainer(args)
 ```
 
-코드15처럼 트레이너의 `fit` 함수를 호출하면 학습이 시작됩니다. 그림3은 코랩 환경에서 학습되는 화면입니다.
+코드15처럼 트레이너의 `fit` 함수를 호출하면 학습이 시작됩니다. 그림5는 코랩 환경에서 학습되는 화면입니다.
 
 ## **코드15** 학습 개시
 {: .no_toc .text-delta }
@@ -314,7 +316,7 @@ trainer.fit(
 )
 ```
 
-## **그림3** 코랩 환경에서의 학습
+## **그림5** 코랩 환경에서의 학습
 {: .no_toc .text-delta }
 <img src="https://i.imgur.com/tG2U4Wp.png" width="500px" title="source: imgur.com" />
 
