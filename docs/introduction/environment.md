@@ -114,7 +114,9 @@ nav_order: 4
 <img src="https://i.imgur.com/i4XvOhQ.png" width="300px" title="source: imgur.com" />
 
 
-사용자 계정에 따라 할당받을 수 있는 하드웨어 가속기의 수와 종류가 다릅니다. 코랩이 가지고 있는 자원 대비 사용자가 많을 경우에도 역시 달라질 수 있습니다.
+각 장의 인퍼런스(inference) 튜토리얼에서는 하드웨어 가속기가 따로 필요 없습니다. 그림11의 화면에서 `None`을 선택하면 됩니다.
+
+한편 사용자 계정에 따라 할당받을 수 있는 하드웨어 가속기의 수와 종류가 다릅니다. 코랩이 가지고 있는 자원 대비 사용자가 많을 경우에도 역시 원하는 가속기를 할당받지 못할 수 있습니다. 이 경우 [Colaboratory 자주 묻는 질문](https://research.google.com/colaboratory/faq.html)을 참고해 주세요.
 
 
 ---
@@ -122,12 +124,17 @@ nav_order: 4
 
 ## 런타임 종료하기
 
-개인 계정으로 동시에 사용할 수 있는 세션 수와 코랩 자원은 한정적이기 때문에 불필요한 노트북 실행은 피하는 게 좋습니다. 만일 노트북 실행을 마쳤다는 판단이 선다면 그림12럼 명시적으로 런타임을 초기화해 주세요. 이 경우 노트북 실행을 완전히 중단하고 점유하고 있던 CPU, RAM, 하드웨어 가속기 등 계산 자원을 반납하게 됩니다.
+개인 계정으로 동시에 사용할 수 있는 세션 수와 코랩 자원은 한정적이기 때문에 불필요한 노트북 실행은 피하는 게 좋습니다. 만일 노트북 실행을 마쳤다는 판단이 선다면 그림12처럼 명시적으로 런타임을 초기화해 주세요. 이 경우 노트북 실행을 완전히 중단하고 점유하고 있던 CPU, RAM, 하드웨어 가속기 등 계산 자원을 반납하게 됩니다.
 
 
 ## **그림12** 런타임 종료
 {: .no_toc .text-delta }
 <img src="https://i.imgur.com/vYxJoQT.png" width="500px" title="source: imgur.com" />
+
+
+[4장 문서 분류](http://ratsgo.github.io/nlpbook/docs/doc_cls/train/), [5장 문장 쌍 분류](http://ratsgo.github.io/nlpbook/docs/pair_cls/train/), [6장 개체명 인식](http://ratsgo.github.io/nlpbook/docs/ner/train/), [7장 질의 응답](http://ratsgo.github.io/nlpbook/docs/qa/train/), [8장 문서 생성](http://ratsgo.github.io/nlpbook/docs/generation/train/) 등 학습을 마치면 지정한 구글 드라이브 폴더(`downstream_model_dir`) 내에 다음과 같은 형식의 파일이 생성됩니다. 이런 파일이 생성되었을 경우 해당 모델의 인퍼런스(inference) 준비를 마친 것입니다. 코랩의 서버 환경에 따라 아래 형식의 파일이 생성되었는데도 오랫동안 코랩 런타임이 유지되는 경우도 있습니다. 이 경우 그림12처럼 런타임을 종료해도 관계 없습니다.
+
+- epoch={number}-val_loss={number}.ckpt
 
 
 ---
