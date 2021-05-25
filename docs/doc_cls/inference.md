@@ -125,7 +125,7 @@ tokenizer = BertTokenizer.from_pretrained(
 ```python
 import torch
 fine_tuned_model_ckpt = torch.load(
-    args.downstream_model_checkpoint_path,
+    args.downstream_model_checkpoint_fpath,
     map_location=torch.device("cpu")
 )
 ```
