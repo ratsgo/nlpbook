@@ -56,6 +56,29 @@ nav_order: 4
 
 이 챕터에서는 프리트레인을 마친 BERT 모델에 문장을 입력해서 이를 벡터로 변환하는 실습을 해보도록 하겠습니다. 이러한 절차는 BERT 이외의 다른 모델들도 거의 비슷합니다.
 
+
+### 실습 환경 만들기
+
+
+이 튜토리얼에서 사용하는 코드를 모두 정리해 구글 코랩(colab) 노트북으로 만들어 두었습니다. 아래 링크를 클릭하면 코랩 환경에서 수행할 수 있습니다. 코랩 노트북 사용과 관한 자세한 내용은 [1-4장 개발환경 설정](https://ratsgo.github.io/nlpbook/docs/introduction/environment) 챕터를 참고하세요.
+
+- <a href="https://colab.research.google.com/github/ratsgo/nlpbook/blob/master/examples/basic/embedding.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+
+위 노트북은 읽기 권한만 부여돼 있기 때문에 실행하거나 노트북 내용을 고칠 수가 없을 겁니다. 노트북을 복사해 내 것으로 만들면 이 문제를 해결할 수 있습니다. 
+
+위 링크를 클릭한 후 구글 아이디로 로그인한 뒤 메뉴 탭 하단의 `드라이브로 복사`를 클릭하면 코랩 노트북이 자신의 드라이브에 복사됩니다. 이 다음부터는 해당 노트북을 자유롭게 수정, 실행할 수 있게 됩니다. 별도의 설정을 하지 않았다면 해당 노트북은 `내 드라이브/Colab Notebooks` 폴더에 담깁니다.
+
+한편 이 튜토리얼에서는 하드웨어 가속기가 따로 필요 없습니다. 그림1과 같이 코랩 화면의 메뉴 탭에서 런타임 > 런타임 유형 변경을 클릭합니다. 이후 그림2의 화면에서 `None`을 선택합니다.
+
+## **그림1** 하드웨어 가속기 설정 (1)
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/JFUva3P.png" width="500px" title="source: imgur.com" />
+
+## **그림2** 하드웨어 가속기 설정 (2)
+{: .no_toc .text-delta }
+<img src="https://i.imgur.com/i4XvOhQ.png" width="300px" title="source: imgur.com" />
+
+
 ### 토크나이저 초기화
 
 BERT 모델의 입력값을 만들려면 토크나이저부터 선언해두어야 합니다. 코드1을 실행하면 이준범 님이 허깅페이스에 등록한 `kcbert-base` 모델이 쓰는 토크나이저를 선언할 수 있습니다. 
@@ -87,12 +110,13 @@ model = BertModel.from_pretrained(
 )
 ```
 
-코드2의 `pretrained_model_config`에는 BERT 모델을 프리트레인할 때 설정했던 내용이 담겨 있습니다. 파이썬 콘솔에서 `pretrained_model_config`를 입력하고 엔터를 누르면 그림1을 확인할 수 있습니다. 블록(레이어) 수는 12개, 헤드의 수는 12개, 어휘 집합의 크기는 3만개 등 정보를 확인할 수 있습니다. 
+코드2의 `pretrained_model_config`에는 BERT 모델을 프리트레인할 때 설정했던 내용이 담겨 있습니다. 코랩에서 `pretrained_model_config`를 입력하면 그림1을 확인할 수 있습니다. 블록(레이어) 수는 12개, 헤드의 수는 12개, 어휘 집합의 크기는 3만개 등 정보를 확인할 수 있습니다. 
 
 ## **그림1** pretrained_model_config
 {: .no_toc .text-delta }
 ```json
 BertConfig {
+  "_name_or_path": "beomi/kcbert-base",
   "architectures": [
     "BertForMaskedLM"
   ],
@@ -115,7 +139,10 @@ BertConfig {
   "pooler_num_fc_layers": 3,
   "pooler_size_per_head": 128,
   "pooler_type": "first_token_transform",
+  "position_embedding_type": "absolute",
+  "transformers_version": "4.2.2",
   "type_vocab_size": 2,
+  "use_cache": true,
   "vocab_size": 30000
 }
 ```
@@ -181,14 +208,13 @@ features = {k: torch.tensor(v) for k, v in features.items()}
 outputs = model(**features)
 ```
 
-코드5 실행 결과인 `outputs`의 자료형은 튜플(tuple)입니다. BERT 모델의 여러 출력 결과가 한데 묶인 것이라고 볼 수 있는데요. 파이썬 콘솔에서 `outputs[0]`을 입력해 output의 첫번째 요소를 확인해 보면 그림3과 같은 결과를 확인할 수 있습니다. 
+코드5 실행 결과인 `outputs`은 BERT 모델의 여러 출력 결과를 한데 묶은 것입니다. 코랩에서 `outputs.last_hidden_state`을 확인해 보면 그림3과 같은 결과를 볼 수 있습니다. 
 
 그림3의 shape은 [2, 10, 768]입니다. 문장 두 개에 속한 각각의 토큰(최대 길이 10)을 768차원짜리의 벡터로 변환했다는 의미입니다. 이들은 입력 단어 각각에 해당하는 BERT의 마지막 레이어 출력 벡터들입니다. 이는 그림2의 노란색 실선로 표기한 단어들에 대응합니다. 그림3과 같은 결과는 개체명 인식 과제 같이 단어별로 수행해야 하는 태스크에 활용됩니다.
 
 ## **그림3** 단어 수준 임베딩
 {: .no_toc .text-delta }
 ```
->>> outputs[0]
 tensor([[[-0.6969, -0.8248,  1.7512,  ..., -0.3732,  0.7399,  1.1907],
          [-1.4803, -0.4398,  0.9444,  ..., -0.7405, -0.0211,  1.3064],
          [-1.4299, -0.5033, -0.2069,  ...,  0.1285, -0.2611,  1.6057],
@@ -206,7 +232,7 @@ tensor([[[-0.6969, -0.8248,  1.7512,  ..., -0.3732,  0.7399,  1.1907],
        grad_fn=<NativeLayerNormBackward>)
 ```
 
-파이썬 콘솔에서 `outputs[1]`을 입력해 output의 두번째 요소를 확인해 보면 그림4와 같은 결과를 확인할 수 있습니다. 
+코랩에서 `outputs.last_hidden_state`을 입력해 output의 두번째 요소를 확인해 보면 그림4와 같은 결과를 확인할 수 있습니다. 
 
 그림4의 shape은 [2, 768]입니다. 문장 두 개가 각각 768차원짜리의 벡터로 변환됐다는 의미입니다. 이들은 BERT의 마지막 레이어 `CLS` 벡터들입니다. 이는 그림1의 노란색 실선으로 표기한 `CLS`에 대응합니다. 그림4와 같은 결과는 문서 분류 과제 같이 문장 전체를 벡터 하나로 변환한 뒤 이 벡터에 어떤 계산을 수행하는 태스크에 활용됩니다.
 
@@ -214,7 +240,6 @@ tensor([[[-0.6969, -0.8248,  1.7512,  ..., -0.3732,  0.7399,  1.1907],
 ## **그림4** 문장 수준 임베딩
 {: .no_toc .text-delta }
 ```
->>> outputs[1]
 tensor([[-0.1594,  0.0547,  0.1101,  ...,  0.2684,  0.1596, -0.9828],
         [-0.9221,  0.2969, -0.0110,  ...,  0.4291,  0.0311, -0.9955]],
        grad_fn=<TanhBackward>)

@@ -40,21 +40,36 @@ nav_order: 4
 
 ---
 
+## 구글 드라이브 연동하기
+
+이번 튜토리얼에서는 [2-3장](https://ratsgo.github.io/nlpbook/docs/preprocess/vocab/)에서 미리 구축해 놓은 어휘 집합(vocabulary)을 바탕으로 실습합니다. 2-3장에서 어휘 집합을 구글 드라이브에 저장해 두었기 때문에 자신의 구글 드라이브를 코랩 노트북과 연결해야 합니다. 코드1을 실행하면 됩니다.
+
+## **코드1** 구글드라이브와 연결
+{: .no_toc .text-delta }
+```python
+from google.colab import drive
+drive.mount('/gdrive', force_remount=True)
+```
+
+
+---
+
+
 ## GPT 입력값 만들기
 
-GPT 입력값을 만들려면 토크나이저부터 준비해야 합니다. 코드1을 수행하면 GPT 모델이 사용하는 토크나이저를 초기화할 수 있습니다. `save_path`에는 GPT용 BPE 어휘 집합(`vocab.json`)과 바이그램 쌍의 병합 우선순위(`merge.txt`)가 있어야 합니다. 누군가가 구축해 놓은 결과를 사용해도 되고요, 독자 여러분이 가진 말뭉치로 직접 만든 걸 써도 됩니다. 후자처럼 하고 싶으시다면 [이전 장](https://ratsgo.github.io/nlpbook/docs/tokenization/vocab)을 참고하세요.
+GPT 입력값을 만들려면 토크나이저부터 준비해야 합니다. 코드2를 수행하면 GPT 모델이 사용하는 토크나이저를 초기화할 수 있습니다. 자신의 구글 드라이브 경로(`/gdrive/My Drive/nlpbook/bbpe`)에는 바이트 레벨 BPE 어휘 집합(`vocab.json`)과 바이그램 쌍의 병합 우선순위(`merge.txt`)가 있어야 합니다. 누군가가 구축해 놓은 결과를 사용해도 되고요, 독자 여러분이 가진 말뭉치로 직접 만든 걸 써도 됩니다. 후자처럼 하고 싶으시다면 [이전 장](https://ratsgo.github.io/nlpbook/docs/preprocess/vocab)을 참고하세요.
 
-## **코드1** GPT 토크나이저 선언
+## **코드2** GPT 토크나이저 선언
 {: .no_toc .text-delta } 
 ```python
 from transformers import GPT2Tokenizer
-tokenizer_gpt = GPT2Tokenizer.from_pretrained(save_path)
+tokenizer_gpt = GPT2Tokenizer.from_pretrained("/gdrive/My Drive/nlpbook/bbpe")
 tokenizer_gpt.pad_token = "[PAD]"
 ```
 
-예시 문장 세 개를 토큰화하는 코드는 코드2입니다. 그 결과는 표1과 같습니다.
+예시 문장 세 개를 토큰화하는 코드는 코드3입니다. 그 결과는 표1과 같습니다.
 
-## **코드2** GPT 토크나이저로 토큰화하기
+## **코드3** GPT 토크나이저로 토큰화하기
 {: .no_toc .text-delta } 
 ```python
 sentences = [
@@ -76,9 +91,9 @@ tokenized_sentences = [tokenizer_gpt.tokenize(sentence) for sentence in sentence
 |문장2|íĿł|...|íı¬ìĬ¤íĦ°|ë³´ê³ł|Ġì´ĪëĶ©|ìĺģíĻĶ|ì¤Ħ|....|ìĺ¤ë²Ħ|ìĹ°ê¸°|ì¡°ì°¨|Ġê°Ģë³į|ì§Ģ|ĠìķĬ|êµ¬ëĤĺ|
 |문장3|ë³Ħë£¨|Ġìĺ|Ģëĭ¤|..||||||||||||
 
-코드2와 표1은 GPT 토크나이저의 토큰화 결과를 살짝 맛보기 위해 설명한 것인데요. 실제 모델 입력값은 코드3으로 만듭니다.
+코드4와 표1은 GPT 토크나이저의 토큰화 결과를 살짝 맛보기 위해 설명한 것인데요. 실제 모델 입력값은 코드3으로 만듭니다.
 
-## **코드3** GPT 모델 입력 만들기
+## **코드4** GPT 모델 입력 만들기
 {: .no_toc .text-delta } 
 ```python
 batch_inputs = tokenizer_gpt(
@@ -89,7 +104,7 @@ batch_inputs = tokenizer_gpt(
 )
 ```
 
-코드3 실행 결과로 두 가지의 입력값이 만들어집니다. 하나는 `input_ids`입니다. `input_ids`는 표1의 토큰화 결과를 가지고 각 토큰들을 인덱스(index)로 바꾼 것입니다. 어휘 집합(`vocab.json`)을 확인해 보면 각 어휘가 특정 정수(integer)로 매핑되어 있는 걸 확인할 수 있는데요. 여기서 참고해 인덱스로 변환한 것임을 알 수 있습니다. 표2와 같습니다.
+코드4 실행 결과로 두 가지의 입력값이 만들어집니다. 하나는 `input_ids`입니다. `input_ids`는 표1의 토큰화 결과를 가지고 각 토큰들을 인덱스(index)로 바꾼 것입니다. 어휘 집합(`vocab.json`)을 확인해 보면 각 어휘가 특정 정수(integer)로 매핑되어 있는 걸 확인할 수 있는데요. 여기서 참고해 인덱스로 변환한 것임을 알 수 있습니다. 표2와 같습니다.
 
 ## **표2** GPT input_ids
 {: .no_toc .text-delta } 
@@ -118,18 +133,18 @@ batch_inputs = tokenizer_gpt(
 
 ## BERT 입력값 만들기
 
-이번엔 BERT 모델의 입력값을 만들어보겠습니다. 코드4를 수행하면 BERT 모델이 사용하는 토크나이저를 초기화할 수 있습니다. `save_path`에는 BERT용 워드피스 어휘 집합(`vocab.txt`)이 있어야 합니다. 누군가가 구축해 놓은 결과를 사용해도 되고요, 독자 여러분이 가진 말뭉치로 직접 만든 걸 써도 됩니다. 후자처럼 하고 싶으시다면 [이전 장](https://ratsgo.github.io/nlpbook/docs/tokenization/vocab)을 참고하세요.
+이번엔 BERT 모델의 입력값을 만들어보겠습니다. 코드5를 수행하면 BERT 모델이 사용하는 토크나이저를 초기화할 수 있습니다. 자신의 구글 드라이브 경로(`/gdrive/My Drive/nlpbook/wordpiece`)에는 BERT용 워드피스 어휘 집합(`vocab.txt`)이 있어야 합니다. 누군가가 구축해 놓은 결과를 사용해도 되고요, 독자 여러분이 가진 말뭉치로 직접 만든 걸 써도 됩니다. 후자처럼 하고 싶으시다면 [이전 장](https://ratsgo.github.io/nlpbook/docs/tokenization/vocab)을 참고하세요.
 
-## **코드4** BERT 토크나이저 선언
+## **코드5** BERT 토크나이저 선언
 {: .no_toc .text-delta } 
 ```python
 from transformers import BertTokenizer
-tokenizer_bert = BertTokenizer.from_pretrained(save_path, do_lower_case=False)
+tokenizer_bert = BertTokenizer.from_pretrained("/gdrive/My Drive/nlpbook/wordpiece", do_lower_case=False)
 ```
 
-예시 문장 세 개를 토큰화하는 코드는 코드5입니다. 그 결과는 표4와 같습니다. 토큰 일부에 있는 `##`은 해당 토큰이 어절(띄어쓰기 기준)의 시작이 아님을 나타냅니다. 예컨대 `##네요`는 이 토큰이 앞선 토큰 `짜증나`와 같은 어절에 위치하며 어절 내에서 연속되고 있음을 표시합니다.
+예시 문장 세 개를 토큰화하는 코드는 코드6입니다. 그 결과는 표4와 같습니다. 토큰 일부에 있는 `##`은 해당 토큰이 어절(띄어쓰기 기준)의 시작이 아님을 나타냅니다. 예컨대 `##네요`는 이 토큰이 앞선 토큰 `짜증나`와 같은 어절에 위치하며 어절 내에서 연속되고 있음을 표시합니다.
 
-## **코드5** BERT 토크나이저로 토큰화하기
+## **코드6** BERT 토크나이저로 토큰화하기
 {: .no_toc .text-delta } 
 ```python
 sentences = [
@@ -149,9 +164,9 @@ tokenized_sentences = [tokenizer_bert.tokenize(sentence) for sentence in sentenc
 |문장2|흠|.|.|.|포스터|##보고|초딩|##영화|##줄|.|.|.|.|오버|##연기|##조차|가볍|##지|않|##구나|
 |문장3|별루|였다|.|.|
 
-코드5와 표4는 BERT 토크나이저의 토큰화 결과를 살짝 맛보기 위해 설명한 것인데요. 실제 모델 입력값은 코드6으로 만듭니다.
+코드5와 표4는 BERT 토크나이저의 토큰화 결과를 살짝 맛보기 위해 설명한 것인데요. 실제 모델 입력값은 코드7로 만듭니다.
 
-## **코드6** BERT 모델 입력 만들기
+## **코드7** BERT 모델 입력 만들기
 {: .no_toc .text-delta } 
 ```python
 batch_inputs = tokenizer_bert(
@@ -162,7 +177,7 @@ batch_inputs = tokenizer_bert(
 )
 ```
 
-코드6 실행 결과로 세 가지의 입력값이 만들어집니다. 하나는 `input_ids`입니다. 표5의 `input_ids`는 표4의 토큰화 결과를 가지고 각 토큰들을 인덱스(index)로 바꾼 것입니다. 어휘 집합(`vocab.txt`)에서 그 순서를 참고해 순서를 인덱스로 변환한 형태입니다. 예컨대 `환상`이라는 토큰이 어휘 집합에서 3357번째로 등장했더면 해당 토큰의 인덱스는 3357이 됩니다.
+코드7 실행 결과로 세 가지의 입력값이 만들어집니다. 하나는 `input_ids`입니다. 표5의 `input_ids`는 표4의 토큰화 결과를 가지고 각 토큰들을 인덱스(index)로 바꾼 것입니다. 어휘 집합(`vocab.txt`)에서 그 순서를 참고해 순서를 인덱스로 변환한 형태입니다. 예컨대 `환상`이라는 토큰이 어휘 집합에서 3357번째로 등장했더면 해당 토큰의 인덱스는 3357이 됩니다.
 
 ## **표5** BERT input_ids
 {: .no_toc .text-delta } 
@@ -188,6 +203,6 @@ batch_inputs = tokenizer_bert(
 |문장2|1|1|1|1|1|1|1|1|1|1|1|1|
 |문장3|1|1|1|1|1|1|0|0|0|0|0|0|
 
-한편 코드6 실행 결과에 `token_type_ids`이라는 입력값도 있습니다. 이는 세그먼트(segment)에 해당하는 것으로 모두 0입니다.
+한편 코드7 실행 결과에 `token_type_ids`이라는 입력값도 있습니다. 이는 세그먼트(segment)에 해당하는 것으로 모두 0입니다.
 
 ---
