@@ -30,6 +30,10 @@ nav_order: 3
 <img src="https://i.imgur.com/I4lGm3J.jpg" width="500px" title="source: imgur.com" />
 
 
+---
+
+## 1단계 코랩 노트북 초기화하기
+
 이 튜토리얼에서 사용하는 코드를 모두 정리해 구글 코랩(colab) 노트북으로 만들어 두었습니다. 아래 링크를 클릭해 코랩 환경에서도 수행할 수 있습니다. 코랩 노트북 사용과 관한 자세한 내용은 [1-4장 개발환경 설정](https://ratsgo.github.io/nlpbook/docs/introduction/environment) 챕터를 참고하세요.
 
 - <a href="https://colab.research.google.com/github/ratsgo/nlpbook/blob/master/examples/pair_classification/deploy_colab.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
@@ -52,7 +56,7 @@ nav_order: 3
 
 ---
 
-## 1단계 환경 설정하기
+## 2단계 환경 설정하기
 
 코드1을 실행해 의존성 있는 패키지를 우선 설치합니다. 코랩 환경에서는 명령어 맨 앞에 느낌표(!)를 붙이면 파이썬이 아닌, 배쉬 명령을 수행할 수 있습니다.
 
@@ -94,7 +98,7 @@ args = ClassificationDeployArguments(
 ---
 
 
-## 2단계 토크나이저 및 모델 불러오기
+## 3단계 토크나이저 및 모델 불러오기
 
 코드4를 실행하면 토크나이저를 초기화할 수 있습니다.
 
@@ -155,7 +159,7 @@ model.eval()
 
 ---
 
-## 3단계 모델 출력값 만들고 후처리하기
+## 4단계 모델 출력값 만들고 후처리하기
 
 코드10은 인퍼런스 과정을 정의한 함수입니다. 전제(premise)와 가설(hypothesis)을 입력받아 각각 토큰화, 인덱싱을 수행한 뒤 `input_ids`, `attention_mask`, `token_type_ids`를 만듭니다. 이들 입력값을 파이토치 텐서(tensor) 자료형으로 변환한 뒤 모델에 입력합니다. 모델 출력값(`outputs.logits`)은 소프트맥스 함수 적용 이전의 로짓(logit) 형태인데요. 여기에 소프트맥스 함수를 써서 모델 출력을 [전제에 대해 가설이 참(entailment)일 확률, 전제에 대해 가설이 거짓(contradiction)일 확률, 전제에 대해 가설이 중립(neutral)일 확률] 형태의 확률 형태로 바꿉니다.
 
@@ -201,7 +205,7 @@ def inference_fn(premise, hypothesis):
 ---
 
 
-## 웹 서비스 런칭
+## 5단계 웹 서비스 시작하기
 
 코드10에서 정의한 인퍼런스 함수(`inference_fn`)을 가지고 코드11을 실행하면 웹 서비스를 띄울 수 있습니다. 파이썬 플라스크(flask)를 활용한 앱입니다.
 
