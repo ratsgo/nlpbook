@@ -5,7 +5,7 @@ parent: Preprocess
 nav_order: 4
 ---
 
-# Tokenization Tutorial
+# 토큰화 튜토리얼
 {: .no_toc }
 
 이 장에서는 문장을 토큰화하고 해당 토큰들을 모델의 입력으로 만드는 과정을 튜토리얼 방식으로 소개합니다.
