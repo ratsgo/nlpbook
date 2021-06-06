@@ -3,7 +3,7 @@ from ratsnlp import nlpbook
 from ratsnlp.nlpbook import load_arguments
 from torch.utils.data import DataLoader, SequentialSampler, RandomSampler
 from ratsnlp.nlpbook.ner import NERTrainArguments, NERCorpus, NERDataset, NERTask
-from transformers import BertConfig, BertTokenizer, BertForTokenClassification, set_seed
+from transformers import BertConfig, BertTokenizer, BertForTokenClassification
 
 
 if __name__ == "__main__":
@@ -28,7 +28,7 @@ if __name__ == "__main__":
         args = load_arguments(NERTrainArguments)
     nlpbook.set_logger(args)
     nlpbook.download_downstream_dataset(args)
-    set_seed(args.seed)
+    nlpbook.set_seed(args)
     tokenizer = BertTokenizer.from_pretrained(
         args.pretrained_model_name,
         do_lower_case=False,

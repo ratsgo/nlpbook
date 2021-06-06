@@ -3,7 +3,7 @@ from ratsnlp import nlpbook
 from Korpora import Korpora
 from ratsnlp.nlpbook.generation import *
 from torch.utils.data import DataLoader, SequentialSampler, RandomSampler
-from transformers import GPT2LMHeadModel, PreTrainedTokenizerFast, set_seed
+from transformers import GPT2LMHeadModel, PreTrainedTokenizerFast
 
 
 if __name__ == "__main__":
@@ -33,7 +33,7 @@ if __name__ == "__main__":
         root_dir=args.downstream_corpus_root_dir,
         force_download=args.force_download,
     )
-    set_seed(args.seed)
+    nlpbook.set_seed(args)
     tokenizer = PreTrainedTokenizerFast.from_pretrained(
         args.pretrained_model_name,
         eos_token='</s>',
