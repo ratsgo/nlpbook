@@ -110,15 +110,15 @@ args = QATrainArguments(
 - **learning_rate** : 러닝레이트. 1회 스텝에서 한 번에 얼마나 업데이트할지에 관한 크기를 가리킵니다. 이와 관련한 자세한 내용은 [3-2-2장 Technics](https://ratsgo.github.io/nlpbook/docs/language_model/tr_technics)를 참고하세요.
 - **epochs** : 학습 에폭 수. 3이라면 학습 데이터를 3회 반복 학습합니다.
 - **tpu_cores** : TPU 코어 수. 하드웨어 가속기로 GPU를 선택(`torch.cuda.is_available() == True`)했다면 0, TPU라면(`torch.cuda.is_available() == False`) 8.
-- **seed** : 랜덤 시드 값. 아무 것도 입력하지 않으면 7입니다. 
+- **seed** : 랜덤 시드(정수, integer). `None`을 입력하면 랜덤 시드를 고정하지 않습니다.
 
 코드5를 실행해 랜덤 시드를 설정합니다. `args`에 지정된 시드로 고정하는 역할을 합니다.
 
 ## **코드5** 랜덤 시드 고정
 {: .no_toc .text-delta }
 ```python
-from transformers import set_seed
-set_seed(args.seed)
+from ratsnlp import nlpbook
+nlpbook.set_seed(args)
 ```
 
 코드6을 실행해 각종 로그들을 출력하는 로거를 설정합니다.
@@ -126,7 +126,6 @@ set_seed(args.seed)
 ## **코드6** 로거 설정
 {: .no_toc .text-delta }
 ```python
-from ratsnlp import nlpbook
 nlpbook.set_logger(args)
 ```
 

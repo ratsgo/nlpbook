@@ -107,15 +107,15 @@ args = ClassificationTrainArguments(
 - **max_seq_length** : 토큰 기준 입력 문장 최대 길이. 이보다 긴 문장은 `max_seq_length`로 자르고, 짧은 문장은 `max_seq_length`가 되도록 스페셜 토큰(`PAD`)을 붙여 줍니다.
 - **epochs** : 학습 에폭 수. 3이라면 학습 데이터를 3회 반복 학습합니다.
 - **tpu_cores** : TPU 코어 수. 하드웨어 가속기로 GPU를 선택(`torch.cuda.is_available() == True`)했다면 0, TPU라면(`torch.cuda.is_available() == False`) 8.
-- **seed** : 랜덤 시드.
+- **seed** : 랜덤 시드(정수, integer). `None`을 입력하면 랜덤 시드를 고정하지 않습니다.
 
 코드5를 실행해 랜덤 시드를 설정합니다. `args`에 지정된 시드로 고정하는 역할을 합니다.
 
 ## **코드5** 랜덤 시드 고정
 {: .no_toc .text-delta }
 ```python
-from transformers import set_seed
-set_seed(args.seed)
+from ratsnlp import nlpbook
+nlpbook.set_seed(args)
 ```
 
 코드6을 실행해 각종 로그들을 출력하는 로거를 설정합니다.
@@ -123,7 +123,6 @@ set_seed(args.seed)
 ## **코드6** 로거 설정
 {: .no_toc .text-delta }
 ```python
-from ratsnlp import nlpbook
 nlpbook.set_logger(args)
 ```
 
