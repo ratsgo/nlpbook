@@ -40,7 +40,7 @@ nav_order: 2
 {: .no_toc .text-delta }
 <img src="https://i.imgur.com/i4XvOhQ.png" width="300px" title="source: imgur.com" />
 
-`None을 선택할 경우 하드웨어 가속 기능을 사용할 수 없게 돼 파인튜닝 속도가 급격히 느려집니다. 반드시 GPU 혹은 TPU 둘 중 하나를 사용하세요!
+`None`을 선택할 경우 하드웨어 가속 기능을 사용할 수 없게 돼 파인튜닝 속도가 급격히 느려집니다. 반드시 GPU 혹은 TPU 둘 중 하나를 사용하세요!
 {: .fs-3 .ls-1 .code-example }
 
 
@@ -63,8 +63,11 @@ nav_order: 2
 ## **코드2** TPU 관련 패키지 설치
 {: .no_toc .text-delta }
 ```python
-!pip install cloud-tpu-client==0.10 https://storage.googleapis.com/tpu-pytorch/wheels/torch_xla-1.8.1-cp37-cp37m-linux_x86_64.whl
+!pip install cloud-tpu-client==0.10 https://storage.googleapis.com/tpu-pytorch/wheels/torch_xla-1.9-cp37-cp37m-linux_x86_64.whl
 ```
+
+구글 코랩 환경은 변화무쌍합니다. 관련 패키지가 예고 없이 수시로 업데이트될 수 있습니다. 코드2는 이 원고를 작성하고 있는 기준에서는 정상 작동하지만 상황은 언제든지 바뀔 수 있다는 이야기입니다. TPU를 사용하기 위한 최신 패키지 버전을 확인하려면 [구글 공식 문서(Getting Started with PyTorch on Cloud TPUs)](https://colab.research.google.com/github/pytorch/xla/blob/master/contrib/colab/getting-started.ipynb)의 `Installing PyTorch/XLA` 챕터를 참고하세요!
+{: .fs-3 .ls-1 .code-example }
 
 
 코랩 노트북은 일정 시간 사용하지 않으면 당시까지의 모든 결과물들이 날아갈 수 있습니다. 모델 체크포인트 등을 저장해 두기 위해 자신의 구글 드라이브를 코랩 노트북과 연결합니다. 코드3을 실행하면 됩니다.
