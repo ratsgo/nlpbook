@@ -142,7 +142,7 @@ bytebpe_tokenizer.save_model("/gdrive/My Drive/nlpbook/bbpe")
 
 ## BERT 토크나이저 구축
 
-BERT는 [워드피스](https://ratsgo.github.io/nlpbook/docs/tokenization/bpe/#%EC%9B%8C%EB%93%9C%ED%94%BC%EC%8A%A4) 토크나이저를 사용합니다. 코드2와 코드3을 실행해 학습 말뭉치를 먼저 준비합니다. 
+BERT는 [워드피스](https://ratsgo.github.io/nlpbook/docs/preprocess/bpe/#%EC%9B%8C%EB%93%9C%ED%94%BC%EC%8A%A4) 토크나이저를 사용합니다. 코드2와 코드3을 실행해 학습 말뭉치를 먼저 준비합니다. 
 
 그 다음으로, 워드피스 어휘집합 구축 결과를 저장해 둘 디렉토리를 자신의 구글 드라이브 계정 내에 만듭니다. 코드6을 수행하면 됩니다.
 
