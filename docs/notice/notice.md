@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Paper book Notice
+title: Paper Book Notice
 nav_order: 10
 has_children: false
 has_toc: false
