@@ -23,7 +23,7 @@ has_toc: false
 
 ## 시퀀스-투-시퀀스
 
-트랜스포머(Transformer)란 기계 번역(machine translation) 등 **시퀀스-투-시퀀스(sequence-to-sequence)** 과제를 수행하기 위한 모델입니다. 여기에서 시퀀스란 단어(word) 같은 무언가(something)의 나열을 의미하는데요. 시퀀스-투-시퀀스는 특정 속성을 지닌 시퀀스를 다른 속성의 시퀀스로 변환하는 작업을 가리킵니다.
+**트랜스포머(Transformer)**란 기계 번역(machine translation) 등 **시퀀스-투-시퀀스(sequence-to-sequence)** 과제를 수행하기 위한 모델입니다. 여기에서 시퀀스란 단어(word) 같은 무언가(something)의 나열을 의미하는데요. 시퀀스-투-시퀀스는 특정 속성을 지닌 시퀀스를 다른 속성의 시퀀스로 변환하는 작업을 가리킵니다.
 
 기계 번역을 예시로 시퀀스-투-시퀀스가 어떤 태스크인지 알아봅시다. 기계 번역이란 어떤 언어(소스 언어, source language)의 단어 시퀀스를 다른 언어(대상 언어, target language)의 단어 시퀀스로 변환하는 과제입니다. 예를 들면 다음과 같습니다.
 
@@ -43,7 +43,7 @@ has_toc: false
 
 트랜스포머는 시퀀스-투-시퀀스 과제 수행에 특화된 모델입니다. 임의의 시퀀스를 해당 시퀀스와 속성이 다른 시퀀스로 변환하는 작업이라면 꼭 기계 번역이 아니더라도 수행할 수 있습니다. 예컨대 필리핀 앞바다의 한 달치 기온 데이터를 가지고 앞으로 1주일간 하루 단위로 태풍이 발생할지를 맞히는 과제(기온의 시퀀스 → 태풍 발생 여부의 시퀀스) 역시 트랜스포머가 할 수 있는 일입니다.
 
-시퀀스-투-시퀀스 과제를 수행하는 모델은 대개 인코더(encoder)와 디코더(decoder) 두 개 파트로 구성됩니다(그림2). 
+시퀀스-투-시퀀스 과제를 수행하는 모델은 대개 **인코더(encoder)**와 **디코더(decoder)** 두 개 파트로 구성됩니다(그림2). 
 
 ## **그림2** 인코더, 디코더
 {: .no_toc .text-delta }
@@ -51,9 +51,9 @@ has_toc: false
 
 인코더는 소스 시퀀스의 정보를 압축해 디코더로 보내주는 역할을 담당합니다. 인코더가 소스 시퀀스 정보를 압축하는 과정을 **인코딩(encoding)**이라고 합니다. 그리고 디코더는 인코더가 보내준 소스 시퀀스 정보를 받아서 타깃 시퀀스를 생성합니다. 디코더가 타겟 시퀀스를 생성하는 과정을 **디코딩(decoding)**이라고 합니다. 예를 들어 기계번역에서는 인코더가 한국어 문장을 압축해 디코더에 보내고, 디코더는 이를 받아 영어로 번역합니다.
 
-트랜스포머 역시 인코더와 디코더 구조를 따르고 있습니다. 그림3과 같습니다. 그림3 왼편이 인코더이고 오른편이 디코더입니다. 인코더의 입력은 소스 시퀀스이고 디코더의 입력은 타깃 시퀀스의 일부입니다. 앞으로 이 그림을 세분해서 트랜스포머의 동작 원리를 자세하게 살펴봅니다.
+트랜스포머 역시 인코더와 디코더 구조를 따르며 그림3과 같습니다. 인코더의 입력은 소스 시퀀스이고 디코더의 입력은 타깃 시퀀스의 일부입니다. 앞으로 이 그림을 세분해서 트랜스포머의 동작 원리를 자세하게 살펴봅니다.
 
-## **그림3** Transformer
+## **그림3** Transformer의 구조
 {: .no_toc .text-delta }
 <img src="https://i.imgur.com/Rk5wkBQ.png" width="600px" title="source: imgur.com" />
 
@@ -61,47 +61,47 @@ has_toc: false
 
 ## 모델 학습과 인퍼런스
 
-그림1을 예시로 트랜스포머가 어떻게 학습되는지 살펴보겠습니다. 이번 학습은 그림4처럼 `I`를 맞춰야 하는 차례라고 가정해 봅시다. 
+이제부터 트랜스포머가 어떻게 학습되는지 살펴보겠습니다. 이번 학습은 그림4처럼 `I`를 맞춰야 하는 차례라고 가정해 봅시다. 
 
 ## **그림4** 'I'를 맞히는 학습
 {: .no_toc .text-delta }
-<img src="https://i.imgur.com/Eboj504.jpg" width="400px" title="source: imgur.com" />
+<img src="https://i.imgur.com/wXznPG4.jpg" width="400px" title="source: imgur.com" />
 
 이때 인코더 입력은 `어제, 카페, 갔었어, 거기, 사람, 많더라` 같이 소스 시퀀스 전체이고 디코더 입력은 `<s>`가 됩니다. 여기에서 `<s>`는 타깃 시퀀스의 시작을 뜻하는 스페셜 토큰입니다. 인코더는 소스 시퀀스를 압축해 디코더로 보내고, 디코더는 인코더에서 보내온 정보와 현재 디코더 입력을 모두 감안해 다음 토큰(`I`)을 맞힙니다. 
 
-트랜스포머의 최종 출력, 즉 디코더 출력(그림3에서 `Output Probabilities`)은 타겟 언어의 어휘 수만큼의 차원으로 구성된 벡터(vector)가 됩니다. 이 벡터의 특징은 요솟(element)값이 모두 확률이라는 점입니다. 예를 들어 타깃 언어의 어휘가 총 3만개라고 가정해 보면 디코더 출력은 3만 차원의 벡터입니다. 이 벡터의 요솟값 3만 개는 각각은 확률이므로 0 이상 1 이하의 값을 가지며 모두 더하면 1이 됩니다.
+트랜스포머의 최종 출력, 즉 디코더 출력(그림3에서 `Output Probabilities`)은 타깃 언어의 어휘 수만큼의 차원으로 구성된 벡터(vector)입니다. 이 벡터의 특징은 요솟(element)값이 모두 확률이라는 점입니다. 예를 들어 타깃 언어의 어휘가 총 3만개라고 가정해 보면 디코더 출력은 3만 차원의 벡터입니다. 이 벡터의 요솟값 3만 개는 각각은 확률이므로 0 이상 1 이하의 값을 가지며 모두 더하면 1이 됩니다.
 
-트랜스포머의 학습(train)은 인코더와 디코더 입력이 주어졌을 때 정답에 해당하는 단어의 확률 값을 높이는 방식으로 수행됩니다. 이를 나타낸 다음 그림을 보면 모델은 이번 시점의 정답인 `I`에 해당하는 확률은 높이고 나머지 단어의 확률은 낮아지도록, 모델 전체를 업데이트합니다.
+트랜스포머의 학습(train)은 인코더와 디코더 입력이 주어졌을 때 정답에 해당하는 단어의 확률 값을 높이는 방식으로 수행됩니다. 이를 나타낸 다음 그림을 보면 모델은 이번 시점의 정답인 `I`에 해당하는 확률은 높이고 나머지 단어의 확률은 낮아지도록, 모델 전체를 갱신합니다.
 
 ## **그림5** 'I' 확률 높이기
 {: .no_toc .text-delta }
-<img src="https://i.imgur.com/7BLqgT4.jpg" width="500px" title="source: imgur.com" />
+<img src="https://i.imgur.com/3e5enKy.jpg" width="500px" title="source: imgur.com" />
 
 이번에는 타깃 시퀀스 가운데 `went`를 맞힐 차례입니다. 그림6과 같습니다. 인코더 입력은 소스 시퀀스 전체, 디코더 입력은 `<s> I`입니다. 
 
 ## **그림6** 'went'를 맞히는 학습
 {: .no_toc .text-delta }
-<img src="https://i.imgur.com/C8d8jB7.jpg" width="400px" title="source: imgur.com" />
+<img src="https://i.imgur.com/EyoCsmp.jpg" width="400px" title="source: imgur.com" />
 
-여기에서 특이한 점이 하나 있습니다. 학습 중의 디코더 입력과 학습을 마친 후 모델을 실제 기계 번역에 사용할 때(인퍼런스)의 디코더 입력이 다르다는 점입니다. 학습 과정에서는 디코더 입력에 맞혀야할 단어(`went`) 이전의 정답 타깃 시퀀스(`<s> i`)를 넣어줍니다. 하지만 학습 종료 후 인퍼런스 때는 현재 디코더 입력에 직전 디코딩 결과를 사용합니다. 예를 들어 모델 학습이 약간 잘못 되어 인퍼런스 때 직전 디코더 출력이 `I` 대신 `you`라는 단어가 나왔다고 가정해 봅시다. 이 경우 디코더 입력은 `<s> you`가 됩니다.
+여기에서 특이한 점이 하나 있습니다. 학습 중의 디코더 입력과 학습을 마친 후 모델을 실제 기계 번역에 사용할 때(인퍼런스)의 디코더 입력이 다르다는 점입니다. 학습 과정에서는 디코더 입력에 맞혀야할 단어(`went`) 이전의 정답 타깃 시퀀스(`<s> I`)를 넣어줍니다. 하지만 학습 종료 후 인퍼런스 때는 현재 디코더 입력에 직전 디코딩 결과를 사용합니다. 예를 들어 모델 학습이 약간 잘못 되어 인퍼런스 때 직전 디코더 출력이 `I` 대신 `you`라는 단어가 나왔다고 가정해 봅시다. 이 경우 디코더 입력은 `<s> you`가 됩니다.
 
 학습 과정 중 인코더, 디코더 입력이 그림6과 같은 상황에서 모델은 이번 시점의 정답인 `went`에 해당하는 확률은 높이고 나머지 단어의 확률은 낮아지도록, 모델 전체를 갱신합니다. 
 
 ## **그림7** 'went' 확률 높이기
 {: .no_toc .text-delta }
-<img src="https://i.imgur.com/qq9fQdD.jpg" width="500px" title="source: imgur.com" />
+<img src="https://i.imgur.com/oVpa5G7.jpg" width="500px" title="source: imgur.com" />
 
 이번에는 타깃 시퀀스 가운데 `to`를 맞출 차례입니다. 다음 그림처럼 인코더 입력은 소스 시퀀스 전체입니다. 학습 과정 중 디코더 입력은 정답인 `<s> I went`, 인퍼런스할 때 디코더 입력은 직전 디코딩 결과입니다. 
 
 ## **그림8** 'to'를 맞히는 학습
 {: .no_toc .text-delta }
-<img src="https://i.imgur.com/Oh4zPK1.jpg" width="400px" title="source: imgur.com" />
+<img src="https://i.imgur.com/w1Upuqd.jpg" width="400px" title="source: imgur.com" />
 
 학습 과정 중 인코더, 디코더 입력이 그림10과 같은 상황에서 모델은 이번 시점의 정답인 `to`에 해당하는 확률은 높이고 나머지 단어의 확률은 낮아지도록, 모델 전체를 갱신합니다.
 
 ## **그림9** 'to' 확률 높이기
 {: .no_toc .text-delta }
-<img src="https://i.imgur.com/K6DQPwR.jpg" width="500px" title="source: imgur.com" />
+<img src="https://i.imgur.com/0GEfdNw.jpg" width="500px" title="source: imgur.com" />
 
 이러한 방식으로 말뭉치 전체를 반복 학습하면 한국어-영어 기계 번역을 성공적으로 수행할 수 있습니다.
 
@@ -109,19 +109,19 @@ has_toc: false
 
 ## 트랜스포머 블록
 
-다음 그림은 트랜스포머의 인코더 가운데 반복되는 요소를 떼어내 다시 그린 것입니다. 이런 구조를 **블록(block)** 혹은 **레이어(layer)**라고 부릅니다. 트랜스포머의 인코더는 이같은 블록을 수십 개 쌓아서 구성합니다. 
+다음 그림은 트랜스포머의 인코더 가운데 반복되는 요소를 떼어내 다시 나타낸 것입니다. 이런 구조를 **블록(block)** 혹은 **레이어(layer)**라고 부릅니다. 트랜스포머의 인코더는 이같은 블록을 수십 개 쌓아서 구성합니다. 
 
 ## **그림10** 트랜스포머 인코더 블록
 {: .no_toc .text-delta }
 <img src="https://i.imgur.com/NSmVlit.png" width="150px" title="source: imgur.com" />
 
-그림에서 확인할 수 있듯 인코더 블록은 다음과 같은 세 가지 요소로 구성돼 있습니다. 각 챕터에서 자세한 내용을 참고하시면 좋을 것 같습니다.
+그림에서 확인할 수 있듯이 인코더 블록은 다음과 같은 세 가지 요소로 구성돼 있습니다. 각 요소는 해당 챕터에서 자세히 다루겠습니다.
 
-- **Multi-Head Attention** : [Self Attention](https://ratsgo.github.io/nlpbook/docs/language_model/tr_self_attention)
-- **FeedForward** : [Technics](https://ratsgo.github.io/nlpbook/docs/language_model/tr_technics)
-- **Add & Norm** : [Technics](https://ratsgo.github.io/nlpbook/docs/language_model/tr_technics)
+- **멀티 헤드 어텐션(Multi-Head Attention)** : [Self Attention](https://ratsgo.github.io/nlpbook/docs/language_model/tr_self_attention)
+- **피드포워드 뉴럴네트워크(FeedForward)** : [Technics](https://ratsgo.github.io/nlpbook/docs/language_model/tr_technics)
+- **잔차 연결 및 레이어 정규화(Add & Norm)** : [Technics](https://ratsgo.github.io/nlpbook/docs/language_model/tr_technics)
 
-디코더 쪽 블록의 구조도 인코더 블록과 본질적으로는 다르지 않습니다. 다만 마스크(mask)를 적용한 멀티헤드 어텐션이 인코더 쪽과 다르고, 인코더가 보내온 정보와 디코더 입력을 함께 이용해 멀티 헤드 어텐션을 수행하는 모듈이 추가됐습니다.
+디코더 쪽 블록의 구조도 인코더 블록과 본질적으로는 다르지 않습니다. 다만 **마스크를 적용한 멀티 헤드 어텐션(Masked Multi-Head Attention)**이 인코더 쪽과 다르고, 인코더가 보내온 정보와 디코더 입력을 함께 이용해 멀티 헤드 어텐션을 수행하는 모듈이 추가됐습니다.
 
 ## **그림11** 트랜스포머 디코더 블록
 {: .no_toc .text-delta }
@@ -129,39 +129,38 @@ has_toc: false
 
 디코더 블록의 구성 요소도 각 챕터에서 자세한 내용을 참고하시면 좋을 것 같습니다.
 
-- **Masked Multi-Head Attention** : [BERT & GPT](https://ratsgo.github.io/nlpbook/docs/language_model/bert_gpt) 
-- **Multi-Head Attention** : [Self Attention](https://ratsgo.github.io/nlpbook/docs/language_model/tr_self_attention)
-- **FeedForward** : [Technics](https://ratsgo.github.io/nlpbook/docs/language_model/tr_technics)
-- **Add & Norm** : [Technics](https://ratsgo.github.io/nlpbook/docs/language_model/tr_technics)
+- **마스크를 적용한 멀티 헤드 어텐션(Masked Multi-Head Attention)** : [BERT & GPT](https://ratsgo.github.io/nlpbook/docs/language_model/bert_gpt) 
+- **멀티 헤드 어텐션(Multi-Head Attention)** : [Self Attention](https://ratsgo.github.io/nlpbook/docs/language_model/tr_self_attention)
+- **피드포워드 뉴럴 네트워크(FeedForward)** : [Technics](https://ratsgo.github.io/nlpbook/docs/language_model/tr_technics)
+- **잔차 연결 및 레이어 정규화(Add & Norm)** : [Technics](https://ratsgo.github.io/nlpbook/docs/language_model/tr_technics)
 
 
 ---
 
 ## 셀프 어텐션
 
-멀티헤드 어텐션은 **셀프 어텐션(self attention)**이라고도 불립니다. 트랜스포머 경쟁력의 원천은 셀프 어텐션에 있다고들 하는데요. 여기서는 셀프 어텐션 파트만 좀 더 살펴보겠습니다. 
+앞에서 살펴본 트랜스포머 구조에서 멀티 헤드 어텐션은 **셀프 어텐션(self attention)**이라고도 불립니다. 트랜스포머 경쟁력의 원천은 셀프 어텐션에 있다고들 하는데요. 여기서는 셀프 어텐션을 좀 더 살펴보겠습니다. 
 
 우선 **어텐션(attention)**은 시퀀스 입력에 수행하는 기계학습 방법의 일종인데요. 어텐션은 시퀀스 요소들 가운데 태스크 수행에 중요한 요소에 집중하고 그렇지 않은 요소는 무시해 태스크 수행 성능을 끌어 올립니다. 어텐션은 기계 번역 과제에 처음 도입됐습니다.
 
 기계 번역에 어텐션을 도입한다면 타깃 언어를 디코딩할 때 소스 언어의 단어 시퀀스 가운데 디코딩에 도움되는 단어들 위주로 취사 선택해서 번역 품질을 끌어 올리게 됩니다. 즉, 어텐션은 디코딩할 때 소스 시퀀스 가운데 중요한 요소들만 추립니다.
 
-셀프 어텐션이란, 말 그대로 자기 자신에 수행하는 어텐션 기법입니다. 입력 시퀀스 가운데 태스크 수행에 의미 있는 녀석들 위주로 정보를 추출한다는 것이죠.
+<u>셀프 어텐션이란, 말 그대로 자기 자신에 수행하는 어텐션 기법</u>입니다. 입력 시퀀스 가운데 태스크 수행에 의미 있는 요소들 위주로 정보를 추출한다는 것이죠. 
 
-그런데 이렇게만 설명한다면 너무 알쏭달쏭하니 자연어 처리에서 자주 쓰이는 **순환 신경망(Recurrenct Neural Network, RNN)**, **합성곱 신경망(Convolutional Neural Network, CNN)** 등과 비교를 통해 셀프 어텐션이 어떤 점을 목표로 하는지 살펴보도록 하겠습니다.
+그런데 이렇게만 설명한다면 너무 알쏭달쏭하니 자연어 처리에서 자주 쓰이는 **합성곱 신경망(Convolutional Neural Network, CNN)**, **순환 신경망(Recurrenct Neural Network, RNN)** 등과 비교해 셀프 어텐션이 어떤 점을 목표로 하는지 살펴보도록 하겠습니다.
 
 ### 합성곱 신경망과 비교
 
-CNN은 **합성곱 필터(convoltion filter)**라는 특수한 장치를 이용해 시퀀스의 지역적인 특징을 잡아내는 모델입니다. 자연어는 기본적으로 시퀀스(단어 혹은 형태소의 나열)이고 특정 단어 기준 주변 문맥이 의미 형성에 중요한 역할을 하므로 CNN이 자연어 처리에 널리 쓰이고 있습니다. 
+CNN은 **합성곱 필터(convoltion filter)**\*라는 특수한 장치를 이용해 시퀀스의 지역적인 특징을 잡아내는 모델입니다. 자연어는 기본적으로 시퀀스(단어 혹은 형태소의 나열)이고 특정 단어 기준 주변 문맥이 의미 형성에 중요한 역할을 하므로 CNN이 자연어 처리에 널리 쓰이고 있습니다. 
+
+\* 합성곱 필터(convolution filter)란 합성곱 신경망을 구성하는 한 요소입니다. 이 필터는 데이터를 전체적으로 훑으면서 인접 정보를 추출하는 역할을 합니다.
+{: .fs-4 .ls-1 .code-example }
 
 그림12는 CNN이 문장을 어떻게 인코딩하는지 나타낸 것입니다. 합성곱 필터(붉은색 네모칸)이 단어를 하나씩 넘기면서 차례대로 읽어 들이는 걸 알 수 있습니다.
 
 ## **그림12** 합성곱 신경망
 {: .no_toc .text-delta }
-<img src="https://i.imgur.com/3pn5n0C.png" width="500px" title="source: imgur.com" />
-<br>
-<img src="https://i.imgur.com/tk2s2eR.png" width="500px" title="source: imgur.com" />
-<br>
-<img src="https://i.imgur.com/QZ7QV6v.png" width="500px" title="source: imgur.com" />
+<img src="https://i.imgur.com/17Kl4XI.png" width="500px" title="source: imgur.com" />
 
 하지만 CNN은 합성곱 필터 크기를 넘어서는 문맥은 읽어내기 어렵다는 단점이 있습니다. 예컨대 필터 크기가 3(3개 단어씩 처리)이라면 4칸 이상 떨어져 있는 단어 사이의 의미는 캐치하기 어렵습니다.
 
@@ -181,7 +180,7 @@ RNN 역시 시퀀스 정보를 압축하는 데 강점이 있는 구조입니다
 
 다음 그림을 보면 `cafe`에 대응하는 소스 언어의 단어는 `카페`이고 이는 소스 시퀀스의 초반부에 등장한 상황입니다. `cafe`라는 단어를 디코딩해야 할 때 `카페`를 반드시 참조해야 하는데요. 어텐션이 없는 단순 RNN을 사용하면 워낙 초반에 입력된 단어라 모델이 잊었을 가능성이 크고, 이 때문에 번역 품질이 낮아질 수 있습니다.
 
-## **그림14** 기존 어텐션(Sequence-to-Sequence Attention)
+## **그림14** 'cafe'의 어텐션
 {: .no_toc .text-delta }
 <img src="https://i.imgur.com/kRjEkPm.png" width="500px" title="source: imgur.com" />
 
@@ -213,11 +212,11 @@ RNN 역시 시퀀스 정보를 압축하는 데 강점이 있는 구조입니다
 2. 어텐션은 RNN 구조 위에서 동작하지만 셀프 어텐션은 RNN 없이 동작합니다.
 3. 타깃 언어의 단어를 1개 생성할 때 어텐션은 1회 수행하지만 셀프어텐션은 인코더, 디코더 블록의 개수만큼 반복 수행합니다.
 
-참고로 이 절에서는 트랜스포머 인코더 내부에서 동작하는 셀프 어텐션을 예로 들었지만, 트랜스포머 디코더에도 셀프 어텐션이 적용됩니다. 자세한 내용은 [BERT & GPT](https://ratsgo.github.io/nlpbook/docs/language_model/bert_gpt/)를 참고하세요.
+참고로 이 절에서는 트랜스포머 인코더 내부에서 동작하는 셀프 어텐션을 예로 들었지만, 트랜스포머 디코더에도 셀프 어텐션이 적용됩니다. 인코더와 디코더 차이와 관련해 자세한 내용은 [BERT & GPT](https://ratsgo.github.io/nlpbook/docs/language_model/bert_gpt/)를 참고하세요.
 
 ### 계산 예시
 
-셀프 어텐션은 **쿼리(query)**, **키(key)**, **밸류(value)** 세 가지 요소가 서로 영향을 주고 받는 구조입니다. 트랜스포머 블록에는 문장 내 각 단어가 벡터(vector) 형태로 입력되는데요. 여기서 벡터란 숫자의 나열 정도로 일단 이해해 두시면 좋을 것 같습니다.
+셀프 어텐션은 **쿼리(query)**, **키(key)**, **밸류(value)** 세 가지 요소가 서로 영향을 주고 받는 구조입니다. 트랜스포머 블록에는 문장 내 각 단어가 벡터(vector) 형태로 입력되는데요. 여기서 벡터란 숫자의 나열 정도로 이해해 두면 좋을 것 같습니다.
 
 각 단어 벡터는 블록 내에서 어떤 계산 과정을 거쳐 쿼리, 키, 밸류 세 가지로 변환됩니다. 만일 트랜스포머 블록에 입력되는 문장이 그림17처럼 여섯 개 단어로 구성돼 있다면 이 블록의 셀프 어텐션 계산 대상은 쿼리 벡터 6개, 키 벡터 6개, 밸류 백터 6개 등 모두 18개가 됩니다.
 
