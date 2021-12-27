@@ -8,7 +8,7 @@ nav_order: 3
 # 어휘 집합 구축 튜토리얼
 {: .no_toc }
 
-[이전](https://ratsgo.github.io/nlpbook/docs/tokenization/bpe)에 살펴본 내용을 바탕으로 허깅페이스(Huggingface) 라이브러리를 활용해 바이트 페어 인코딩(Byte Pair Encoding, BPE) 기반의 토크나이저를 만들어 보겠습니다. BPE는 학습 대상 말뭉치에 자주 등장하는 문자열을 토큰으로 인식해, 이를 기반으로 토큰화를 수행하는 기법입니다. BPE 기반 토크나이저를 사용하려면 어휘 집합(vocabulary)부터 구축합니다. 전반적인 과정을 살펴봅니다.  
+[이전](https://ratsgo.github.io/nlpbook/docs/tokenization/bpe)에 살펴본 내용을 바탕으로 허깅페이스(Huggingface) 라이브러리를 활용해 바이트 페어 인코딩(Byte Pair Encoding, BPE) 기반의 토크나이저를 만들어 보겠습니다. BPE는 학습 대상 말뭉치에 자주 등장하는 문자열을 토큰으로 인식해, 이를 기반으로 토큰화를 수행하는 기법입니다. BPE 기반 토크나이저를 사용하려면 어휘 집합(vocabulary)부터 구축해야 합니다. 전반적인 과정을 살펴봅니다.  
 {: .fs-4 .ls-1 .code-example }
 
 ## Table of contents
@@ -22,15 +22,13 @@ nav_order: 3
 ## 실습 환경 만들기
 
 
-이 튜토리얼에서 사용하는 코드를 모두 정리해 구글 코랩(colab) 노트북으로 만들어 두었습니다. 아래 링크를 클릭하면 코랩 환경에서 수행할 수 있습니다. 코랩 노트북 사용과 관한 자세한 내용은 [개발환경 설정](https://ratsgo.github.io/nlpbook/docs/introduction/environment) 챕터를 참고하세요.
+이 실습에서 사용하는 코드를 모두 정리해 구글 코랩(colab) 노트북으로 만들어 두었습니다. 아래 링크를 클릭하면 코랩 환경에서 수행할 수 있습니다. 코랩 노트북 사용과 관한 자세한 내용은 [개발환경 설정](https://ratsgo.github.io/nlpbook/docs/introduction/environment) 챕터를 참고하세요.
 
 - <a href="https://colab.research.google.com/github/ratsgo/nlpbook/blob/master/examples/basic/vocab.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
 
-위 노트북은 읽기 권한만 부여돼 있기 때문에 실행하거나 노트북 내용을 고칠 수가 없습니다. 노트북을 복사해 내 것으로 만들면 이 문제를 해결할 수 있습니다. 
+위 노트북은 읽기 권한만 부여돼 있으므로 실행하거나 내용을 고칠 수가 없습니다. 노트북을 복사해 내 것으로 만들면 이 문제를 해결할 수 있습니다. 개발환경과 관련한 자세한 내용은 [이 글](https://ratsgo.github.io/nlpbook/docs/introduction/environment/)을 참고해 주세요. 
 
-위 링크를 클릭한 후 구글 아이디로 로그인한 뒤 메뉴 탭 하단의 `드라이브로 복사`를 클릭하면 코랩 노트북이 자신의 드라이브에 복사됩니다. 이 다음부터는 해당 노트북을 자유롭게 수정, 실행할 수 있게 됩니다. 별도의 설정을 하지 않았다면 해당 노트북은 `내 드라이브/Colab Notebooks` 폴더에 담깁니다.
-
-한편 이 튜토리얼에서는 하드웨어 가속기가 따로 필요 없습니다. 그림1과 같이 코랩 화면의 메뉴 탭에서 런타임 > 런타임 유형 변경을 클릭합니다. 이후 그림2의 화면에서 `None`을 선택합니다.
+한편 이 실습에서는 하드웨어 가속기가 따로 필요 없으므로 다음과 같이 코랩 화면의 메뉴 탭에서 [런타임 > 런타임 유형 변경]을 선택한 뒤 `None`을 선택합니다.
 
 ## **그림1** 하드웨어 가속기 설정 (1)
 {: .no_toc .text-delta }
@@ -81,7 +79,7 @@ from Korpora import Korpora
 nsmc = Korpora.load("nsmc", force_download=True)
 ```
 
-코드4를 수행하면 NSMC에 포함된 영화 리뷰들을 순수 텍스트 형태로 지정된 디렉토리에 저장해 둡니다.
+코드4를 수행하면 NSMC에 포함된 영화 리뷰들을 순수 텍스트 형태로 지정된 디렉터리에 저장해 둡니다.
 
 ## **코드4** NSMC 전처리
 {: .no_toc .text-delta } 
@@ -102,13 +100,16 @@ write_lines("/root/test.txt", nsmc.test.get_all_texts())
 
 GPT 계열 모델이 사용하는 토크나이저 기법은 BPE입니다. 단 [앞절](https://ratsgo.github.io/nlpbook/docs/preprocess/bpe)에서 설명한 문자 단위가 아니라 **유니코드 바이트** 수준으로 어휘 집합을 구축하고 토큰화를 수행합니다. 전세계 대부분의 글자는 유니코드로 표현할 수 있으므로 유니코드 바이트 기준 BPE를 사용하면 미등록 토큰 문제에서 비교적 자유롭습니다.
 
-한글은 한 글자가 3개의 유니코드 바이트로 표현되는데요. 예컨대 `안녕하세요`라는 문자열을 유니코드 바이트로 변환하면 다음과 같이 됩니다.
+한글은 한 글자가 3개의 유니코드 바이트로 표현되는데요. 예컨대 `안녕하세요`라는 문자열을 각각의 유니코드 바이트에 대응하는 문자\*로 변환하면 다음과 같이 됩니다.
 
 - `안녕하세요` > `ìķĪëħķíķĺìĦ¸ìļĶ`
 
-유니코드 바이트 기준으로 BPE를 수행한다고 함은, 어휘 집합 구축 대상 말뭉치를 위와 같이 모두 유니코드로 변환하고 이 유니코드 대상으로 가장 자주 등장한 문자열을 병합하는 방식으로 어휘 집합을 만든다는 의미입니다. 토큰화 역시 문자열을 유니코드 바이트로 일단 변환한 뒤 수행을 하게 됩니다.
+\* 유니코드(UTF-8) 1바이트를 10진수로 표현하면 0에서 255 사이의 정수가 됩니다. 이 256개 정수 각각을 특정 문자로 매핑한 것입니다. 예컨대 0은 Ā, 255는 ÿ에 각각 대응합니다.
+{: .fs-4 .ls-1 .code-example }
 
-우선 바이트 레벨 BPE 어휘집합 구축 결과를 저장해 둘 디렉토리를 자신의 구글 드라이브 계정 내에 만듭니다. 코드5를 수행하면 됩니다.
+바이트 수준으로 BPE를 수행한다는 것은 어휘 집합 구축 대상 말뭉치를 위와 같이 변환하고 이들을 문자 취급해 가장 자주 등장한 문자열을 병합하는 방식으로 어휘 집합을 만든다는 의미입니다. 토큰화 역시 원래 문자열을 위와 같이 변환한 뒤 수행합니다.
+
+우선 바이트 수준 BPE 어휘집합 구축 결과를 저장해 둘 디렉토리를 자신의 구글 드라이브 계정 내에 만듭니다. 코드5를 수행하면 됩니다.
 
 ## **코드5** 디렉토리 만들기
 {: .no_toc .text-delta } 
@@ -157,7 +158,7 @@ bytebpe_tokenizer.save_model("/gdrive/My Drive/nlpbook/bbpe")
 
 ## BERT 토크나이저 구축
 
-BERT는 [워드피스](https://ratsgo.github.io/nlpbook/docs/preprocess/bpe/#%EC%9B%8C%EB%93%9C%ED%94%BC%EC%8A%A4) 토크나이저를 사용합니다. 코드3과 코드4를 실행해 학습 말뭉치를 먼저 준비합니다. 
+BERT는 [워드피스](https://ratsgo.github.io/nlpbook/docs/preprocess/bpe/#%EC%9B%8C%EB%93%9C%ED%94%BC%EC%8A%A4) 토크나이저를 사용합니다. 먼저 앞에서 살펴본 코드1로 의존성 있는 패키지를 설치하고 코드2로 자신의 구글 드라이브를 연결한 후 코드3과 코드4를 실행해 학습 말뭉치를 준비합니다. 
 
 그 다음으로, 워드피스 어휘집합 구축 결과를 저장해 둘 디렉토리를 자신의 구글 드라이브 계정 내에 만듭니다. 코드7을 수행하면 됩니다.
 
@@ -182,7 +183,7 @@ wordpiece_tokenizer.train(
 wordpiece_tokenizer.save_model("/gdrive/My Drive/nlpbook/wordpiece")
 ```
 
-코드8 수행이 끝나면 `save_path`에 워드피스 어휘 집합인 `vocab.txt`가 생성됩니다. 그림5는 워드피스 수행 결과 일부입니다.
+코드8 수행이 끝나면 `save_path`가 가리키는 위치에 워드피스 어휘 집합인 `vocab.txt`가 생성됩니다. 그림5는 워드피스 수행 결과 일부입니다.
 
 ## **그림5** 워드피스 어휘 집합 구축 결과 (vocab.txt)
 {: .no_toc .text-delta }
