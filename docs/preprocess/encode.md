@@ -19,23 +19,9 @@ nav_order: 4
 ## 실습 환경 만들기
 
 
-이 실습에서 사용하는 코드를 모두 정리해 구글 코랩(colab) 노트북으로 만들어 두었습니다. 아래 링크를 클릭하면 코랩 환경에서 수행할 수 있습니다. 코랩 노트북 사용과 관한 자세한 내용은 [1-4장 개발환경 설정](https://ratsgo.github.io/nlpbook/docs/introduction/environment) 챕터를 참고하세요.
+이번 실습은 웹 브라우저에서 다음 주소에 접속하면 코랩 환경에서 수행할 수 있습니다. 이전 실습과 마찬가지로 코랩에서 '내 드라이브에 복사'와 '하드웨어 가속기 사용 안함(None)'으로 설정합니다. 코랩 노트북 사용과 관한 자세한 내용은 [1-4장 개발환경 설정](https://ratsgo.github.io/nlpbook/docs/introduction/environment) 챕터를 참고하세요.
 
 - <a href="https://colab.research.google.com/github/ratsgo/nlpbook/blob/master/examples/basic/tokenization.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
-
-위 노트북은 읽기 권한만 부여돼 있기 때문에 실행하거나 노트북 내용을 고칠 수가 없을 겁니다. 노트북을 복사해 내 것으로 만들면 이 문제를 해결할 수 있습니다. 
-
-위 링크를 클릭한 후 구글 아이디로 로그인한 뒤 메뉴 탭 하단의 `드라이브로 복사`를 클릭하면 코랩 노트북이 자신의 드라이브에 복사됩니다. 이 다음부터는 해당 노트북을 자유롭게 수정, 실행할 수 있게 됩니다. 별도의 설정을 하지 않았다면 해당 노트북은 `내 드라이브/Colab Notebooks` 폴더에 담깁니다.
-
-한편 이 튜토리얼에서는 하드웨어 가속기가 따로 필요 없습니다. 그림1과 같이 코랩 화면의 메뉴 탭에서 런타임 > 런타임 유형 변경을 클릭합니다. 이후 그림2의 화면에서 `None`을 선택합니다.
-
-## **그림1** 하드웨어 가속기 설정 (1)
-{: .no_toc .text-delta }
-<img src="https://i.imgur.com/JFUva3P.png" width="500px" title="source: imgur.com" />
-
-## **그림2** 하드웨어 가속기 설정 (2)
-{: .no_toc .text-delta }
-<img src="https://i.imgur.com/i4XvOhQ.png" width="300px" title="source: imgur.com" />
 
 
 ---
@@ -79,7 +65,7 @@ tokenizer_gpt = GPT2Tokenizer.from_pretrained("/gdrive/My Drive/nlpbook/bbpe")
 tokenizer_gpt.pad_token = "[PAD]"
 ```
 
-예시 문장 세 개를 토큰화하는 코드는 코드4입니다. 그 결과는 표1과 같습니다.
+다음 코드는 예시 문장 세 개를 바이트 수준 BPE 토크나이저로 토큰화합니다. 그 결과는 표1과 같습니다.
 
 ## **코드4** GPT 토크나이저로 토큰화하기
 {: .no_toc .text-delta } 
@@ -103,7 +89,7 @@ tokenized_sentences = [tokenizer_gpt.tokenize(sentence) for sentence in sentence
 |문장2|íĿł|...|íı¬ìĬ¤íĦ°|ë³´ê³ł|Ġì´ĪëĶ©|ìĺģíĻĶ|ì¤Ħ|....|ìĺ¤ë²Ħ|ìĹ°ê¸°|ì¡°ì°¨|Ġê°Ģë³į|ì§Ģ|ĠìķĬ|êµ¬ëĤĺ|
 |문장3|ë³Ħë£¨|Ġìĺ|Ģëĭ¤|..||||||||||||
 
-코드4와 표1은 GPT 토크나이저의 토큰화 결과를 살짝 맛보기 위해 설명한 것인데요. 실제 모델 입력값은 코드5로 만듭니다.
+코드4와 표1은 GPT 토크나이저의 토큰화 결과를 살짝 맛보려고 한 것이고, 실제 모델 입력값은 코드5로 만듭니다.
 
 ## **코드5** GPT 모델 입력 만들기
 {: .no_toc .text-delta } 
@@ -127,9 +113,9 @@ batch_inputs = tokenizer_gpt(
 |문장2|3693|336|2876|758|2883|356|806|422|9875|875|2960|7292|
 |문장3|4957|451|3653|263|0|0|0|0|0|0|0|0|
 
-표2를 자세히 보시면 모든 문장의 길이가 12로 맞춰진걸 볼 수 있습니다. 코드5에서 `max_length` 인자에 12를 넣었기 때문인데요. 이보다 짧은 문장1과 문장3은 뒤에 `[PAD]` 토큰에 해당하는 인덱스 `0`이 덧붙여져 있습니다. `[PAD]` 토큰은 일종의 더미 토큰으로 길이를 맞춰주는 역할을 합니다. 문장2는 원래 토큰 길이가 15였는데 12로 줄었습니다. `truncation` 옵션을 `True`로 줬기 때문입니다.
+표2를 자세히 보시면 모든 문장의 길이가 12로 맞춰진걸 볼 수 있습니다. 코드5에서 `max_length` 인자에 12를 넣었기 때문인데요. 이보다 짧은 문장1과 문장3은 뒤에 `[PAD]` 토큰에 해당하는 인덱스 `0`이 붙었습니다. `[PAD]` 토큰은 일종의 더미 토큰으로 길이를 맞춰주는 역할을 합니다. 문장2는 원래 토큰 길이가 15였는데 12로 줄었습니다. 문장 잘림을 허용하는 `truncation=True` 옵션 때문입니다.
 
-코드5 실행 결과로 `attention_mask`도 만들어졌습니다. `attention_mask`는 일반 토큰이 자리한 곳(`1`)과 패딩 토큰이 자리한 곳(`0`)을 구분해 알려주는 장치입니다. 표3과 같습니다.
+코드5 실행 결과로 `attention_mask`도 만들어졌습니다. `attention_mask`는 일반 토큰이 자리한 곳(`1`)과 패딩 토큰이 자리한 곳(`0`)을 구분해 알려주는 장치입니다. `batch_inputs['input_ids']`를 입력해 그 결과를 출력해 보면 표3과 같습니다.
 
 ## **표3** GPT attention_mask
 {: .no_toc .text-delta } 
