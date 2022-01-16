@@ -137,7 +137,7 @@ nlpbook.set_logger(args)
 
 ## 3단계 말뭉치 내려받기
 
-코드 4-7을 실행하면 NSMC 데이터 다운로드를 수행합니다. 데이터를 내려받는 도구로 [코포라(Korpora)](https://github.com/ko-nlp/korpora)라는 오픈소스 파이썬 패키지를 사용해, corpus_name(`nsmc`)에 해당하는 말뭉치를 root_dir(`/root/Korpora`) 이하에 저장해 둡니다.
+코드 4-7을 실행하면 NSMC 데이터 다운로드를 수행합니다. 데이터를 내려받는 도구로 [코포라(Korpora)](https://github.com/ko-nlp/korpora)라는 오픈소스 파이썬 패키지를 사용해, corpus_name(`nsmc`)에 해당하는 말뭉치를 코랩 환경 로컬의 root_dir(`/content/Korpora`) 이하에 저장해 둡니다.
 
 ## **코드 4-7** 말뭉치 다운로드
 {: .no_toc .text-delta }

@@ -42,7 +42,7 @@ from ratsnlp.nlpbook.classification import ClassificationTrainArguments
 args = nlpbook.TrainArguments(
     pretrained_model_name="beomi/kcbert-base",
     downstream_corpus_name="nsmc",
-    downstream_corpus_root_dir="/root/Korpora",
+    downstream_corpus_root_dir="/content/Korpora",
     downstream_model_dir="/gdrive/My Drive/nlpbook/checkpoint-cls",
     learning_rate=5e-5,
     batch_size=32,
@@ -55,7 +55,7 @@ args = nlpbook.TrainArguments(
 
 이 책에서는 프리트레인을 마친 모델을 다운스트림 데이터로 파인튜닝하는 실습을 진행합니다. 파인튜닝을 위해서는 다운스트림 데이터를 미리 내려받아 두어야 합니다. 이 책에서는 상업적으로도 사용 가능한 다운스트림 데이터를 실습에 포함했습니다. 박은정 님이 공개하신 네이버 영화평 말뭉치인 [NAVER Sentiment Movie Corpus(NSMC)](https://github.com/e9t/nsmc)가 대표적입니다.
 
-코드2는 downstream_corpus_name(`nsmc`)에 해당하는 말뭉치를 downstream_corpus_root_dir(`/root/Korpora`) 아래에 저장합니다. 
+코드2는 downstream_corpus_name(`nsmc`)에 해당하는 말뭉치를 코랩 환경 로컬의 downstream_corpus_root_dir(`/content/Korpora`) 아래에 저장합니다. 
 
 ## **코드2** 데이터 다운로드 예시
 {: .no_toc .text-delta }

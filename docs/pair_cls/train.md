@@ -134,7 +134,7 @@ nlpbook.set_logger(args)
 
 ## 3단계 말뭉치 내려받기
 
-코드7을 실행하면 업스테이지가 공개한 [NLI 데이터](https://klue-benchmark.com/tasks/68/data/description) 다운로드를 수행합니다. corpus_name(`klue-nli`)에 해당하는 말뭉치를 downstream_corpus_root_dir(`/root/Korpora`) 이하에 저장해 둡니다.
+코드7을 실행하면 업스테이지가 공개한 [NLI 데이터](https://klue-benchmark.com/tasks/68/data/description) 다운로드를 수행합니다. corpus_name(`klue-nli`)에 해당하는 말뭉치를 코랩 환경 로컬의 downstream_corpus_root_dir(`/content/Korpora`) 이하에 저장해 둡니다.
 
 ## **코드7** 말뭉치 다운로드
 {: .no_toc .text-delta }

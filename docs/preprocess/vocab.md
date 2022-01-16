@@ -79,7 +79,7 @@ from Korpora import Korpora
 nsmc = Korpora.load("nsmc", force_download=True)
 ```
 
-코드4를 수행하면 NSMC에 포함된 영화 리뷰들을 순수 텍스트 형태로 지정된 디렉터리에 저장해 둡니다.
+코드4를 수행하면 NSMC에 포함된 영화 리뷰들을 순수 텍스트 형태로 코랩 환경 로컬의 지정된 디렉터리에 저장해 둡니다.
 
 ## **코드4** NSMC 전처리
 {: .no_toc .text-delta } 
@@ -89,8 +89,8 @@ def write_lines(path, lines):
     with open(path, 'w', encoding='utf-8') as f:
         for line in lines:
             f.write(f'{line}\n')
-write_lines("/root/train.txt", nsmc.train.get_all_texts())
-write_lines("/root/test.txt", nsmc.test.get_all_texts())
+write_lines("/content/train.txt", nsmc.train.get_all_texts())
+write_lines("/content/test.txt", nsmc.test.get_all_texts())
 ```
 
 ---
@@ -126,7 +126,7 @@ os.makedirs("/gdrive/My Drive/nlpbook/bbpe", exist_ok=True)
 from tokenizers import ByteLevelBPETokenizer
 bytebpe_tokenizer = ByteLevelBPETokenizer()
 bytebpe_tokenizer.train(
-    files=["/root/train.txt", "/root/train.txt"], # 학습 말뭉치를 리스트 형태로 넣기
+    files=["/content/train.txt", "/content/train.txt"], # 학습 말뭉치를 리스트 형태로 넣기
     vocab_size=10000, # 어휘 집합 크기 조절
     special_tokens=["[PAD]"] # 특수 토큰 추가
 )
@@ -177,7 +177,7 @@ os.makedirs("/gdrive/My Drive/nlpbook/wordpiece", exist_ok=True)
 from tokenizers import BertWordPieceTokenizer
 wordpiece_tokenizer = BertWordPieceTokenizer(lowercase=False)
 wordpiece_tokenizer.train(
-    files=["/root/train.txt", "/root/train.txt"],
+    files=["/content/train.txt", "/content/train.txt"],
     vocab_size=10000,
 )
 wordpiece_tokenizer.save_model("/gdrive/My Drive/nlpbook/wordpiece")

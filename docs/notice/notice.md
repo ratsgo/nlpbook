@@ -309,6 +309,21 @@ wordpiece_tokenizer.save_model("/gdrive/My Drive/nlpbook/wordpiece")
 
 ---
 
+## 178페이지
+
+다음 문장을 교체.
+
+**수정 전**
+
+> 다음 코드를 실행하면 corpus_name(ner)에 해당하는 말뭉치를 내려받습니다.
+
+**수정 후**
+
+> 다음 코드를 실행하면 corpus_name(ner)에 해당하는 말뭉치를 코랩 환경 로컬에 내려받습니다.
+
+
+---
+
 ## 221페이지
 
 다음 문장을 교체.
