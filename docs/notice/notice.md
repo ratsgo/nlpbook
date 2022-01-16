@@ -21,7 +21,60 @@ permalink: /docs/notice
 
 ---
 
+## 26페이지
+
+코드 1-1을 다음으로 교체.
+
+```python
+from ratsnlp.nlpbook.classification import ClassificationTrainArguments 
+args = ClassificationTrainArguments(
+	pretrained_model_name="beomi/kcbert-base", 
+	downstream_corpus_name="nsmc", 
+	downstream_corpus_root_dir="/content/Korpora", 
+	downstream_model_dir="/gdrive/My Drive/nlpbook/checkpoint-doccls", 
+	learning_rate=5e-5,
+	batch_size=32, 
+)
+```
+
+다음 문장을 교체.
+
+**수정 전**
+
+>  즉, 코드 1-1에서 설정한 args에 따라 nsmc를 /root/Korpora 디렉터리에 저장합니다.
+
+**수정 후**
+
+>  즉, 코드 1-1에서 설정한 args에 따라 nsmc를 코랩 환경 로컬의 /content/Korpora 디렉터리에 저장합니다.
+
+---
+
 ## 54페이지
+
+다음 문장을 교체.
+
+**수정 전**
+
+> 다음 코드를 수행하면 NSMC에 포함된 영화 리뷰들을 순수 텍스트 형태로 지정된 디렉터리에 저장해 둡니다.
+
+**수정 후**
+
+>  다음 코드를 수행하면 NSMC에 포함된 영화 리뷰들을 순수 텍스트 형태로 코랩 환경 로컬의 지정된 디렉터리에 저장해 둡니다.
+
+
+코드 2-4를 다음으로 교체.
+
+
+```python
+import os
+def write_lines(path, lines):
+    with open(path, 'w', encoding='utf-8') as f: 
+    	for line in lines:
+    		f.write(f'{line}\n') 
+write_lines("/content/train.txt", nsmc.train.get_all_texts())
+write_lines("/content/test.txt", nsmc.test.get_all_texts())
+```
+
 
 다음 문단을 교체.
 
@@ -38,6 +91,40 @@ permalink: /docs/notice
 > \* 유니코드(UTF-8) 1바이트를 10진수로 표현하면 0에서 255 사이의 정수가 됩니다. 이 256개 정수 각각을 특정 문자로 매핑한 것입니다. 예컨대 0은 Ā, 255는 ÿ에 각각 대응합니다.
 
 > 바이트 수준으로 BPE를 수행한다는 것은 어휘 집합 구축 대상 말뭉치를 위와 같이 변환하고 이들을 문자 취급해 가장 자주 등장한 문자열을 병합하는 방식으로 어휘 집합을 만든다는 의미입니다. 토큰화 역시 원래 문자열을 위와 같이 변환한 뒤 수행합니다.
+
+
+---
+
+## 55페이지
+
+코드 2-6을 다음으로 교체.
+
+```python
+from tokenizers import ByteLevelBPETokenizer
+bytebpe_tokenizer = ByteLevelBPETokenizer()
+bytebpe_tokenizer.train(
+    files=["/content/train.txt", "/content/train.txt"],
+    vocab_size=10000, 
+    special_tokens=["[PAD]"]
+)
+bytebpe_tokenizer.save_model("/gdrive/My Drive/nlpbook/bbpe")
+```
+
+---
+
+## 56페이지
+
+코드 2-8을 다음으로 교체.
+
+```python
+from tokenizers import BertWordPieceTokenizer
+wordpiece_tokenizer = BertWordPieceTokenizer(lowercase=False)
+wordpiece_tokenizer.train(
+    files=["/content/train.txt", "/content/train.txt"],
+    vocab_size=10000,
+)
+wordpiece_tokenizer.save_model("/gdrive/My Drive/nlpbook/wordpiece")
+```
 
 ---
 
@@ -176,6 +263,65 @@ permalink: /docs/notice
 
 > h_preact와 h는 그림 3-44\~46 이르는 은닉층 손 계산 예시와 똑같은 결과임을 알 수 있습니다. y는 그림 3-47과 3-48에 해당하는 출력층 손 계산 예시와 같은 결과입니다.
 
+
+---
+
+## 135페이지
+
+다음 문장을 교체.
+
+**수정 전**
+
+> downstream_corpus_root_dir: 다운스트림 데이터를 내려받을 위치. 입력하지 않으면 /root/Korpora 에 저장됩니다.
+
+**수정 후**
+
+> downstream_corpus_root_dir: 다운스트림 데이터를 내려받을 위치. 입력하지 않으면 코랩 환경 로컬의 /content/Korpora 에 저장됩니다.
+
+
+---
+
+## 136페이지
+
+다음 문장을 교체.
+
+**수정 전**
+
+> 데이터를 내려받는 도구로 코포라 Korpora라는 파이썬 오픈소스 패키지를 사용해, corpus_name(nsmc)에 해당하는 말뭉치를 root_dir(/root/Korpora) 아래에 저장해 둡니다.
+
+**수정 후**
+
+> 데이터를 내려받는 도구로 코포라 Korpora라는 파이썬 오픈소스 패키지를 사용해, corpus_name(nsmc)에 해당하는 말뭉치를 코랩 환경 로컬의 root_dir(/content/Korpora) 아래에 저장해 둡니다.
+
+---
+
+## 160페이지
+
+다음 문장을 교체.
+
+**수정 전**
+
+> 다음 코드를 실행하면 KLUE-NLI 데이터를 내려받습니다. corpus_name에 해당하는 말뭉치(klue-nli)를 downstream_corpus_root_dir 아래(/root/Korpora)에 저장해 둡니다.
+
+**수정 후**
+
+> 다음 코드를 실행하면 KLUE-NLI 데이터를 내려받습니다. corpus_name에 해당하는 말뭉치(klue-nli)를 코랩 환경 로컬의 downstream_corpus_root_dir 아래(/content/Korpora)에 저장해 둡니다.
+
+---
+
+## 221페이지
+
+다음 문장을 교체.
+
+**수정 전**
+
+> 다음 코드를 실행하면 NSMC 말뭉치를 내려받습니다. 데이터를 내려받는 도구로 오픈소스
+패키지 Korpora를 사용해 corpus_name에 해당하는 말뭉치(nsmc)를 root_dir(/root/Korpora) 아래에 저장해 둡니다.
+
+**수정 후**
+
+> 다음 코드를 실행하면 NSMC 말뭉치를 내려받습니다. 데이터를 내려받는 도구로 오픈소스
+패키지 Korpora를 사용해 corpus_name에 해당하는 말뭉치(nsmc)를 코랩 환경 로컬의 root_dir(/content/Korpora) 아래에 저장해 둡니다.
 
 ---
 
