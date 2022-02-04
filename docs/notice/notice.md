@@ -295,6 +295,22 @@ wordpiece_tokenizer.save_model("/gdrive/My Drive/nlpbook/wordpiece")
 
 ---
 
+
+## 139페이지
+
+다음 문장을 교체.
+
+**수정 전**
+
+> 토큰 기준 최대 길이(max_seq_length)를 코드 4-3의 args에서 128로 설정해 두었기 때문입니다.
+
+**수정 후**
+
+> 토큰 기준 최대 길이(max_seq_length)를 코드 4-4의 args에서 128로 설정해 두었기 때문입니다.
+
+
+---
+
 ## 160페이지
 
 다음 문장을 교체.
